@@ -10,6 +10,7 @@
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
 // TODO (MW): Flickering buttons (e.g. PC showcase button in car select)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
+// TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 
 #include "stdafx.h"
 #include "stdio.h"
