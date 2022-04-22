@@ -19,6 +19,8 @@
 #include "includes\IniReader.h"
 #include "NFS_XtendedInput.h"
 #include "NFS_XtentedInput_ActionID.h"
+#include <list>
+
 
 #if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <XInput.h>
@@ -144,15 +146,28 @@ enum ShiftPotential
 	SHIFT_POTENTIAL_MISS = 5,
 };
 
-struct InputMap
+enum InputUpdateType
 {
-	int ScalarType;
-	int unk2;
-	int unk3;
-	ActionID id;
+	kUpdate = 0,
+	kPress = 1,
+	kRelease = 2,
+	kAnalogPress = 3,
+	kAnalogRelease = 4,
+	kCenterControl = 5,
+};
+
+struct InputMapEntry
+{
+	InputUpdateType UpdateType;
+	float LowerDZ;
+	float UpperDZ;
+	ActionID Action;
 	int DeviceScalarIndex;
-	float unk4;
-	float unk5;
+#ifdef GAME_PROSTREET
+	int ComboDeviceScalarIndex;
+#endif
+	float PreviousValue;
+	float CurrentValue;
 };
 
 HRESULT UpdateControllerState()
@@ -714,9 +729,9 @@ InputDevice* InputDeviceFactory(int DeviceIndex)
 }
 
 #pragma runtime_checks( "", off )
-void* (*FastMem_InitListAllocator)() = (void* (*)())FASTMEM_INITLISTALLOCATOR_ADDR;
-void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMap* inInputMap) = (void* (__stdcall*)(void*, void*, InputMap*))FASTMEM_LISTALLOCATOR_ADDR;
-void* (__thiscall*STL_List_Add)(void* thethis, int num) = (void* (__thiscall*)(void*, int))STL_LIST_ADD_ADDR;
+//void* (*FastMem_InitListAllocator)() = (void* (*)())FASTMEM_INITLISTALLOCATOR_ADDR;
+//void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMap* inInputMap) = (void* (__stdcall*)(void*, void*, InputMap*))FASTMEM_LISTALLOCATOR_ADDR;
+//void* (__thiscall*STL_List_Add)(void* thethis, int num) = (void* (__thiscall*)(void*, int))STL_LIST_ADD_ADDR;
 
 void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollection)
 {
@@ -727,20 +742,36 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 
 	_asm mov thethis, ecx
 
+	//list<InputMap> maplist();
+	//eastl::ListIterator<InputMapEntry> maplist();
+	list<InputMapEntry> maplist();
+	
+
 	// use game's own memory management to avoid trouble
-	*(void**)(thethis + 4) = FastMem_InitListAllocator();
-	list_current = (unsigned int) * (void**)(thethis + 4);
+	//*(void**)(thethis + 4) = FastMem_InitListAllocator();
+	*(void**)(thethis + 4) = maplist;
+	//list_current = (unsigned int) * (void**)(thethis + 4);
 
 	for (unsigned int i = 0; i < MAX_ACTIONID; i++)
 	{
 		if (VKeyBindings[i] != 0 || XInputBindings[i] != 0) // is it mapped
 		{
-			InputMap map = { 0 };
-			map.id = (ActionID)i;
+			InputMapEntry map;
+			map.Action = (ActionID)i;
 			map.DeviceScalarIndex = i;
-			map.ScalarType = device->fDeviceScalar[i].fType;
-			map.unk4 = -1.0f;
-			map.unk5 = -1.0f;
+#ifdef GAME_PROSTREET
+			map.ComboDeviceScalarIndex = i;
+#endif
+			if (device->fDeviceScalar[i].fType == kDigitalButton)
+				map.UpdateType = kPress;
+			else
+				map.UpdateType = kUpdate;
+
+			map.PreviousValue = -1.0f;
+			map.CurrentValue = -1.0f;
+			
+
+
 			list_next = *(int*)(list_current + 4);
 			alloc_result = (int)FastMem_ListAllocator((void*)list_current, (void*)list_next, &map);
 			STL_List_Add((void*)thethis, 1);
