@@ -115,14 +115,11 @@ void __stdcall LoadResourceFile(char* filename, int ResType, int unk1, void* unk
 	ResourceFile_BeginLoading(CreateResourceFile(filename, ResType, unk1, unk4, unk5), unk2, unk3);
 }
 
-#ifdef GAME_MW
-void(__thiscall* CustomTuningScreen_NotificationMessage)(void* thethis, unsigned int unk1, void* FEObject, unsigned int unk2, unsigned int unk3) = (void(__thiscall*)(void*, unsigned int, void*, unsigned int, unsigned int))0x005A9910;
-
 int __declspec(naked) cFEng_FindPackageWithControl()
 {
 	_asm
 	{
-		mov ecx, ds:[CFENG_INSTANCE_ADDR]
+		mov ecx, ds: [CFENG_INSTANCE_ADDR]
 		mov     eax, [ecx]
 		add     eax, 0xD8
 		jz      loc_516BAE
@@ -146,6 +143,9 @@ int __declspec(naked) cFEng_FindPackageWithControl()
 		ret
 	}
 }
+
+#ifdef GAME_MW
+void(__thiscall* CustomTuningScreen_NotificationMessage)(void* thethis, unsigned int unk1, void* FEObject, unsigned int unk2, unsigned int unk3) = (void(__thiscall*)(void*, unsigned int, void*, unsigned int, unsigned int))0x005A9910;
 
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 {
