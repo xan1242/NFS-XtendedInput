@@ -347,7 +347,7 @@ public:
 	}
 	virtual void Initialize()
 	{
-		printf("Called InputDevice::Initialize\n");
+		//printf("Called InputDevice::Initialize\n");
 		CIniReader inireader("");
 		unsigned int inXInputConfigDef = 0;
 
@@ -930,8 +930,8 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
-		freopen("CON", "w", stdout);
-		freopen("CON", "w", stderr);
+		//freopen("CON", "w", stdout);
+		//freopen("CON", "w", stderr);
 		Init();
 	}
 	return TRUE;
