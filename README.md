@@ -182,9 +182,9 @@ They should be identical to the default game, with one exception: the navigation
 
 - Car orbit: WASD
 
-- Button 0: 5
+- Button 0: 3
 
-- Button 1: 3
+- Button 1: 5
 
 - Button 2: T
 
