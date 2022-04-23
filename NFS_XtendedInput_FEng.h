@@ -5,6 +5,10 @@
 #ifdef GAME_MW
 #include "NFSMW_XtendedInput.h"
 #endif
+#ifdef GAME_CARBON
+#include "NFSC_XtendedInput.h"
+#endif
+
 #include <windows.h>
 #include <timeapi.h>
 #pragma comment(lib,"winmm.lib")
@@ -99,10 +103,8 @@ struct FEObject
 #pragma runtime_checks( "", off )
 int (__thiscall* _cFEng_FindPackage)(void* cFEng, char* pkg) = (int (__thiscall*)(void*, char*))CFENG_FINDPACKAGE_ADDR;
 bool(__thiscall* _cFEng_IsPackageInControl)(void* cFEng, char* pkg) = (bool(__thiscall*)(void*, char*))CFENG_ISPACKAGEINCONTROL_ADDR;
-bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
 void* (*FEngFindObject)(char* pkg_name, unsigned int obj_hash) = (void* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
-void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
-void(*FEngSetInvisible)(void* FEObject) = (void(*)(void*))FENG_SETINVISIBLE_ADDR;
+
 void(*FEngSetLanguageHash)(void* FEObject, unsigned int langhash) = (void(*)(void*, unsigned int))FENG_SETLANGHASH_ADDR;
 void* (*CreateResourceFile)(char* filename, int ResFileType, int unk1, int unk2, int unk3) = (void* (*)(char*, int, int, int, int))CREATERESOURCEFILE_ADDR;
 void(__thiscall* ResourceFile_BeginLoading)(void* ResourceFile, void* callback, void* unk) = (void(__thiscall*)(void*, void*, void*))RESFILE_BEGINLOADING_ADDR;
@@ -145,6 +147,10 @@ int __declspec(naked) cFEng_FindPackageWithControl()
 }
 
 #ifdef GAME_MW
+void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
+void(*FEngSetInvisible)(void* FEObject) = (void(*)(void*))FENG_SETINVISIBLE_ADDR;
+bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
+
 void(__thiscall* CustomTuningScreen_NotificationMessage)(void* thethis, unsigned int unk1, void* FEObject, unsigned int unk2, unsigned int unk3) = (void(__thiscall*)(void*, unsigned int, void*, unsigned int, unsigned int))0x005A9910;
 
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
@@ -158,6 +164,19 @@ void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 	}
 	else
 		FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
+}
+#else
+void(*FE_Object_SetVisibility)(void* FEObject, bool visibility) = (void(*)(void*, bool))FENG_SETOBJECTVISIBILITY_ADDR;
+void(__thiscall* FEPackage_UpdateObject)(void* FEPackage, void* FEObject, int unk) = (void(__thiscall*)(void*, void*, int))FEPACKAGE_UPDATEOBJ_ADDR;
+
+
+void FEngSetVisible(void* FEObject)
+{
+	return FE_Object_SetVisibility(FEObject, true);
+}
+void FEngSetInvisible(void* FEObject)
+{
+	return FE_Object_SetVisibility(FEObject, false);
 }
 
 #endif
@@ -638,6 +657,7 @@ void SetControllerFEng(FEObject* inobj)
 
 
 #pragma runtime_checks( "", off )
+#ifdef GAME_MW
 bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 {
 	unsigned int thethis = 0;
@@ -655,6 +675,27 @@ bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 
 	return MouseStateArrayOffsetUpdater((void*)thethis, inobj);
 }
+#else
+
+void __stdcall FEPackage_UpdateObject_Hook(FEObject* inobj, int unk)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	if (!bLoadedConsoleButtonTex)
+	{
+		LoadResourceFile("GLOBAL\\XtendedInputButtons.tpk", 0, 0, NULL, 0, 0, 0);
+		ServiceResourceLoading();
+		bLoadedConsoleButtonTex = true;
+	}
+
+	if (!bIsHudVisible()) // HUD has no controller elements anyway, so no need to check it...
+		SetControllerFEng(inobj);
+
+	return FEPackage_UpdateObject((void*)thethis, inobj, unk);
+}
+
+#endif
 
 
 #pragma runtime_checks( "", restore )

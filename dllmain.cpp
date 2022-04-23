@@ -37,6 +37,9 @@
 #ifdef GAME_MW
 #include "NFSMW_XtendedInput.h"
 #endif
+#ifdef GAME_CARBON
+#include "NFSC_XtendedInput.h"
+#endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
 
@@ -163,7 +166,7 @@ struct InputMapEntry
 	float UpperDZ;
 	ActionID Action;
 	int DeviceScalarIndex;
-#ifdef GAME_PROSTREET
+#ifndef GAME_MW
 	int ComboDeviceScalarIndex;
 #endif
 	float PreviousValue;
@@ -729,9 +732,73 @@ InputDevice* InputDeviceFactory(int DeviceIndex)
 }
 
 #pragma runtime_checks( "", off )
+
+void* (__thiscall*FastMem_Alloc)(void* FastMem, int size, char* debug_str) = (void* (__thiscall*)(void*, int, char*))FASTMEM_ALLOC_ADDR;
 //void* (*FastMem_InitListAllocator)() = (void* (*)())FASTMEM_INITLISTALLOCATOR_ADDR;
-//void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMap* inInputMap) = (void* (__stdcall*)(void*, void*, InputMap*))FASTMEM_LISTALLOCATOR_ADDR;
+//void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap) = (void* (__stdcall*)(void*, void*, InputMapEntry*))FASTMEM_LISTALLOCATOR_ADDR;
 //void* (__thiscall*STL_List_Add)(void* thethis, int num) = (void* (__thiscall*)(void*, int))STL_LIST_ADD_ADDR;
+
+
+// following code was ripped from Most Wanted...
+// because the game wants the EASTL version of the list template, we must use the integrated memory allocators
+// besides, it is pretty difficult to use STL templates as-is, so we should avoid them if we can
+// also STL_List_Add doesn't seem to be necessary? it's not actually that, it's probably just a size check
+int __declspec(naked) FastMem_InitListAllocator()
+{
+	_asm
+	{
+		push    0
+		push    INIT_LIST_ALLOC_SIZE
+		mov     ecx, GLOBAL_FASTMEM_ADDR
+		call    FastMem_Alloc
+		test    eax, eax
+		jz      loc_635074
+		mov		[eax], eax
+
+	loc_635074:
+		lea     ecx, [eax + 4]
+		test    ecx, ecx
+		jz      locret_63507D
+		mov		[ecx], eax
+
+	locret_63507D:
+		ret
+	}
+}
+
+void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
+{
+	void* result = 0;
+
+	_asm
+	{
+		push    0
+		push    INIT_LIST_ALLOC_SIZE
+		mov     ecx, GLOBAL_FASTMEM_ADDR
+		call    FastMem_Alloc
+		test    eax, eax
+		jz      locret_635281
+		mov     ecx, CurrentListPos
+		mov     edx, NextListPos
+		push    esi
+		mov     esi, inInputMap
+		push    edi
+		mov		[eax], ecx
+		lea     edi, [eax + 8]
+#ifndef GAME_MW
+		mov     ecx, 8 // count of elements in InputMapEntry
+#else
+		mov     ecx, 7 // count of elements in InputMapEntry
+#endif
+		mov		[eax + 4], edx
+		rep movsd
+
+	locret_635281:
+		mov result, eax
+	}
+
+	return result;
+}
 
 void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollection)
 {
@@ -742,39 +809,31 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 
 	_asm mov thethis, ecx
 
-	//list<InputMap> maplist();
-	//eastl::ListIterator<InputMapEntry> maplist();
-	list<InputMapEntry> maplist();
-	
-
 	// use game's own memory management to avoid trouble
-	//*(void**)(thethis + 4) = FastMem_InitListAllocator();
-	*(void**)(thethis + 4) = maplist;
-	//list_current = (unsigned int) * (void**)(thethis + 4);
+	* (void**)(thethis + 4) = (void*)FastMem_InitListAllocator();
+	list_current = (unsigned int)*(void**)(thethis + 4);
 
 	for (unsigned int i = 0; i < MAX_ACTIONID; i++)
 	{
 		if (VKeyBindings[i] != 0 || XInputBindings[i] != 0) // is it mapped
 		{
 			InputMapEntry map;
-			map.Action = (ActionID)i;
-			map.DeviceScalarIndex = i;
-#ifdef GAME_PROSTREET
-			map.ComboDeviceScalarIndex = i;
-#endif
 			if (device->fDeviceScalar[i].fType == kDigitalButton)
 				map.UpdateType = kPress;
 			else
 				map.UpdateType = kUpdate;
-
+			map.LowerDZ = 0.0;
+			map.UpperDZ = 0.0;
+			map.Action = (ActionID)i;
+			map.DeviceScalarIndex = i;
+#ifndef GAME_MW
+			map.ComboDeviceScalarIndex = i;
+#endif
 			map.PreviousValue = -1.0f;
 			map.CurrentValue = -1.0f;
-			
-
-
 			list_next = *(int*)(list_current + 4);
 			alloc_result = (int)FastMem_ListAllocator((void*)list_current, (void*)list_next, &map);
-			STL_List_Add((void*)thethis, 1);
+			//STL_List_Add((void*)thethis, 1);
 			*(int*)(list_current + 4) = alloc_result;
 			**(int**)(alloc_result + 4) = alloc_result;
 		}
@@ -919,17 +978,18 @@ int Init()
 			NFSCursor = LoadCursor(NULL, IDC_ARROW);
 	}
 
+	// FORCE CONSOLE OBJECTS TO BE RENDERABLE ON PC
+	injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
+	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
+	
+#ifdef GAME_MW
 	// dereference the current function after initing to maximize compatibility
 	MouseStateArrayOffsetUpdater_Address = *(unsigned int*)FE_MOUSEUPDATER_CALLBACK_VT_ADDR;
 	MouseStateArrayOffsetUpdater = (bool(__thiscall*)(void*, void*))MouseStateArrayOffsetUpdater_Address;
 	// it looks decieving, it's not related to mouse, it's for accessing all FEObjects during FE updating
 	injector::WriteMemory<unsigned int>(FE_MOUSEUPDATER_CALLBACK_VT_ADDR, (unsigned int)&MouseStateArrayOffsetUpdater_Callback_Hook, true);
 
-	// FORCE CONSOLE OBJECTS TO BE RENDERABLE ON PC
-	injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
-	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
 	injector::MakeNOP(FENG_SETVISIBLE_NOP_ADDR, 2, true); // FEngSetVisible
-#ifdef GAME_MW
 	injector::MakeNOP(0x0052AEC3, 2, true);
 	injector::MakeNOP(0x0052F33C, 2, true);
 	injector::MakeNOP(0x0052F3FA, 3, true);
@@ -943,6 +1003,8 @@ int Init()
 
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
+#else
+	injector::MakeCALL(FEPACKAGE_UPDATEOBJ_HOOK_ADDR, FEPackage_UpdateObject_Hook, true);
 #endif
 
 	SetUnbindableButtonTextures();
