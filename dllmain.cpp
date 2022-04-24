@@ -39,7 +39,6 @@
 #endif
 #ifdef GAME_CARBON
 #include "NFSC_XtendedInput.h"
-float FEActivationThreshold = 0.999999f;
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
@@ -709,11 +708,6 @@ public:
 			}
 			bDoPolling = true;
 		}
-
-		//if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
-		//	printf("LTRIG: %.2f\nRTRIG: %.2f\n", CurrValues[fDeviceIndex][GAMEACTION_GAS], CurrValues[fDeviceIndex][GAMEACTION_BRAKE]);
-		//else
-		//	printf("LTRIG: %.2f\nRTRIG: %.2f\n", CurrValues[fDeviceIndex][FRONTENDACTION_LTRIGGER], CurrValues[fDeviceIndex][FRONTENDACTION_RTRIGGER]);
 	}
 	virtual int GetNumDeviceScalar()
 	{
@@ -1214,7 +1208,6 @@ int Init()
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
-	//injector::WriteMemory<unsigned int>(0x59FF6E, (unsigned int)&FEActivationThreshold, true);
 	// remove deadzone for FE activations...
 	injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true);
 
@@ -1223,8 +1216,6 @@ int Init()
 	injector::WriteMemory<unsigned int>(0x009D306C, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
 	injector::WriteMemory<unsigned int>(0x009D308C, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
 #endif
-
-	//injector::MakeJMP(0x0069606F, 0x00696080, true);
 
 	freopen("CON", "w", stdout);
 	freopen("CON", "w", stderr);
