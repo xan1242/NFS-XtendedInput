@@ -1217,8 +1217,8 @@ int Init()
 	injector::WriteMemory<unsigned int>(0x009D308C, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
 #endif
 
-	freopen("CON", "w", stdout);
-	freopen("CON", "w", stderr);
+	//freopen("CON", "w", stdout);
+	//freopen("CON", "w", stderr);
 
 #endif
 
