@@ -80,6 +80,9 @@
 #define INPUTMAPPING_CONSTRUCTOR_CALL_ADDR 0x00648116
 #define INPUTDEVICE_FACTORY_INITIALIZER_ADDR 0x886B9D
 
+#define FE_SHOWCASE_FNG_NAME "Showcase.fng"
+#define WORLDMAPMAIN_FNG_NAMEHASH 0x2FB2E4D3
+
 // REBINDABLE ACTIONS -- these will change textures based on bindings
 // all FE action definitions will be changeable
 // CROSS

@@ -39,6 +39,7 @@
 #endif
 #ifdef GAME_CARBON
 #include "NFSC_XtendedInput.h"
+float FEActivationThreshold = 0.999999f;
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
@@ -254,17 +255,30 @@ void ReadXInput_Extra()
 		if ((wButtons & XINPUT_GAMEPAD_BACK) != bQuitButtonOldState)
 		{
 			if ((wButtons & XINPUT_GAMEPAD_BACK)) // trigger once only on button down state
+			{
+#ifdef GAME_MW
 				FESendKeystroke('Q');
+#else
+				FESendKeystroke((void*)FE_KEYSTROKE_OBJ, 'Q');
+#endif
+			}
 			bQuitButtonOldState = (wButtons & XINPUT_GAMEPAD_BACK);
 		}
-#ifdef GAME_MW
+
+		//if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+		//{
+		//	*(int*)FEMOUSECURSOR_CARORBIT_X_ADDR = MousePos.x - *(int*)FEMOUSECURSOR_X_ADDR;
+		//	*(int*)FEMOUSECURSOR_CARORBIT_Y_ADDR = MousePos.y - *(int*)FEMOUSECURSOR_Y_ADDR;
+		//}
+
+
 		// simulate mouse cursor for map movement
 		if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
 		{
 			if (g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY)
 				bLastUsedVirtualMouse = true;
 
-			if (bLastUsedVirtualMouse && cFEng_FindPackage("WorldMapMain.fng") && LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
 			{
 				if (bUseWin32Cursor)
 				{
@@ -303,7 +317,6 @@ void ReadXInput_Extra()
 			bEnteredWorldMapOnce = false;
 			bLastUsedVirtualMouse = false;
 		}
-#endif
 	}
 }
 
@@ -344,7 +357,9 @@ public:
 		fPrevValues = PrevValues[DeviceIndex];
 		fCurrentValues = CurrValues[DeviceIndex];
 		fDeviceScalar = new (nothrow) DeviceScalar[MAX_ACTIONID];
-
+#ifndef GAME_MW
+		InitProfileSettings();
+#endif
 	}
 	virtual void* dtor(bool something)
 	{
@@ -364,6 +379,8 @@ public:
 	virtual void Initialize()
 	{
 		//printf("Called InputDevice::Initialize\n");
+		//*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
+
 		CIniReader inireader("");
 		unsigned int inXInputConfigDef = 0;
 
@@ -435,14 +452,18 @@ public:
 		bool bCurrentXInputKeyState = false;
 		bool bCurrentXInputKeyState2 = false;
 		bool bCurrentVKeyState = false;
-		bool bInShowcase = false;
 		bool bDoPolling = true;
 
+		//printf("FEngPkg: %s\n", cFEng_FindPackageWithControl_Name());
+
+#ifdef GAME_MW
+		bool bInShowcase = false;
 		if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 3)
 		{
-			if (cFEng_FindPackage("Showcase.fng") || cFEng_FindPackage("UI_DebugCarCustomize.fng") || *(bool*)CARGUYSCAMERA_ADDR)
+			if (cFEng_FindPackage(FE_SHOWCASE_FNG_NAME) || cFEng_FindPackage("UI_DebugCarCustomize.fng") || *(bool*)CARGUYSCAMERA_ADDR)
 				bInShowcase = true;
 		}
+#endif
 
 		for (unsigned int i = 0; i < MAX_ACTIONID; i++)
 		{
@@ -669,6 +690,7 @@ public:
 				if (CurrValues[fDeviceIndex][i] != PrevValues[fDeviceIndex][i])
 				{
 					// do one-time triggers here...
+#ifdef GAME_MW
 					if (bIsActionRelativePosition((ActionID)i) && bInShowcase)
 					{
 						if (CurrValues[fDeviceIndex][i] > 0)
@@ -676,7 +698,7 @@ public:
 						else
 							CurrValues[fDeviceIndex][i] = 0;
 					}
-
+#endif
 					PrevValues[fDeviceIndex][i] = CurrValues[fDeviceIndex][i];
 				}
 				else if (bIsActionDigitalButton((ActionID)i))
@@ -685,9 +707,13 @@ public:
 						CurrValues[fDeviceIndex][i] = 0;
 				}
 			}
-
 			bDoPolling = true;
 		}
+
+		//if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
+		//	printf("LTRIG: %.2f\nRTRIG: %.2f\n", CurrValues[fDeviceIndex][GAMEACTION_GAS], CurrValues[fDeviceIndex][GAMEACTION_BRAKE]);
+		//else
+		//	printf("LTRIG: %.2f\nRTRIG: %.2f\n", CurrValues[fDeviceIndex][FRONTENDACTION_LTRIGGER], CurrValues[fDeviceIndex][FRONTENDACTION_RTRIGGER]);
 	}
 	virtual int GetNumDeviceScalar()
 	{
@@ -697,10 +723,10 @@ public:
 	{
 		//printf("Called InputDevice::StartVibration\n");
 	}
-	virtual void StartVibration2()
+	virtual void StopVibration()
 	{
 		// this seems to be only called when the controller is unplugged...
-		//printf("Called InputDevice::StartVibration2\n");
+		//printf("Called InputDevice::StopVibration\n");
 	}
 	virtual int GetInterfaces()
 	{
@@ -710,10 +736,30 @@ public:
 	{
 		return 0;
 	}
+#ifndef GAME_MW
+	virtual int GetBatteryLife()
+	{
+		return 0;
+	}
+	virtual bool IsBatteryLow()
+	{
+		return false;
+	}
+	virtual int GetControllerTypeMask()
+	{
+		return 0;
+	}
+#endif
 	virtual bool DeviceHasChanged()
 	{
 		return false;
 	}
+#ifndef GAME_MW
+	virtual bool DeviceHasAnyActivity()
+	{
+		return false;
+	}
+#endif
 	virtual void* SaveCurrentState()
 	{
 		return NULL;
@@ -722,6 +768,12 @@ public:
 	{
 		return;
 	}
+#ifndef GAME_MW
+	virtual int GetDeviceNoiseAllowance()
+	{
+		return 0;
+	}
+#endif
 };
 
 InputDevice* InputDeviceFactory(int DeviceIndex)
@@ -734,15 +786,52 @@ InputDevice* InputDeviceFactory(int DeviceIndex)
 #pragma runtime_checks( "", off )
 
 void* (__thiscall*FastMem_Alloc)(void* FastMem, int size, char* debug_str) = (void* (__thiscall*)(void*, int, char*))FASTMEM_ALLOC_ADDR;
-//void* (*FastMem_InitListAllocator)() = (void* (*)())FASTMEM_INITLISTALLOCATOR_ADDR;
-//void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap) = (void* (__stdcall*)(void*, void*, InputMapEntry*))FASTMEM_LISTALLOCATOR_ADDR;
-//void* (__thiscall*STL_List_Add)(void* thethis, int num) = (void* (__thiscall*)(void*, int))STL_LIST_ADD_ADDR;
+#ifdef GAME_MW
+void* (*FastMem_InitListAllocator)() = (void* (*)())FASTMEM_INITLISTALLOCATOR_ADDR;
+void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap) = (void* (__stdcall*)(void*, void*, InputMapEntry*))FASTMEM_LISTALLOCATOR_ADDR;
+void* (__thiscall*STL_List_Add)(void* thethis, int num) = (void* (__thiscall*)(void*, int))STL_LIST_ADD_ADDR;
+
+void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollection)
+{
+	unsigned int thethis = 0;
+	unsigned int list_current = 0;
+	unsigned int list_next = 0;
+	int alloc_result = 0;
+
+	_asm mov thethis, ecx
+
+	// use game's own memory management to avoid trouble
+	* (void**)(thethis + 4) = (void*)FastMem_InitListAllocator();
+	list_current = (unsigned int)*(void**)(thethis + 4);
+
+	for (unsigned int i = 0; i < MAX_ACTIONID; i++)
+	{
+		if (VKeyBindings[i] != 0 || XInputBindings[i] != 0) // is it mapped
+		{
+			InputMapEntry map;
+			if (device->fDeviceScalar[i].fType == kDigitalButton)
+				map.UpdateType = kPress;
+			else
+				map.UpdateType = kUpdate;
+			map.LowerDZ = 0.0;
+			map.UpperDZ = 0.0;
+			map.Action = (ActionID)i;
+			map.DeviceScalarIndex = i;
+			map.PreviousValue = -1.0f;
+			map.CurrentValue = -1.0f;
+			list_next = *(int*)(list_current + 4);
+			alloc_result = (int)FastMem_ListAllocator((void*)list_current, (void*)list_next, &map);
+			//STL_List_Add((void*)thethis, 1);
+			*(int*)(list_current + 4) = alloc_result;
+			**(int**)(alloc_result + 4) = alloc_result;
+		}
+	}
 
 
-// following code was ripped from Most Wanted...
-// because the game wants the EASTL version of the list template, we must use the integrated memory allocators
-// besides, it is pretty difficult to use STL templates as-is, so we should avoid them if we can
-// also STL_List_Add doesn't seem to be necessary? it's not actually that, it's probably just a size check
+	return (void*)thethis;
+}
+#else
+
 int __declspec(naked) FastMem_InitListAllocator()
 {
 	_asm
@@ -785,11 +874,7 @@ void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, I
 		push    edi
 		mov		[eax], ecx
 		lea     edi, [eax + 8]
-#ifndef GAME_MW
 		mov     ecx, 8 // count of elements in InputMapEntry
-#else
-		mov     ecx, 7 // count of elements in InputMapEntry
-#endif
 		mov		[eax + 4], edx
 		rep movsd
 
@@ -810,8 +895,9 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 	_asm mov thethis, ecx
 
 	// use game's own memory management to avoid trouble
-	* (void**)(thethis + 4) = (void*)FastMem_InitListAllocator();
-	list_current = (unsigned int)*(void**)(thethis + 4);
+	*(void**)(thethis) = (void*)thethis;
+	*(void**)(thethis+4) = (void*)thethis;
+	*(int*)(thethis + 8) = 0;
 
 	for (unsigned int i = 0; i < MAX_ACTIONID; i++)
 	{
@@ -822,26 +908,134 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 				map.UpdateType = kPress;
 			else
 				map.UpdateType = kUpdate;
+
 			map.LowerDZ = 0.0;
 			map.UpperDZ = 0.0;
 			map.Action = (ActionID)i;
 			map.DeviceScalarIndex = i;
-#ifndef GAME_MW
 			map.ComboDeviceScalarIndex = i;
-#endif
 			map.PreviousValue = -1.0f;
 			map.CurrentValue = -1.0f;
+			list_current = *(int*)(thethis + 4);
 			list_next = *(int*)(list_current + 4);
-			alloc_result = (int)FastMem_ListAllocator((void*)list_current, (void*)list_next, &map);
-			//STL_List_Add((void*)thethis, 1);
-			*(int*)(list_current + 4) = alloc_result;
-			**(int**)(alloc_result + 4) = alloc_result;
+			alloc_result = (int)FastMem_ListAllocator((void*)thethis, (void*)list_next, &map);
+
+			*(int*)alloc_result = thethis;
+			*(int*)(alloc_result + 4) = *(int*)(thethis + 4);
+			**(int**)(thethis + 4) = alloc_result;
+			*(int*)(thethis + 8) += 1;
+			*(int*)(thethis + 4) = alloc_result;
+
 		}
 	}
 
 
 	return (void*)thethis;
 }
+
+#ifdef GAME_CARBON
+// fix for Carbon Photo Mode (ingame)
+void __stdcall FEPhotoModeStateManager_HandleScreenTick_Hook()
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	if (g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || bMousePressedDown)
+	{
+		if (bMousePressedDown)
+		{
+			float HSpeed = *(int*)FEMOUSECURSOR_CARORBIT_X_ADDR;
+			float VSpeed = *(int*)FEMOUSECURSOR_CARORBIT_Y_ADDR;
+
+			if (HSpeed > 25.0)
+				HSpeed = 25.0;
+			if (HSpeed < -25.0)
+				HSpeed = -25.0;
+			if (VSpeed > 25.0)
+				VSpeed = 25.0;
+			if (VSpeed < -25.0)
+				VSpeed = -25.0;
+
+			if (HSpeed)
+				SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), HSpeed, true);
+			else
+				SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+			if (VSpeed)
+				SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), VSpeed, true);
+			else
+				SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+		}
+
+		if (g_Controllers[0].state.Gamepad.sThumbRX)
+		{
+			float HSpeed = -g_Controllers[0].state.Gamepad.sThumbRX / float(0x7FFF);
+			SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), HSpeed, true);
+		}
+		if (g_Controllers[0].state.Gamepad.sThumbRY)
+		{
+			float VSpeed = g_Controllers[0].state.Gamepad.sThumbRY / float(0x7FFF);
+			SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), VSpeed, true);
+		}
+	}
+	else
+	{
+		SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+		SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+	}
+
+	if (g_Controllers[0].state.Gamepad.bLeftTrigger || (MouseWheelValue < 0))
+	{
+		if (MouseWheelValue)
+			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), 1.0, true);
+		if (g_Controllers[0].state.Gamepad.bLeftTrigger)
+		{
+			float Speed = g_Controllers[0].state.Gamepad.bLeftTrigger / float(0xFF);
+			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), Speed, true);
+		}
+	}
+
+	else if (g_Controllers[0].state.Gamepad.bRightTrigger || (MouseWheelValue > 0))
+	{
+		if (MouseWheelValue)
+			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), -1.0, true);
+		if (g_Controllers[0].state.Gamepad.bRightTrigger)
+		{
+			float Speed = g_Controllers[0].state.Gamepad.bRightTrigger / float(0xFF);
+			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), -Speed, true);
+		}
+	}
+	else
+		SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+}
+
+// fix for ALL zooming (ingame and FE)
+void __stdcall FEPhotoModeStateManager_HandleLTrigger_Hook()
+{
+	return;
+}
+
+void __stdcall FEPhotoModeStateManager_HandleRTrigger_Hook()
+{
+	return;
+}
+
+int __stdcall ftol2_to_int_bool()
+{
+	unsigned int obj = 0;
+	_asm mov obj, ecx
+
+	if (obj)
+	{
+		float num = *(float*)(obj + 8);
+		if (num)
+			return 1;
+	}
+	return 0;
+}
+
+#endif
+
+#endif
 #pragma runtime_checks( "", restore )
 
 unsigned int GameWndProcAddr = 0;
@@ -909,6 +1103,11 @@ void DummyFunc()
 	return;
 }
 
+void __stdcall DummyFuncStd(BOOL dummy)
+{
+	return;
+}
+
 void InitConfig()
 {
 	CIniReader inireader("");
@@ -960,6 +1159,13 @@ int Init()
 		injector::MakeJMP(FEMOUSE_RENDER_JMP_FROM, FEMOUSE_RENDER_JMP_TO, true);
 		// disable Win32 cursor hiding
 		injector::MakeJMP(WIN32_MOUSEHIDE_JMP_FROM, WIN32_MOUSEHIDE_JMP_TO, true);
+#ifndef GAME_MW
+		injector::MakeNOP(0x00711EE2, 6, true);
+		injector::MakeCALL(0x00711EE2, DummyFuncStd, true);
+		injector::MakeNOP(0x00711EF3, 6, true);
+		injector::MakeCALL(0x00711EF3, DummyFuncStd, true);
+
+#endif
 	}
 	else
 		SetCursor(NULL);
@@ -979,8 +1185,8 @@ int Init()
 	}
 
 	// FORCE CONSOLE OBJECTS TO BE RENDERABLE ON PC
-	injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
-	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
+	//injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
+	//injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
 	
 #ifdef GAME_MW
 	// dereference the current function after initing to maximize compatibility
@@ -1004,7 +1210,25 @@ int Init()
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
 #else
-	injector::MakeCALL(FEPACKAGE_UPDATEOBJ_HOOK_ADDR, FEPackage_UpdateObject_Hook, true);
+	//injector::MakeCALL(FEPACKAGE_UPDATEOBJ_HOOK_ADDR, FEPackage_UpdateObject_Hook, true);
+	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
+	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
+	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
+	//injector::WriteMemory<unsigned int>(0x59FF6E, (unsigned int)&FEActivationThreshold, true);
+	// remove deadzone for FE activations...
+	injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true);
+
+#ifdef GAME_CARBON
+	injector::MakeJMP(0x0057BB69, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
+	injector::WriteMemory<unsigned int>(0x009D306C, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
+	injector::WriteMemory<unsigned int>(0x009D308C, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
+#endif
+
+	//injector::MakeJMP(0x0069606F, 0x00696080, true);
+
+	freopen("CON", "w", stdout);
+	freopen("CON", "w", stderr);
+
 #endif
 
 	SetUnbindableButtonTextures();
@@ -1020,8 +1244,6 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
-		//freopen("CON", "w", stdout);
-		//freopen("CON", "w", stderr);
 		Init();
 	}
 	return TRUE;

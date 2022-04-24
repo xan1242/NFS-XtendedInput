@@ -168,6 +168,12 @@ void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 #else
 void(*FE_Object_SetVisibility)(void* FEObject, bool visibility) = (void(*)(void*, bool))FENG_SETOBJECTVISIBILITY_ADDR;
 void(__thiscall* FEPackage_UpdateObject)(void* FEPackage, void* FEObject, int unk) = (void(__thiscall*)(void*, void*, int))FEPACKAGE_UPDATEOBJ_ADDR;
+#ifdef GAME_CARBON
+void(__thiscall* SelectCarCameraMover_SetHRotateSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETHROTATESPEED_ADDR;
+void(__thiscall* SelectCarCameraMover_SetVRotateSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETVROTATESPEED_ADDR;
+void(__thiscall* SelectCarCameraMover_SetZoomSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETZOOMSPEED_ADDR;
+void(__thiscall* FeGarageMain_ZoomCameraView)(void* FEGarageMain, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))FEGARAGEMAIN_ZOOMCAMERAVIEW_ADDR;
+#endif
 
 
 void FEngSetVisible(void* FEObject)
@@ -178,6 +184,7 @@ void FEngSetInvisible(void* FEObject)
 {
 	return FE_Object_SetVisibility(FEObject, false);
 }
+
 
 #endif
 
@@ -249,7 +256,11 @@ int __stdcall FEngFindImage(char* pkgname, int hash)
 	return result;
 }
 
+#ifndef GAME_MW
+void(__thiscall* FESendKeystroke)(void* obj, unsigned int key) = (void(__thiscall*)(void*, unsigned int))FE_SENDKEY_ADDR;
+#else
 void(*FESendKeystroke)(unsigned int key) = (void(*)(unsigned int))FE_SENDKEY_ADDR;
+#endif
 
 // functions wrapped because the compiler loves to check the ESP during debugging which causes errors
 int __stdcall cFEng_FindPackage(char* pkg)

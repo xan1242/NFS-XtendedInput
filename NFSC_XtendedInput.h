@@ -71,6 +71,16 @@
 #define INPUTMAPPING_CONSTRUCTOR_CALL_ADDR 0x00696A74
 #define INPUTDEVICE_FACTORY_INITIALIZER_ADDR 0x9B629D
 
+#define FE_KEYSTROKE_OBJ 0xA59218
+
+#define FE_SHOWCASE_FNG_NAME "FePhotoMode.fng"
+#define WORLDMAPMAIN_FNG_NAMEHASH 0x2FB2E4D3
+
+#define SELECTCAR_SETHROTATESPEED_ADDR 0x00488F70
+#define SELECTCAR_SETVROTATESPEED_ADDR 0x00488F40
+#define SELECTCAR_SETZOOMSPEED_ADDR 0x00488FA0
+#define FEGARAGEMAIN_ZOOMCAMERAVIEW_ADDR 0x0083EEF0
+
 // REBINDABLE ACTIONS -- these will change textures based on bindings
 // all FE action definitions will be changeable
 // CROSS
@@ -217,7 +227,13 @@ unsigned int FE_DefaultButtonTexHashes[FE_TEX_HASH_COUNT] =
 	FE_DPAD_RIGHT_TEX_HASH
 };
 
+
+
+
 void SetTitleScreenText()
 {
 	return;
 }
+
+void(* InitProfileSettings)() = (void(*)())0x00679BF0;
+
