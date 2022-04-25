@@ -849,44 +849,59 @@ int __declspec(naked) FastMem_InitListAllocator()
 	}
 }
 
+//void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
+//{
+//	void* result = 0;
+//
+//	_asm
+//	{
+//		push    0
+//		push    INIT_LIST_ALLOC_SIZE
+//		mov     ecx, GLOBAL_FASTMEM_ADDR
+//		call    FastMem_Alloc
+//		test    eax, eax
+//		jz      locret_635281
+//		mov     ecx, CurrentListPos
+//		mov     edx, NextListPos
+//		push    esi
+//		mov     esi, inInputMap
+//		push    edi
+//		mov		[eax], ecx
+//		lea     edi, [eax + 8]
+//		mov     ecx, 8 // count of elements in InputMapEntry
+//		mov		[eax + 4], edx
+//		rep movsd
+//
+//	locret_635281:
+//		mov result, eax
+//	}
+//
+//	return result;
+//}
+
 void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
 {
-	void* result = 0;
-
-	_asm
+	//void* result = calloc(1, INIT_LIST_ALLOC_SIZE);
+	void* result = FastMem_Alloc((void*)GLOBAL_FASTMEM_ADDR, INIT_LIST_ALLOC_SIZE, NULL);
+	if (result)
 	{
-		push    0
-		push    INIT_LIST_ALLOC_SIZE
-		mov     ecx, GLOBAL_FASTMEM_ADDR
-		call    FastMem_Alloc
-		test    eax, eax
-		jz      locret_635281
-		mov     ecx, CurrentListPos
-		mov     edx, NextListPos
-		push    esi
-		mov     esi, inInputMap
-		push    edi
-		mov		[eax], ecx
-		lea     edi, [eax + 8]
-		mov     ecx, 8 // count of elements in InputMapEntry
-		mov		[eax + 4], edx
-		rep movsd
-
-	locret_635281:
-		mov result, eax
+		*(void**)result = CurrentListPos;
+		*(void**)((int)result + 4) = NextListPos;
+		memcpy((void*)((int)result + 8), inInputMap, sizeof(InputMapEntry));
 	}
-
 	return result;
 }
 
 void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollection)
 {
-	unsigned int thethis = 0;
-	unsigned int list_current = 0;
-	unsigned int list_next = 0;
-	int alloc_result = 0;
+	volatile unsigned int thethis = 0;
+	volatile unsigned int list_current = 0;
+	volatile unsigned int list_next = 0;
+	volatile int alloc_result = 0;
 
 	_asm mov thethis, ecx
+
+	//printf("InputMapping: 0x%X\n", thethis);
 
 	// use game's own memory management to avoid trouble
 	*(void**)(thethis) = (void*)thethis;
