@@ -12,6 +12,7 @@
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): add better FE switching mechanism - currently it is a bit late to update and shows too many objects in WorldMapMain quick list
+// TODO (Carbon): Figure out hash for photo mode texture
 
 #include "stdafx.h"
 #include "stdio.h"
