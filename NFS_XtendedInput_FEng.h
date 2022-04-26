@@ -370,7 +370,7 @@ void UpdateFECursorPos()
 
 	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
 	{
-		if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_FindPackage("WorldMapMain.fng"))
+		if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
 			bShowMouse = false;
 	}
 
@@ -714,7 +714,7 @@ bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 	unsigned int thethis = 0;
 	_asm mov thethis, ecx
 
-	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH))
+	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH))
 	{
 		UpdateControllerFEng(inobj);
 	}
@@ -741,7 +741,7 @@ void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
 	unsigned int thethis = 0;
 	_asm mov thethis, ecx
 
-	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH))
+	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH))
 	{
 		FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
 		void* cbpointer = &callback;
