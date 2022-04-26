@@ -183,6 +183,7 @@ unsigned int cFEngGameInterface_RenderObject_Address = 0;
 void(__thiscall* cFEngGameInterface_RenderObject)(void* cFEngGameInterface, void* FEObject) = (void(__thiscall*)(void*, void*))CFENGGAMEINTERFACE_RENDEROBJ_ADDR; 
 void(__thiscall* FEPackage_ForAllObjects)(void* FEPackage, void* CallbackVT) = (void(__thiscall*)(void*, void*))FEPACKAGE_FORALLOBJ_ADDR;
 void(__thiscall* FEngine_ProcessPadsForPackage)(void* FEngine, void* FEPackage) = (void(__thiscall*)(void*, void*))FENGINE_PROCESSPADSFORPACKAGE_ADDR;
+void(__thiscall* cFEng_Service)(void* cFEng, int unk1, int unk2) = (void(__thiscall*)(void*, int unk1, int unk2))CFENG_SERVICE_ADDR;
 
 #endif
 
@@ -695,7 +696,7 @@ void UpdateControllerFEng(FEObject* inobj)
 		SetControllerFEng(inobj);
 }
 
-
+#ifdef GAME_MW
 bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 {
 	unsigned int thethis = 0;
@@ -706,7 +707,20 @@ bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 	return MouseStateArrayOffsetUpdater((void*)thethis, inobj);
 }
 
-#ifndef GAME_MW
+#else
+
+bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH))
+	{
+		UpdateControllerFEng(inobj);
+	}
+
+	return MouseStateArrayOffsetUpdater((void*)thethis, inobj);
+}
 
 struct FEObjectCallbackStruct
 {
@@ -727,13 +741,43 @@ void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
 	unsigned int thethis = 0;
 	_asm mov thethis, ecx
 
+	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH))
+	{
+		FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
+		void* cbpointer = &callback;
+
+		FEPackage_ForAllObjects(FEPackage, &cbpointer);
+	}
+	return FEngine_ProcessPadsForPackage((void*)thethis, FEPackage);
+}
+
+void __stdcall cFEng_Service_Hook(int unk1, int unk2)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
 	FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
 	void* cbpointer = &callback;
 
-	FEPackage_ForAllObjects(FEPackage, &cbpointer);
+	int FEPackage = *(int*)(thethis + 0xE0);
+	int NextFEPackage = 0;
+	
+	if (FEPackage)
+	{
+		while (FEPackage != NextFEPackage)
+		{
+			FEPackage_ForAllObjects((void*)FEPackage, &cbpointer);
+			NextFEPackage = *(int*)(FEPackage + 4);
+			if (NextFEPackage == FEPackage)
+				break;
+			NextFEPackage = FEPackage;
+		}
+	}
 
-	return FEngine_ProcessPadsForPackage((void*)thethis, FEPackage);
+
+	return cFEng_Service((void*)thethis, unk1, unk2);
 }
+
 
 #endif
 

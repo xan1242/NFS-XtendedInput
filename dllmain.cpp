@@ -1224,6 +1224,7 @@ int Init()
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
 #else
+	injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
 	injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
 	// force analog zooming in FE orbit camera
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
