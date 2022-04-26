@@ -1224,7 +1224,7 @@ int Init()
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
 #else
 	injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
-
+	// force analog zooming in FE orbit camera
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
