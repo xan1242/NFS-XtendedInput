@@ -279,7 +279,7 @@ void ReadXInput_Extra()
 			if (g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY)
 				bLastUsedVirtualMouse = true;
 
-			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_FindPackage(WORLDMAPMAIN_FNG_NAMEHASH))
+			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
 			{
 				if (bUseWin32Cursor)
 				{
