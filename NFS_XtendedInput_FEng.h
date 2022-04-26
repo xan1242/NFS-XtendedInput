@@ -367,12 +367,16 @@ void UpdateFECursorPos()
 		if ((TimeSinceLastMouseMovement + MOUSEHIDE_TIME) < timeGetTime())
 			bShowMouse = false;
 	}
-
+#ifdef GAME_MW
 	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
 	{
 		if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
 			bShowMouse = false;
 	}
+#else
+	if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
+		bShowMouse = false;
+#endif
 
 	if (bUseWin32Cursor)
 	{
