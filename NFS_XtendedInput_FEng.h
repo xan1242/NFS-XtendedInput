@@ -95,8 +95,12 @@ struct FEObject
 	void* pCurrentScript;
 	void* Cached;
 };
-
+#ifdef GAME_MW
 #define FE_CONTROL_FLAG_PC 0x8
+#else
+#define FE_CONTROL_FLAG_PC 0x1008
+//#define FE_CONTROL_FLAG_PC2 0x1000
+#endif
 #define FE_CONTROL_FLAG_CONSOLE 0x40
 #define CFE_FLAG_WAS_VISIBLE_ORIGINALLY 0x01000000
 
@@ -110,7 +114,6 @@ void* (*CreateResourceFile)(char* filename, int ResFileType, int unk1, int unk2,
 void(__thiscall* ResourceFile_BeginLoading)(void* ResourceFile, void* callback, void* unk) = (void(__thiscall*)(void*, void*, void*))RESFILE_BEGINLOADING_ADDR;
 void(*ServiceResourceLoading)() = (void(*)())SERVICERESOURCELOADING_ADDR;
 
-unsigned int MouseStateArrayOffsetUpdater_Address = 0;
 
 void __stdcall LoadResourceFile(char* filename, int ResType, int unk1, void* unk2, void* unk3, int unk4, int unk5)
 {
@@ -146,10 +149,12 @@ int __declspec(naked) cFEng_FindPackageWithControl()
 	}
 }
 
+
+unsigned int MouseStateArrayOffsetUpdater_Address = 0;
+bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
 #ifdef GAME_MW
 void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
 void(*FEngSetInvisible)(void* FEObject) = (void(*)(void*))FENG_SETINVISIBLE_ADDR;
-bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
 
 void(__thiscall* CustomTuningScreen_NotificationMessage)(void* thethis, unsigned int unk1, void* FEObject, unsigned int unk2, unsigned int unk3) = (void(__thiscall*)(void*, unsigned int, void*, unsigned int, unsigned int))0x005A9910;
 
@@ -173,6 +178,12 @@ void(__thiscall* SelectCarCameraMover_SetHRotateSpeed)(void* SelectCarCameraMove
 void(__thiscall* SelectCarCameraMover_SetVRotateSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETVROTATESPEED_ADDR;
 void(__thiscall* SelectCarCameraMover_SetZoomSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETZOOMSPEED_ADDR;
 void(__thiscall* FeGarageMain_ZoomCameraView)(void* FEGarageMain, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))FEGARAGEMAIN_ZOOMCAMERAVIEW_ADDR;
+
+unsigned int cFEngGameInterface_RenderObject_Address = 0;
+void(__thiscall* cFEngGameInterface_RenderObject)(void* cFEngGameInterface, void* FEObject) = (void(__thiscall*)(void*, void*))CFENGGAMEINTERFACE_RENDEROBJ_ADDR; 
+void(__thiscall* FEPackage_ForAllObjects)(void* FEPackage, void* CallbackVT) = (void(__thiscall*)(void*, void*))FEPACKAGE_FORALLOBJ_ADDR;
+void(__thiscall* FEngine_ProcessPadsForPackage)(void* FEngine, void* FEPackage) = (void(__thiscall*)(void*, void*))FENGINE_PROCESSPADSFORPACKAGE_ADDR;
+
 #endif
 
 
@@ -639,6 +650,7 @@ void SetControllerFEng(FEObject* inobj)
 
 	if (inobj->Flags & HideFlags)
 	{
+		inobj->UserParam = 0;
 		if (inobj->Flags & ~1)
 		{
 			inobj->UserParam |= CFE_FLAG_WAS_VISIBLE_ORIGINALLY;
@@ -668,45 +680,61 @@ void SetControllerFEng(FEObject* inobj)
 
 
 #pragma runtime_checks( "", off )
-#ifdef GAME_MW
+
+
+void UpdateControllerFEng(FEObject* inobj)
+{
+	if (!bLoadedConsoleButtonTex)
+	{
+		LoadResourceFile("GLOBAL\\XtendedInputButtons.tpk", 0, 0, NULL, 0, 0, 0);
+		ServiceResourceLoading();
+		bLoadedConsoleButtonTex = true;
+	}
+
+	if (!bIsHudVisible()) // HUD has no controller elements anyway, so no need to check it...
+		SetControllerFEng(inobj);
+}
+
+
 bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 {
 	unsigned int thethis = 0;
 	_asm mov thethis, ecx
 
-	if (!bLoadedConsoleButtonTex)
-	{
-		LoadResourceFile("GLOBAL\\XtendedInputButtons.tpk", 0, 0, NULL, 0, 0, 0);
-		ServiceResourceLoading();
-		bLoadedConsoleButtonTex = true;
-	}
-
-	if (!bIsHudVisible()) // HUD has no controller elements anyway, so no need to check it...
-		SetControllerFEng(inobj);
+	UpdateControllerFEng(inobj);
 
 	return MouseStateArrayOffsetUpdater((void*)thethis, inobj);
 }
-#else
 
-void __stdcall FEPackage_UpdateObject_Hook(FEObject* inobj, int unk)
+#ifndef GAME_MW
+
+struct FEObjectCallbackStruct
+{
+	void* Destructor;
+	void* Function;
+};
+
+
+bool __stdcall FEObjectCallback_Function(FEObject* inobj)
+{
+	UpdateControllerFEng(inobj);
+
+	return true;
+}
+
+void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
 {
 	unsigned int thethis = 0;
 	_asm mov thethis, ecx
 
-	if (!bLoadedConsoleButtonTex)
-	{
-		LoadResourceFile("GLOBAL\\XtendedInputButtons.tpk", 0, 0, NULL, 0, 0, 0);
-		ServiceResourceLoading();
-		bLoadedConsoleButtonTex = true;
-	}
+	FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
+	void* cbpointer = &callback;
 
-	if (!bIsHudVisible()) // HUD has no controller elements anyway, so no need to check it...
-		SetControllerFEng(inobj);
+	FEPackage_ForAllObjects(FEPackage, &cbpointer);
 
-	return FEPackage_UpdateObject((void*)thethis, inobj, unk);
+	return FEngine_ProcessPadsForPackage((void*)thethis, FEPackage);
 }
 
 #endif
-
 
 #pragma runtime_checks( "", restore )

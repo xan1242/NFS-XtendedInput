@@ -1194,16 +1194,19 @@ int Init()
 	}
 
 	// FORCE CONSOLE OBJECTS TO BE RENDERABLE ON PC
-	//injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
-	//injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
-	
+	injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
 #ifdef GAME_MW
+	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
+#else
+	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
+#endif
+
 	// dereference the current function after initing to maximize compatibility
 	MouseStateArrayOffsetUpdater_Address = *(unsigned int*)FE_MOUSEUPDATER_CALLBACK_VT_ADDR;
 	MouseStateArrayOffsetUpdater = (bool(__thiscall*)(void*, void*))MouseStateArrayOffsetUpdater_Address;
 	// it looks decieving, it's not related to mouse, it's for accessing all FEObjects during FE updating
 	injector::WriteMemory<unsigned int>(FE_MOUSEUPDATER_CALLBACK_VT_ADDR, (unsigned int)&MouseStateArrayOffsetUpdater_Callback_Hook, true);
-
+#ifdef GAME_MW
 	injector::MakeNOP(FENG_SETVISIBLE_NOP_ADDR, 2, true); // FEngSetVisible
 	injector::MakeNOP(0x0052AEC3, 2, true);
 	injector::MakeNOP(0x0052F33C, 2, true);
@@ -1219,7 +1222,8 @@ int Init()
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
 #else
-	//injector::MakeCALL(FEPACKAGE_UPDATEOBJ_HOOK_ADDR, FEPackage_UpdateObject_Hook, true);
+	injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
+
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
