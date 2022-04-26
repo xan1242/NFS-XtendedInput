@@ -270,14 +270,14 @@ void ReadXInput_Extra()
 		//	*(int*)FEMOUSECURSOR_CARORBIT_Y_ADDR = MousePos.y - *(int*)FEMOUSECURSOR_Y_ADDR;
 		//}
 
-
+#ifdef GAME_MW
 		// simulate mouse cursor for map movement
 		if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
 		{
 			if (g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY)
 				bLastUsedVirtualMouse = true;
 
-			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
+			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_FindPackage(WORLDMAPMAIN_FNG_NAMEHASH))
 			{
 				if (bUseWin32Cursor)
 				{
@@ -316,6 +316,7 @@ void ReadXInput_Extra()
 			bEnteredWorldMapOnce = false;
 			bLastUsedVirtualMouse = false;
 		}
+#endif
 	}
 }
 
@@ -881,7 +882,6 @@ int __declspec(naked) FastMem_InitListAllocator()
 
 void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
 {
-	//void* result = calloc(1, INIT_LIST_ALLOC_SIZE);
 	void* result = FastMem_Alloc((void*)GLOBAL_FASTMEM_ADDR, INIT_LIST_ALLOC_SIZE, NULL);
 	if (result)
 	{
