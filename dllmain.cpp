@@ -21,8 +21,6 @@
 #include "includes\IniReader.h"
 #include "NFS_XtendedInput.h"
 #include "NFS_XtentedInput_ActionID.h"
-#include <list>
-
 
 #if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <XInput.h>
@@ -204,8 +202,10 @@ HRESULT UpdateControllerState()
 			g_Controllers[0].state.Gamepad.sThumbRY = 0;
 		}
 
-		if (g_Controllers[0].state.Gamepad.wButtons || g_Controllers[0].state.Gamepad.sThumbLX || g_Controllers[0].state.Gamepad.sThumbLY || g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || g_Controllers[0].state.Gamepad.bRightTrigger || g_Controllers[0].state.Gamepad.bLeftTrigger)
+		if ((g_Controllers[0].state.Gamepad.wButtons || g_Controllers[0].state.Gamepad.sThumbLX || g_Controllers[0].state.Gamepad.sThumbLY || g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || g_Controllers[0].state.Gamepad.bRightTrigger || g_Controllers[0].state.Gamepad.bLeftTrigger) && bUseDynamicFEngSwitching)
+		{
 			LastControlledDevice = LASTCONTROLLED_CONTROLLER;
+		}
 
 	}
 	else
@@ -1056,28 +1056,32 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_LBUTTONDOWN:
-		LastControlledDevice = LASTCONTROLLED_KB;
+		if (bUseDynamicFEngSwitching)
+			LastControlledDevice = LASTCONTROLLED_KB;
 		bMousePressedDown = true;
 		return 0;
 	case WM_LBUTTONUP:
 		bMousePressedDown = false;
 		return 0;
 	case WM_RBUTTONDOWN:
-		LastControlledDevice = LASTCONTROLLED_KB;
+		if (bUseDynamicFEngSwitching)
+			LastControlledDevice = LASTCONTROLLED_KB;
 		bMouse3PressedDown = true;
 		return 0;
 	case WM_RBUTTONUP:
 		bMouse3PressedDown = false;
 		return 0;
 	case WM_MBUTTONDOWN:
-		LastControlledDevice = LASTCONTROLLED_KB;
+		if (bUseDynamicFEngSwitching)
+			LastControlledDevice = LASTCONTROLLED_KB;
 		bMouse2PressedDown = true;
 		return 0;
 	case WM_MBUTTONUP:
 		bMouse2PressedDown = false;
 		return 0;
 	case WM_MOUSEWHEEL:
-		LastControlledDevice = LASTCONTROLLED_KB;
+		if (bUseDynamicFEngSwitching)
+			LastControlledDevice = LASTCONTROLLED_KB;
 		MouseWheelValue = (GET_WHEEL_DELTA_WPARAM(wParam));
 		return 0;
 	case WM_SETFOCUS:
@@ -1089,7 +1093,8 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_KEYDOWN:
-		LastControlledDevice = LASTCONTROLLED_KB;
+		if (bUseDynamicFEngSwitching)
+			LastControlledDevice = LASTCONTROLLED_KB;
 		break;
 	case WM_MOUSEMOVE:
 		if (!bUseWin32Cursor)
@@ -1137,6 +1142,7 @@ void InitConfig()
 
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
+	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
 }
 
 int Init()
@@ -1175,7 +1181,6 @@ int Init()
 		injector::MakeCALL(0x00711EE2, DummyFuncStd, true);
 		injector::MakeNOP(0x00711EF3, 6, true);
 		injector::MakeCALL(0x00711EF3, DummyFuncStd, true);
-
 #endif
 	}
 	else
@@ -1196,19 +1201,21 @@ int Init()
 	}
 
 	// FORCE CONSOLE OBJECTS TO BE RENDERABLE ON PC
-	injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
+	//injector::MakeJMP(FENG_HIDEPCOBJ_JMP_FROM, FENG_HIDEPCOBJ_JMP_TO, true); // FEngHidePCObjects
+	injector::WriteMemory<unsigned int>(FENG_HIDEPCOBJ_VT_ADDR, (unsigned int)&FEObjectCallback_Function, true);
+
 #ifdef GAME_MW
 	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
 #else
 	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
 #endif
-
+#ifdef GAME_MW
 	// dereference the current function after initing to maximize compatibility
 	MouseStateArrayOffsetUpdater_Address = *(unsigned int*)FE_MOUSEUPDATER_CALLBACK_VT_ADDR;
 	MouseStateArrayOffsetUpdater = (bool(__thiscall*)(void*, void*))MouseStateArrayOffsetUpdater_Address;
 	// it looks decieving, it's not related to mouse, it's for accessing all FEObjects during FE updating
 	injector::WriteMemory<unsigned int>(FE_MOUSEUPDATER_CALLBACK_VT_ADDR, (unsigned int)&MouseStateArrayOffsetUpdater_Callback_Hook, true);
-#ifdef GAME_MW
+
 	injector::MakeNOP(FENG_SETVISIBLE_NOP_ADDR, 2, true); // FEngSetVisible
 	injector::MakeNOP(0x0052AEC3, 2, true);
 	injector::MakeNOP(0x0052F33C, 2, true);
@@ -1224,8 +1231,11 @@ int Init()
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
 #else
-	injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
-	injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
+	if (bUseDynamicFEngSwitching)
+	{
+		injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
+		injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
+	}
 	// force analog zooming in FE orbit camera
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT

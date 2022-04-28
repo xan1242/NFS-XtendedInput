@@ -31,6 +31,7 @@ int TimeSinceLastMouseMovement = 0;
 bool bUseWin32Cursor = true;
 bool bUseCustomCursor = true;
 bool bLastUsedVirtualMouse = false;
+bool bUseDynamicFEngSwitching = true;
 HCURSOR NFSCursor;
 #define MOUSEHIDE_TIME 5000
 
@@ -99,7 +100,6 @@ struct FEObject
 #define FE_CONTROL_FLAG_PC 0x8
 #else
 #define FE_CONTROL_FLAG_PC 0x1008
-//#define FE_CONTROL_FLAG_PC2 0x1000
 #endif
 #define FE_CONTROL_FLAG_CONSOLE 0x40
 #define CFE_FLAG_WAS_VISIBLE_ORIGINALLY 0x01000000
@@ -662,7 +662,9 @@ void SetControllerFEng(FEObject* inobj)
 			FEngSetInvisible(inobj);
 		}
 	}
-	if ((inobj->Flags & ShowFlags))
+
+
+	if ((inobj->Flags & ShowFlags) && bUseDynamicFEngSwitching)
 	{
 		if ((inobj->UserParam & CFE_FLAG_WAS_VISIBLE_ORIGINALLY))
 		{
@@ -700,6 +702,13 @@ void UpdateControllerFEng(FEObject* inobj)
 		SetControllerFEng(inobj);
 }
 
+bool __stdcall FEObjectCallback_Function(FEObject* inobj)
+{
+	UpdateControllerFEng(inobj);
+
+	return true;
+}
+
 #ifdef GAME_MW
 bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 {
@@ -732,13 +741,6 @@ struct FEObjectCallbackStruct
 	void* Function;
 };
 
-
-bool __stdcall FEObjectCallback_Function(FEObject* inobj)
-{
-	UpdateControllerFEng(inobj);
-
-	return true;
-}
 
 void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
 {
