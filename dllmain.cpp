@@ -999,7 +999,7 @@ void __stdcall FEPhotoModeStateManager_HandleScreenTick_Hook()
 
 	if (g_Controllers[0].state.Gamepad.bLeftTrigger || (MouseWheelValue < 0))
 	{
-		if (MouseWheelValue)
+		if (MouseWheelValue) // TODO: maybe enhance it with a proper accel delta???
 			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), 1.0, true);
 		if (g_Controllers[0].state.Gamepad.bLeftTrigger)
 		{
