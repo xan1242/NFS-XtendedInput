@@ -11,8 +11,10 @@
 // TODO (MW): Flickering buttons (e.g. PC showcase button in car select)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
-// TODO (Carbon): add better FE switching mechanism - currently it is a bit late to update and shows too many objects in WorldMapMain quick list
+// TODO (Carbon): shows too many objects in WorldMapMain quick list -- add exceptions for this screen specifically
 // TODO (Carbon): Figure out hash for photo mode texture
+// TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
+
 
 #include "stdafx.h"
 #include "stdio.h"
@@ -1242,7 +1244,7 @@ int Init()
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
 	// remove deadzone for FE activations...
-	//injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true); // CAUSES CAR FLICKERING IN FE!!!
+	//injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true); // CAUSES CAR FLICKERING IN FE!!! ftol2 is a very fast function...
 	injector::WriteMemory<int>(0x59FF6E, (int)&FEActivationFloat, true);
 
 
