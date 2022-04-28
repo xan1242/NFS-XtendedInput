@@ -39,6 +39,7 @@
 #endif
 #ifdef GAME_CARBON
 #include "NFSC_XtendedInput.h"
+float FEActivationFloat = 0.999999f;
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
@@ -1241,7 +1242,9 @@ int Init()
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
 	// remove deadzone for FE activations...
-	injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true);
+	//injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true); // CAUSES CAR FLICKERING IN FE!!!
+	injector::WriteMemory<int>(0x59FF6E, (int)&FEActivationFloat, true);
+
 
 #ifdef GAME_CARBON
 	injector::MakeJMP(0x0057BB69, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
