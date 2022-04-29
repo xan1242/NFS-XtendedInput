@@ -4,7 +4,7 @@ This is a plugin for NFS games by Black Box (MW and newer only) which brings XIn
 
 Currently a work in progress, but fully usable and playable!
 
-Planned to bring to other NFS games in the future (currently only supports MW)!
+Planned to bring to other NFS games in the future (currently only supports MW & Carbon)!
 
 [Also available for Underground and Underground 2 here](https://github.com/xan1242/NFSU-XtendedInput)
 
@@ -182,9 +182,9 @@ They should be identical to the default game, with one exception: the navigation
 
 - Car orbit: WASD
 
-- Button 0: 3
+- Button 0: 3 (Carbon & newer: 5)
 
-- Button 1: 5
+- Button 1: 5 (Carbon & newer: 3)
 
 - Button 2: T
 
@@ -194,7 +194,7 @@ They should be identical to the default game, with one exception: the navigation
 
 - Button 5: 1
 
-- Start: 4
+- Start: 4 (Carbon & newer: Space)
 
 - Quit game: Q
 
