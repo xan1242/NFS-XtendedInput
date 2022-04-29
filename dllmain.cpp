@@ -8,7 +8,6 @@
 // TODO: kill DInput enough so that it doesn't detect XInput controllers but still detects wheels
 // TODO: proper raw input for keyboard (and maybe non XInput gamepads?)
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
-// TODO (MW): Flickering buttons (e.g. PC showcase button in car select)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): shows too many objects in WorldMapMain quick list -- add exceptions for this screen specifically
@@ -282,7 +281,7 @@ void ReadXInput_Extra()
 			if (g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY)
 				bLastUsedVirtualMouse = true;
 
-			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
+			if (bLastUsedVirtualMouse && LastControlledDevice == LASTCONTROLLED_CONTROLLER && cFEng_FindPackage("WorldMapMain.fng"))
 			{
 				if (bUseWin32Cursor)
 				{
@@ -1208,22 +1207,35 @@ int Init()
 	injector::WriteMemory<unsigned int>(FENG_HIDEPCOBJ_VT_ADDR, (unsigned int)&FEObjectCallback_Function, true);
 
 #ifdef GAME_MW
-	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
-#else
-	injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
-#endif
-#ifdef GAME_MW
+
 	// dereference the current function after initing to maximize compatibility
 	MouseStateArrayOffsetUpdater_Address = *(unsigned int*)FE_MOUSEUPDATER_CALLBACK_VT_ADDR;
 	MouseStateArrayOffsetUpdater = (bool(__thiscall*)(void*, void*))MouseStateArrayOffsetUpdater_Address;
 	// it looks decieving, it's not related to mouse, it's for accessing all FEObjects during FE updating
 	injector::WriteMemory<unsigned int>(FE_MOUSEUPDATER_CALLBACK_VT_ADDR, (unsigned int)&MouseStateArrayOffsetUpdater_Callback_Hook, true);
 
-	injector::MakeNOP(FENG_SETVISIBLE_NOP_ADDR, 2, true); // FEngSetVisible
-	injector::MakeNOP(0x0052AEC3, 2, true);
-	injector::MakeNOP(0x0052F33C, 2, true);
-	injector::MakeNOP(0x0052F3FA, 3, true);
-	injector::MakeNOP(0x00562C60, 2, true);
+	if (bUseDynamicFEngSwitching)
+	{
+		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
+		injector::MakeJMP(FENG_SETVISIBLE_ADDR, FEngSetVisible, true);
+		injector::MakeNOP(0x0052AEC3, 2, true);
+		injector::MakeNOP(0x0052F33C, 2, true);
+		injector::MakeNOP(0x0052F3FA, 3, true);
+		injector::MakeNOP(0x00562C60, 2, true);
+	}
+	else
+	{
+		// make MW PC behave exactly like console version here... hide all PC elements instead
+		if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+		{
+			injector::WriteMemory<unsigned char>(0x005A45B9, FE_CONTROL_FLAG_PC, true);
+			injector::WriteMemory<unsigned char>(0x00514CCD, FE_CONTROL_FLAG_PC, true);
+			injector::WriteMemory<unsigned char>(0x0052AEC2, FE_CONTROL_FLAG_PC, true);
+			injector::WriteMemory<unsigned char>(0x0052F33B, FE_CONTROL_FLAG_PC, true);
+			injector::WriteMemory<unsigned char>(0x0052F3F9, FE_CONTROL_FLAG_PC, true);
+			injector::WriteMemory<unsigned char>(0x00562C5F, FE_CONTROL_FLAG_PC, true);
+		}
+	}
 
 	// remove the Controls option entry - it crashes the game
 	injector::MakeJMP(0x0052905D, 0x005290B4, true);
@@ -1234,10 +1246,17 @@ int Init()
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
 #else
+	
 	if (bUseDynamicFEngSwitching)
 	{
+		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
 		injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
 		injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
+	}
+	else
+	{
+		if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+			injector::WriteMemory<unsigned char>(CFENG_RENDEROBJ_FLAG_ADDR, FE_CONTROL_FLAG_PC, true);
 	}
 	// force analog zooming in FE orbit camera
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);

@@ -107,7 +107,7 @@ struct FEObject
 #pragma runtime_checks( "", off )
 int (__thiscall* _cFEng_FindPackage)(void* cFEng, char* pkg) = (int (__thiscall*)(void*, char*))CFENG_FINDPACKAGE_ADDR;
 bool(__thiscall* _cFEng_IsPackageInControl)(void* cFEng, char* pkg) = (bool(__thiscall*)(void*, char*))CFENG_ISPACKAGEINCONTROL_ADDR;
-void* (*FEngFindObject)(char* pkg_name, unsigned int obj_hash) = (void* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
+FEObject* (*FEngFindObject)(char* pkg_name, unsigned int obj_hash) = (FEObject* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
 
 void(*FEngSetLanguageHash)(void* FEObject, unsigned int langhash) = (void(*)(void*, unsigned int))FENG_SETLANGHASH_ADDR;
 void* (*CreateResourceFile)(char* filename, int ResFileType, int unk1, int unk2, int unk3) = (void* (*)(char*, int, int, int, int))CREATERESOURCEFILE_ADDR;
@@ -153,10 +153,62 @@ int __declspec(naked) cFEng_FindPackageWithControl()
 unsigned int MouseStateArrayOffsetUpdater_Address = 0;
 bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
 #ifdef GAME_MW
-void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
+//void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
 void(*FEngSetInvisible)(void* FEObject) = (void(*)(void*))FENG_SETINVISIBLE_ADDR;
 
 void(__thiscall* CustomTuningScreen_NotificationMessage)(void* thethis, unsigned int unk1, void* FEObject, unsigned int unk2, unsigned int unk3) = (void(__thiscall*)(void*, unsigned int, void*, unsigned int, unsigned int))0x005A9910;
+
+// custom FEngSetVisible - necessary to stop elements from appearing we don't want dynamically (flickering buttons)
+void __declspec(naked) FEngSetVisible(FEObject* obj)
+{
+	_asm
+	{
+		mov     eax, [esp+4]
+		test    eax, eax
+		jz      locret_514D01
+		mov		ecx, LastControlledDevice
+		cmp		cl, LASTCONTROLLED_CONTROLLER
+		mov     ecx, [eax + 0x1C]
+		je		cont
+
+		test	cl, FE_CONTROL_FLAG_CONSOLE
+		jnz     locret_514D01
+		jmp fengvisible_continue
+
+	cont:
+		test	cl, FE_CONTROL_FLAG_PC
+		jnz     locret_514D01
+		
+	fengvisible_continue:
+		and		ecx, 0x0FFFFFFFE
+		or		ecx, 0x2400000
+		mov		[eax + 0x1C], ecx
+		cmp     dword ptr[eax + 0x18], 5
+		jnz     locret_514D01
+		push    esi
+		mov     esi, [eax + 0x64]
+		mov     eax, [eax + 0x60]
+		test    eax, eax
+		jle     loc_514D00
+		push    edi
+		mov     edi, eax
+
+	loc_514CF0 :
+		push    esi
+		call    FEngSetVisible
+		mov     esi, [esi + 4]
+		add     esp, 4
+		dec     edi
+		jnz     loc_514CF0
+		pop     edi
+
+	loc_514D00 :
+		pop     esi
+
+	locret_514D01 :
+		retn
+	}
+}
 
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 {
@@ -287,7 +339,7 @@ bool __stdcall cFEng_IsPackageInControl(char* pkg)
 
 void FEngSetVisible_Name(char* pkg_name, unsigned int obj_hash)
 {
-	void* obj = FEngFindObject(pkg_name, obj_hash);
+	FEObject* obj = FEngFindObject(pkg_name, obj_hash);
 	if (obj)
 		FEngSetVisible(obj);
 }
@@ -655,7 +707,6 @@ void SetControllerFEng(FEObject* inobj)
 
 	if (inobj->Flags & HideFlags)
 	{
-		inobj->UserParam = 0;
 		if (inobj->Flags & ~1)
 		{
 			inobj->UserParam |= CFE_FLAG_WAS_VISIBLE_ORIGINALLY;
