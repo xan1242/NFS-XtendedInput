@@ -87,6 +87,8 @@
 #define FE_SHOWCASE_FNG_NAME "Showcase.fng"
 #define WORLDMAPMAIN_FNG_NAMEHASH 0x2FB2E4D3
 
+#define PRESS_START_HOOK_ADDR 0x005A3147
+
 // REBINDABLE ACTIONS -- these will change textures based on bindings
 // all FE action definitions will be changeable
 // CROSS

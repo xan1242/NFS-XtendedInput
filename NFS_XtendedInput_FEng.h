@@ -152,7 +152,21 @@ int __declspec(naked) cFEng_FindPackageWithControl()
 
 unsigned int MouseStateArrayOffsetUpdater_Address = 0;
 bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
+
+
 #ifdef GAME_MW
+void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
+{
+	if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+	{
+		if (ControllerIconMode == CONTROLLERICON_PS4)
+			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
+		else
+			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
+	}
+	else
+		FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
+}
 //void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
 void(*FEngSetInvisible)(void* FEObject) = (void(*)(void*))FENG_SETINVISIBLE_ADDR;
 
@@ -209,20 +223,20 @@ void __declspec(naked) FEngSetVisible(FEObject* obj)
 		retn
 	}
 }
-
+#else
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 {
 	if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
 	{
 		if (ControllerIconMode == CONTROLLERICON_PS4)
-			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
+			FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
 		else
-			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
+			FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
 	}
 	else
-		FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
+		FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
 }
-#else
+
 void(*FE_Object_SetVisibility)(void* FEObject, bool visibility) = (void(*)(void*, bool))FENG_SETOBJECTVISIBILITY_ADDR;
 void(__thiscall* FEPackage_UpdateObject)(void* FEPackage, void* FEObject, int unk) = (void(__thiscall*)(void*, void*, int))FEPACKAGE_UPDATEOBJ_ADDR;
 #ifdef GAME_CARBON
@@ -325,11 +339,7 @@ int __stdcall FEngFindImage(char* pkgname, int hash)
 	return result;
 }
 
-#ifndef GAME_MW
-void(__thiscall* FESendKeystroke)(void* obj, unsigned int key) = (void(__thiscall*)(void*, unsigned int))FE_SENDKEY_ADDR;
-#else
 void(*FESendKeystroke)(unsigned int key) = (void(*)(unsigned int))FE_SENDKEY_ADDR;
-#endif
 
 // functions wrapped because the compiler loves to check the ESP during debugging which causes errors
 int __stdcall cFEng_FindPackage(char* pkg)

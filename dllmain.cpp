@@ -258,11 +258,7 @@ void ReadXInput_Extra()
 		{
 			if ((wButtons & XINPUT_GAMEPAD_BACK)) // trigger once only on button down state
 			{
-#ifdef GAME_MW
 				FESendKeystroke('Q');
-#else
-				FESendKeystroke((void*)FE_KEYSTROKE_OBJ, 'Q');
-#endif
 			}
 			bQuitButtonOldState = (wButtons & XINPUT_GAMEPAD_BACK);
 		}
@@ -1245,11 +1241,11 @@ int Init()
 
 	// hook for the performance tuning screen to show the setting names
 	injector::WriteMemory<unsigned int>(0x008A2A78, (unsigned int)&CustomTuningScreen_NotificationMessage_Hook, true);
-
-	// Press START button initial hook... for the widescreen splash
-	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
-
 #else
+	// Press START button initial hook...
+	injector::MakeCALL(PRESS_START_HOOK_ADDR, FEngSetLanguageHash_Hook, true);
+
+
 	
 	if (bUseDynamicFEngSwitching)
 	{
@@ -1284,6 +1280,8 @@ int Init()
 	injector::MakeCALL(0x005CDD6D, FEPackage_FindObjectByHash_Hide_Hook, true);
 	injector::MakeCALL(0x005B9023, FEPackage_FindObjectByHash_Hide_Hook, true);
 	injector::MakeCALL(0x005AF3EE, FEPackage_FindObjectByHash_Hide_Hook, true);
+
+	injector::MakeNOP(0x008577AC, 2, true);
 
 #endif
 

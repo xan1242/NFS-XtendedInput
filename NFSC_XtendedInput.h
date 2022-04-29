@@ -31,7 +31,7 @@
 #define FEMOUSECURSOR_CARORBIT_X_ADDR 0x00B1F648
 #define FEMOUSECURSOR_CARORBIT_Y_ADDR 0x00B1F64C
 
-#define FE_SENDKEY_ADDR 0x004C39A0
+#define FE_SENDKEY_ADDR 0x00711F70
 
 #define GLOBAL_FASTMEM_ADDR 0x00A99720
 #define FASTMEM_ALLOC_ADDR 0x0060BA70
@@ -57,6 +57,7 @@
 #define FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR 0x00600D5C
 #define CFENG_SERVICE_ADDR 0x00600C90
 #define CFENG_SERVICE_CALL_ADDR 0x005BB5B5
+#define FE_STRING_PRINTF_ADDRESS 0x005910E0
 
 
 #define CREATERESOURCEFILE_ADDR 0x006B32C0
@@ -107,6 +108,8 @@
 #define SELECTCAR_SETVROTATESPEED_ADDR 0x00488F40
 #define SELECTCAR_SETZOOMSPEED_ADDR 0x00488FA0
 #define FEGARAGEMAIN_ZOOMCAMERAVIEW_ADDR 0x0083EEF0
+
+#define PRESS_START_HOOK_ADDR 0x008577B6
 
 // REBINDABLE ACTIONS -- these will change textures based on bindings
 // all FE action definitions will be changeable
@@ -255,12 +258,26 @@ unsigned int FE_DefaultButtonTexHashes[FE_TEX_HASH_COUNT] =
 	FE_DPAD_RIGHT_TEX_HASH,
 };
 
+bool cFEng_IsPackageInControl_Fast(unsigned int pkg_name_hash);
+int(*FE_String_Printf)(void* FEObject, const char* fmt, ...) = (int(*)(void*, const char*, ...))FE_STRING_PRINTF_ADDRESS;
+void* (*FEngFindObject_Title)(char* pkg_name, unsigned int obj_hash) = (void* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
 
-
+char* SplashPkgName = "DEMO_SPLASH.fng";
 
 void SetTitleScreenText()
 {
-	return;
+	int obj_hash = 0xC4DF3FF2;
+	char* pkg_name = SplashPkgName;
+
+	if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+	{
+		if (ControllerIconMode == CONTROLLERICON_PS4)
+			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
+		else
+			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
+	}
+	else
+		FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
 }
 
 void(* InitProfileSettings)() = (void(*)())0x00679BF0;
