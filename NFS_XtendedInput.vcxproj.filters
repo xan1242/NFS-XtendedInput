@@ -21,15 +21,24 @@
     <None Include="Config-MW\NFS_XtendedInput.ini">
       <Filter>Config-MW</Filter>
     </None>
+    <None Include="Config-Carbon\NFS_XtendedInput.ini">
+      <Filter>Config-Carbon</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
       <UniqueIdentifier>{f0576408-75ad-4d89-843a-3cc3ea68509a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config-Carbon">
+      <UniqueIdentifier>{aa174bd9-fc93-4623-8735-0e94fa5df835}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Config-MW\EventReference.txt">
       <Filter>Config-MW</Filter>
+    </Text>
+    <Text Include="Config-Carbon\EventReference.txt">
+      <Filter>Config-Carbon</Filter>
     </Text>
   </ItemGroup>
 </Project>
