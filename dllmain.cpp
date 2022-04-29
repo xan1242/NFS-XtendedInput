@@ -11,7 +11,6 @@
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): shows too many objects in WorldMapMain quick list -- add exceptions for this screen specifically
-// TODO (Carbon): Figure out hash for photo mode texture
 // TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
 
 
