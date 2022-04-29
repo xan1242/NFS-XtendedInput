@@ -1260,7 +1260,13 @@ int Init()
 	else
 	{
 		if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+		{
 			injector::WriteMemory<unsigned char>(CFENG_RENDEROBJ_FLAG_ADDR, FE_CONTROL_FLAG_PC, true);
+			injector::WriteMemory<unsigned int>(0x005C3910, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+			injector::WriteMemory<unsigned int>(0x005CDD67, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+			injector::WriteMemory<unsigned int>(0x005B901D, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+			injector::WriteMemory<unsigned int>(0x005AF3E8, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+		}
 	}
 	// force analog zooming in FE orbit camera
 	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
