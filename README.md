@@ -168,6 +168,10 @@ Second mode is GetKeyboardState (buffered). This will store all keys in a buffer
 
 - Engage event: Enter
 
+(Carbon only)
+
+- Activate crew member: Y
+
 ### FrontEnd
 
 They should be identical to the default game, with one exception: the navigation keys do not control the camera anymore. They were moved to their own buttons.
