@@ -62,6 +62,10 @@ Default controller button mappings are:
 
 - SMS/Map/Status/Engage Event: D-Pad
 
+(Carbon only)
+
+- Activate crew member: Y
+
 One note about the World Map screen: during this screen and only then, you can control the mouse cursor with the right analog stick (and click with the Left shoulder button). If you're using the OS mouse, it **will ** take control of it (and subequently confine the mouse wihin the game window).
 
 ### FrontEnd
@@ -154,7 +158,7 @@ Second mode is GetKeyboardState (buffered). This will store all keys in a buffer
 
 - Pull camera back: P
 
-- Shift up/down: Right Shift / Right Control
+- Shift up/down: Left Shift / Left Control
 
 - Pause: Escape
 
@@ -170,7 +174,7 @@ Second mode is GetKeyboardState (buffered). This will store all keys in a buffer
 
 (Carbon only)
 
-- Activate crew member: Y
+- Activate crew member: Right Control
 
 ### FrontEnd
 
