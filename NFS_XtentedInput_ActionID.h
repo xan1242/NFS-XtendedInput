@@ -1514,6 +1514,12 @@ bool bIsActionDigitalButton(ActionID in)
 	case HUDACTION_PAD_RIGHT:
 	case HUDACTION_SKIPNIS:
 	case HUDACTION_NEXTSONG:
+#ifndef GAME_MW
+	case GAMEACTION_CREWAGGRESSIVE:
+	case GAMEACTION_CREWDEFENSIVE:
+	case GAMEACTION_CREWDEFAULT:
+	case GAMEACTION_CREWSPEED:
+#endif
 		return true;
 	}
 	return false;
