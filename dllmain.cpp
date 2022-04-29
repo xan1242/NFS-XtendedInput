@@ -1256,6 +1256,11 @@ int Init()
 		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
 		injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
 		injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
+		injector::WriteMemory<unsigned int>(FEWORLDMAPSTATEMANAGER_TICK_VT_ADDR, (unsigned int)&FEWorldMapStateManager_HandleScreenTick_Hook, true);
+		injector::MakeCALL(0x005C670E, WorldMap_UnfocusQuickList_Hook, true);
+		injector::MakeCALL(0x005CE0B9, WorldMap_SetQuickListInFocus_Hook, true);
+		injector::MakeCALL(0x005CE309, WorldMap_SetQuickListInFocus_Hook, true);
+
 	}
 	else
 	{
@@ -1267,7 +1272,6 @@ int Init()
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
 	// remove deadzone for FE activations...
-	//injector::MakeCALL(0x0059FF72, ftol2_to_int_bool, true); // CAUSES CAR FLICKERING IN FE!!! ftol2 is a very fast function...
 	injector::WriteMemory<int>(0x59FF6E, (int)&FEActivationFloat, true);
 
 
@@ -1275,6 +1279,12 @@ int Init()
 	injector::MakeJMP(0x0057BB69, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
 	injector::WriteMemory<unsigned int>(0x009D306C, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
 	injector::WriteMemory<unsigned int>(0x009D308C, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
+	
+	injector::MakeCALL(0x005C3916, FEPackage_FindObjectByHash_Show_Hook, true);
+	injector::MakeCALL(0x005CDD6D, FEPackage_FindObjectByHash_Hide_Hook, true);
+	injector::MakeCALL(0x005B9023, FEPackage_FindObjectByHash_Hide_Hook, true);
+	injector::MakeCALL(0x005AF3EE, FEPackage_FindObjectByHash_Hide_Hook, true);
+
 #endif
 
 	//freopen("CON", "w", stdout);

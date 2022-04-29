@@ -236,6 +236,11 @@ void(__thiscall* cFEngGameInterface_RenderObject)(void* cFEngGameInterface, void
 void(__thiscall* FEPackage_ForAllObjects)(void* FEPackage, void* CallbackVT) = (void(__thiscall*)(void*, void*))FEPACKAGE_FORALLOBJ_ADDR;
 void(__thiscall* FEngine_ProcessPadsForPackage)(void* FEngine, void* FEPackage) = (void(__thiscall*)(void*, void*))FENGINE_PROCESSPADSFORPACKAGE_ADDR;
 void(__thiscall* cFEng_Service)(void* cFEng, int unk1, int unk2) = (void(__thiscall*)(void*, int unk1, int unk2))CFENG_SERVICE_ADDR;
+void*(__thiscall* FEPackage_FindObjectByHash)(void* FEPackage, unsigned int namehash) = (void*(__thiscall*)(void*, unsigned int))FEPACKAGE_FINDOBJBYHASH_ADDR;
+void(__thiscall* FEWorldMapStateManager_HandleScreenTick)(void* FEWorldMapStateManager) = (void(__thiscall*)(void*))FEWORLDMAPSTATEMANAGER_TICK_ADDR;
+void(__thiscall* WorldMap_UnfocusQuickList)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_UNFOCUSQUICKLIST_ADDR;
+void(__thiscall* WorldMap_SetQuickListInFocus)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_SETQUICKLISTINFOCUS_ADDR;
+
 
 #endif
 
@@ -838,6 +843,63 @@ void __stdcall cFEng_Service_Hook(int unk1, int unk2)
 	return cFEng_Service((void*)thethis, unk1, unk2);
 }
 
+// world map fixes for Carbon
+void* __stdcall FEPackage_FindObjectByHash_Hide_Hook(unsigned int namehash)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	FEngSetInvisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
+
+	return FEPackage_FindObjectByHash((void*)thethis, namehash);
+}
+
+void* __stdcall FEPackage_FindObjectByHash_Show_Hook(unsigned int namehash)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	FEngSetVisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
+
+	return FEPackage_FindObjectByHash((void*)thethis, namehash);
+}
+
+bool bQuickListFocused = false;
+
+void __stdcall FEWorldMapStateManager_HandleScreenTick_Hook()
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+
+	if (bQuickListFocused && *(int*)WORLDMAP_INSTANCE_ADDR)
+	{
+		FEngSetInvisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_CONSOLE));
+		FEngSetInvisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
+	}
+
+	return FEWorldMapStateManager_HandleScreenTick((void*)thethis);
+}
+
+void __stdcall WorldMap_SetQuickListInFocus_Hook()
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	bQuickListFocused = true;
+
+	return WorldMap_SetQuickListInFocus((void*)thethis);
+}
+
+void __stdcall WorldMap_UnfocusQuickList_Hook()
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	bQuickListFocused = false;
+
+	return WorldMap_UnfocusQuickList((void*)thethis);
+}
 
 #endif
 
