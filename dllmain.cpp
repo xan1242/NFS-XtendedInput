@@ -468,7 +468,6 @@ public:
 				bInShowcase = true;
 		}
 #endif
-
 		for (unsigned int i = 0; i < MAX_ACTIONID; i++)
 		{
 			if (bIsActionFrontEnd((ActionID)i) && bIsHudVisible())
@@ -486,7 +485,7 @@ public:
 				if (bIsActionDebug((ActionID)i))
 					rdi = 1; // debug (camera) actions are always read from the second port, but the PC version omits it entirely so this is a workaround
 
-				wButtons = g_Controllers[rdi].state.Gamepad.wButtons;
+				//wButtons = g_Controllers[rdi].state.Gamepad.wButtons;
 
 				if (bIsActionAnalog((ActionID)i))
 				{
@@ -687,7 +686,6 @@ public:
 
 				}
 
-
 				CurrValues[fDeviceIndex][i] = fresult;
 
 				// update prev values
@@ -710,6 +708,9 @@ public:
 					if (CurrValues[fDeviceIndex][i] > 0)
 						CurrValues[fDeviceIndex][i] = 0;
 				}
+
+
+
 			}
 			bDoPolling = true;
 		}
@@ -1191,6 +1192,9 @@ int Init()
 	// kill garage camera control with FE pad buttons (leave only the stick)
 	injector::MakeJMP(FENG_SHOWCASECAM_JMP_FROM, FENG_SHOWCASECAM_JMP_TO, true);
 
+	// FEngHud -- joy handler fix
+	injector::MakeJMP(FENGHUD_JOYHANDLER_JMP_FROM, FENGHUD_JOYHANDLER_JMP_TO, true);
+
 	// FE VISUAL STUFF
 
 	// custom Win32 mouse cursor
@@ -1245,6 +1249,7 @@ int Init()
 
 	// Press START button initial hook... for the widescreen splash
 	injector::MakeCALL(0x005A3147, FEngSetLanguageHash_Hook, true);
+
 #else
 	
 	if (bUseDynamicFEngSwitching)

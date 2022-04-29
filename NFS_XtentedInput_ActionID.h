@@ -1409,6 +1409,29 @@ bool bIsActionFrontEnd(ActionID in)
 	return false;
 }
 
+bool bIsActionHUD(ActionID in)
+{
+	switch (in)
+	{
+	case HUDACTION_PAUSEREQUEST:
+	case HUDACTION_ENGAGE_EVENT:
+	case HUDACTION_PAD_LEFT:
+	case HUDACTION_PAD_DOWN:
+	case HUDACTION_PAD_RIGHT:
+	case HUDACTION_SKIPNIS:
+	case HUDACTION_NEXTSONG:
+#ifndef GAME_MW
+	case HUDACTION_VOIPACTIVATION:
+	case HUDACTION_VOIPDEACTIVATION:
+#endif
+		return true;
+
+	default:
+		break;
+	}
+	return false;
+}
+
 bool bIsActionFrontEndNavigation(ActionID in)
 {
 	switch (in)
