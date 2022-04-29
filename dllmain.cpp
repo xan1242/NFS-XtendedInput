@@ -479,7 +479,7 @@ public:
 				if (bIsActionDebug((ActionID)i))
 					rdi = 1; // debug (camera) actions are always read from the second port, but the PC version omits it entirely so this is a workaround
 
-				//wButtons = g_Controllers[rdi].state.Gamepad.wButtons;
+				wButtons = g_Controllers[rdi].state.Gamepad.wButtons;
 
 				if (bIsActionAnalog((ActionID)i))
 				{
