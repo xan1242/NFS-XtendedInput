@@ -181,10 +181,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Config-Carbon\NFS_XtendedInput.ini" />
     <None Include="Config-MW\NFS_XtendedInput.ini" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Config-Carbon\EventReference.txt" />
     <Text Include="Config-MW\EventReference.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
