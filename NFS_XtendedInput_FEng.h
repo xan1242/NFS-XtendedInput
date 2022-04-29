@@ -662,10 +662,13 @@ void SetBindingButtonTexture(ActionID id, WORD buttonmask)
 		ButtonTexHashes[FE_CANCEL_TEX] = GetAppropriateButtonTex(buttonmask);
 		break;
 	case FRONTENDACTION_BUTTON0:
-		ButtonTexHashes[FE_BUTTON0_TEX] = GetAppropriateButtonTex(buttonmask);
+		ButtonTexHashes[FE_SELECT_TEX] = GetAppropriateButtonTex(buttonmask);
 		break;
 	case FRONTENDACTION_BUTTON1:
 		ButtonTexHashes[FE_BUTTON1_TEX] = GetAppropriateButtonTex(buttonmask);
+#ifndef GAME_MW
+		ButtonTexHashes[FE_BUTTON0_TEX] = GetAppropriateButtonTex(buttonmask);
+#endif
 		break;
 	case FRONTENDACTION_BUTTON2:
 		ButtonTexHashes[FE_BUTTON2_TEX] = GetAppropriateButtonTex(buttonmask);
@@ -714,7 +717,6 @@ void SetControllerFEng(FEObject* inobj)
 		}
 	}
 
-
 	if ((inobj->Flags & ShowFlags) && bUseDynamicFEngSwitching)
 	{
 		if ((inobj->UserParam & CFE_FLAG_WAS_VISIBLE_ORIGINALLY))
@@ -723,6 +725,7 @@ void SetControllerFEng(FEObject* inobj)
 		}
 	}
 	
+
 
 	if (inobj->Type == FE_Image)
 	{
