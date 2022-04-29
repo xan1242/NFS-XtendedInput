@@ -11,7 +11,7 @@
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
-
+// TODO (Carbon): ingame button prompt during tutorial - find the texture hash for that and replace it
 
 #include "stdafx.h"
 #include "stdio.h"
