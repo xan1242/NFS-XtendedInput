@@ -254,6 +254,7 @@ void*(__thiscall* FEPackage_FindObjectByHash)(void* FEPackage, unsigned int name
 void(__thiscall* FEWorldMapStateManager_HandleScreenTick)(void* FEWorldMapStateManager) = (void(__thiscall*)(void*))FEWORLDMAPSTATEMANAGER_TICK_ADDR;
 void(__thiscall* WorldMap_UnfocusQuickList)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_UNFOCUSQUICKLIST_ADDR;
 void(__thiscall* WorldMap_SetQuickListInFocus)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_SETQUICKLISTINFOCUS_ADDR;
+char*(*GetLocalizedString)(unsigned int langhash) = (char*(*)(unsigned int))GETLOCALIZEDSTRING_ADDR;
 
 
 #endif
@@ -791,25 +792,11 @@ bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
 
 #else
 
-bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj)
-{
-	unsigned int thethis = 0;
-	_asm mov thethis, ecx
-
-	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH))
-	{
-		UpdateControllerFEng(inobj);
-	}
-
-	return MouseStateArrayOffsetUpdater((void*)thethis, inobj);
-}
-
 struct FEObjectCallbackStruct
 {
 	void* Destructor;
 	void* Function;
 };
-
 
 void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
 {
@@ -849,10 +836,9 @@ void __stdcall cFEng_Service_Hook(int unk1, int unk2)
 		}
 	}
 
-
 	return cFEng_Service((void*)thethis, unk1, unk2);
 }
-
+#ifdef GAME_CARBON
 // world map fixes for Carbon
 void* __stdcall FEPackage_FindObjectByHash_Hide_Hook(unsigned int namehash)
 {
@@ -895,6 +881,13 @@ void __stdcall FEWorldMapStateManager_HandleScreenTick_Hook()
 			FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
 	}
 
+	if ((*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 3) && *(int*)WORLDMAP_INSTANCE_ADDR)
+	{
+		// change text from "Free Roam" to "Back" during FE for the console UI element
+		FE_String_Printf(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), 0x0EF36117), GetLocalizedString(0x8CD567B8));
+		FE_String_Printf(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), 0xE2DACDBC), GetLocalizedString(0x8CD567B8));
+	}
+
 	return FEWorldMapStateManager_HandleScreenTick((void*)thethis);
 }
 
@@ -923,6 +916,14 @@ void __stdcall WorldMap_UnfocusQuickList_Hook()
 	return WorldMap_UnfocusQuickList((void*)thethis);
 }
 
-#endif
+void FEPrintf_Hook_WorldMap(char* pkg_name, unsigned int object_hash, char* fmt, char* str)
+{
+	FE_String_Printf(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), 0xCB235910), str);
+	FE_String_Printf(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), 0x300B8082), str);
+}
+
+#endif // GAME_CARBON
+
+#endif // GAME_MW
 
 #pragma runtime_checks( "", restore )

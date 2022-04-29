@@ -1244,28 +1244,17 @@ int Init()
 	// Press START button initial hook...
 	injector::MakeCALL(PRESS_START_HOOK_ADDR, FEngSetLanguageHash_Hook, true);
 
-
-	
 	if (bUseDynamicFEngSwitching)
 	{
 		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
 		injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
 		injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
-		injector::WriteMemory<unsigned int>(FEWORLDMAPSTATEMANAGER_TICK_VT_ADDR, (unsigned int)&FEWorldMapStateManager_HandleScreenTick_Hook, true);
-		injector::MakeCALL(0x005C670E, WorldMap_UnfocusQuickList_Hook, true);
-		injector::MakeCALL(0x005CE0B9, WorldMap_SetQuickListInFocus_Hook, true);
-		injector::MakeCALL(0x005CE309, WorldMap_SetQuickListInFocus_Hook, true);
-
 	}
 	else
 	{
 		if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
 		{
 			injector::WriteMemory<unsigned char>(CFENG_RENDEROBJ_FLAG_ADDR, FE_CONTROL_FLAG_PC, true);
-			injector::WriteMemory<unsigned int>(0x005C3910, WORLDMAP_BUTTONGROUP_CONSOLE, true);
-			injector::WriteMemory<unsigned int>(0x005CDD67, WORLDMAP_BUTTONGROUP_CONSOLE, true);
-			injector::WriteMemory<unsigned int>(0x005B901D, WORLDMAP_BUTTONGROUP_CONSOLE, true);
-			injector::WriteMemory<unsigned int>(0x005AF3E8, WORLDMAP_BUTTONGROUP_CONSOLE, true);
 		}
 	}
 	// force analog zooming in FE orbit camera
@@ -1286,7 +1275,29 @@ int Init()
 	injector::MakeCALL(0x005B9023, FEPackage_FindObjectByHash_Hide_Hook, true);
 	injector::MakeCALL(0x005AF3EE, FEPackage_FindObjectByHash_Hide_Hook, true);
 
+	injector::MakeCALL(0x005AED20, FEPrintf_Hook_WorldMap, true);
+
 	injector::MakeNOP(0x008577AC, 2, true);
+
+
+	if (bUseDynamicFEngSwitching)
+	{
+		injector::WriteMemory<unsigned int>(FEWORLDMAPSTATEMANAGER_TICK_VT_ADDR, (unsigned int)&FEWorldMapStateManager_HandleScreenTick_Hook, true);
+		injector::MakeCALL(0x005C670E, WorldMap_UnfocusQuickList_Hook, true);
+		injector::MakeCALL(0x005CE0B9, WorldMap_SetQuickListInFocus_Hook, true);
+		injector::MakeCALL(0x005CE309, WorldMap_SetQuickListInFocus_Hook, true);
+
+	}
+	else
+	{
+		if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+		{
+			injector::WriteMemory<unsigned int>(0x005C3910, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+			injector::WriteMemory<unsigned int>(0x005CDD67, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+			injector::WriteMemory<unsigned int>(0x005B901D, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+			injector::WriteMemory<unsigned int>(0x005AF3E8, WORLDMAP_BUTTONGROUP_CONSOLE, true);
+		}
+	}
 
 #endif
 
