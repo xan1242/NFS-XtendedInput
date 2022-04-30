@@ -892,14 +892,9 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 	return (void*)thethis;
 }
 
-#ifdef GAME_CARBON
-// fix for Carbon Photo Mode (ingame)
-void __stdcall FEPhotoModeStateManager_HandleScreenTick_Hook()
+void HandleSelectCarCamera(void* SelectCarObj, SHORT XAxis, SHORT YAxis)
 {
-	unsigned int thethis = 0;
-	_asm mov thethis, ecx
-
-	if (g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || bMousePressedDown)
+	if (XAxis || YAxis || bMousePressedDown)
 	{
 		if (bMousePressedDown)
 		{
@@ -916,55 +911,68 @@ void __stdcall FEPhotoModeStateManager_HandleScreenTick_Hook()
 				VSpeed = -25.0;
 
 			if (HSpeed)
-				SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), HSpeed, true);
+				SelectCarCameraMover_SetHRotateSpeed(SelectCarObj, HSpeed, true);
 			else
-				SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+				SelectCarCameraMover_SetHRotateSpeed(SelectCarObj, 0, false);
 			if (VSpeed)
-				SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), VSpeed, true);
+				SelectCarCameraMover_SetVRotateSpeed(SelectCarObj, VSpeed, true);
 			else
-				SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+				SelectCarCameraMover_SetVRotateSpeed(SelectCarObj, 0, false);
 		}
 
-		if (g_Controllers[0].state.Gamepad.sThumbRX)
+		if (XAxis)
 		{
-			float HSpeed = -g_Controllers[0].state.Gamepad.sThumbRX / float(0x7FFF);
-			SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), HSpeed, true);
+			float HSpeed = -XAxis / float(0x7FFF);
+			SelectCarCameraMover_SetHRotateSpeed(SelectCarObj, HSpeed, true);
 		}
-		if (g_Controllers[0].state.Gamepad.sThumbRY)
+		if (YAxis)
 		{
-			float VSpeed = g_Controllers[0].state.Gamepad.sThumbRY / float(0x7FFF);
-			SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), VSpeed, true);
+			float VSpeed = YAxis / float(0x7FFF);
+			SelectCarCameraMover_SetVRotateSpeed(SelectCarObj, VSpeed, true);
 		}
 	}
 	else
 	{
-		SelectCarCameraMover_SetHRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
-		SelectCarCameraMover_SetVRotateSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+		SelectCarCameraMover_SetHRotateSpeed(SelectCarObj, 0, false);
+		SelectCarCameraMover_SetVRotateSpeed(SelectCarObj, 0, false);
 	}
 
 	if (g_Controllers[0].state.Gamepad.bLeftTrigger || (MouseWheelValue < 0))
 	{
 		if (MouseWheelValue) // TODO: maybe enhance it with a proper accel delta???
-			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), 1.0, true);
+			SelectCarCameraMover_SetZoomSpeed(SelectCarObj, 1.0, true);
 		if (g_Controllers[0].state.Gamepad.bLeftTrigger)
 		{
 			float Speed = g_Controllers[0].state.Gamepad.bLeftTrigger / float(0xFF);
-			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), Speed, true);
+			SelectCarCameraMover_SetZoomSpeed(SelectCarObj, Speed, true);
 		}
 	}
 
 	else if (g_Controllers[0].state.Gamepad.bRightTrigger || (MouseWheelValue > 0))
 	{
 		if (MouseWheelValue)
-			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), -1.0, true);
+			SelectCarCameraMover_SetZoomSpeed(SelectCarObj, -1.0, true);
 		if (g_Controllers[0].state.Gamepad.bRightTrigger)
 		{
 			float Speed = g_Controllers[0].state.Gamepad.bRightTrigger / float(0xFF);
-			SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), -Speed, true);
+			SelectCarCameraMover_SetZoomSpeed(SelectCarObj, -Speed, true);
 		}
 	}
 	else
-		SelectCarCameraMover_SetZoomSpeed((void*)*(int*)(thethis + 0x28), 0, false);
+		SelectCarCameraMover_SetZoomSpeed(SelectCarObj, 0, false);
+}
+
+// fix for Carbon & Pro Street Photo Mode
+void __stdcall FEPhotoModeStateManager_HandleScreenTick_Hook()
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+	void* SelectCarObj = (void*)*(int*)(thethis + SELECTCAROBJ_OFFSET);
+#ifdef GAME_PROSTREET
+	HandleSelectCarCamera(SelectCarObj, g_Controllers[0].state.Gamepad.sThumbLX, g_Controllers[0].state.Gamepad.sThumbLY);
+#else
+	HandleSelectCarCamera(SelectCarObj, g_Controllers[0].state.Gamepad.sThumbRX, g_Controllers[0].state.Gamepad.sThumbRY);
+#endif
 }
 
 // fix for ALL zooming (ingame and FE)
@@ -977,7 +985,7 @@ void __stdcall FEPhotoModeStateManager_HandleRTrigger_Hook()
 {
 	return;
 }
-
+#ifdef GAME_CARBON
 int __stdcall ftol2_to_int_bool()
 {
 	unsigned int obj = 0;
@@ -1133,10 +1141,10 @@ int Init()
 	}
 	else
 		SetCursor(NULL);
-#ifndef GAME_PROSTREET	
+
 	// kill garage camera control with FE pad buttons (leave only the stick)
 	injector::MakeJMP(FENG_SHOWCASECAM_JMP_FROM, FENG_SHOWCASECAM_JMP_TO, true);
-#endif
+
 	// FEngHud -- joy handler fix
 	injector::MakeJMP(FENGHUD_JOYHANDLER_JMP_FROM, FENGHUD_JOYHANDLER_JMP_TO, true);
 
@@ -1221,11 +1229,11 @@ int Init()
 	injector::WriteMemory<int>(FE_DEADZONE_POINTER_ADDR, (int)&FEActivationFloat, true);
 
 
+
+	injector::MakeJMP(FEPHOTOMODE_HANDLESCREENTICK_HOOK_ADDR, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
+	injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLELTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
+	injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLERTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
 #ifdef GAME_CARBON
-	injector::MakeJMP(0x0057BB69, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
-	injector::WriteMemory<unsigned int>(0x009D306C, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
-	injector::WriteMemory<unsigned int>(0x009D308C, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
-	
 	injector::MakeCALL(0x005C3916, FEPackage_FindObjectByHash_Show_Hook, true);
 	injector::MakeCALL(0x005CDD6D, FEPackage_FindObjectByHash_Hide_Hook, true);
 	injector::MakeCALL(0x005B9023, FEPackage_FindObjectByHash_Hide_Hook, true);
@@ -1255,7 +1263,7 @@ int Init()
 		}
 	}
 
-#endif
+#endif // GAME_CARBON
 
 	//freopen("CON", "w", stdout);
 	//freopen("CON", "w", stderr);
