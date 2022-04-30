@@ -830,36 +830,6 @@ int __declspec(naked) FastMem_InitListAllocator()
 	}
 }
 
-//void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
-//{
-//	void* result = 0;
-//
-//	_asm
-//	{
-//		push    0
-//		push    INIT_LIST_ALLOC_SIZE
-//		mov     ecx, GLOBAL_FASTMEM_ADDR
-//		call    FastMem_Alloc
-//		test    eax, eax
-//		jz      locret_635281
-//		mov     ecx, CurrentListPos
-//		mov     edx, NextListPos
-//		push    esi
-//		mov     esi, inInputMap
-//		push    edi
-//		mov		[eax], ecx
-//		lea     edi, [eax + 8]
-//		mov     ecx, 8 // count of elements in InputMapEntry
-//		mov		[eax + 4], edx
-//		rep movsd
-//
-//	locret_635281:
-//		mov result, eax
-//	}
-//
-//	return result;
-//}
-
 void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
 {
 	void* result = FastMem_Alloc((void*)GLOBAL_FASTMEM_ADDR, INIT_LIST_ALLOC_SIZE, NULL);
