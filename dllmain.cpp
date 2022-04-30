@@ -337,6 +337,113 @@ bool bCheckSecondBind()
 	return FE_Secondary_Up || FE_Secondary_Down || FE_Secondary_Left || FE_Secondary_Right;
 }
 
+float GetAnalogStickValue(int index, WORD bind)
+{
+	float result = 0.0f;
+	int rdi = index;
+	switch (bind)
+	{
+	case XINPUT_GAMEPAD_LT_CONFIGDEF:
+		result = g_Controllers[rdi].state.Gamepad.bLeftTrigger / 255.0f;
+		break;
+	case XINPUT_GAMEPAD_RT_CONFIGDEF:
+		result = g_Controllers[rdi].state.Gamepad.bRightTrigger / 255.0f;
+		break;
+	case XINPUT_GAMEPAD_LS_X_CONFIGDEF:
+		result = g_Controllers[rdi].state.Gamepad.sThumbLX / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_RS_X_CONFIGDEF:
+		result = g_Controllers[rdi].state.Gamepad.sThumbRX / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_LS_Y_CONFIGDEF:
+		result = g_Controllers[rdi].state.Gamepad.sThumbLY / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_RS_Y_CONFIGDEF:
+		result = g_Controllers[rdi].state.Gamepad.sThumbRY / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_LS_UP_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbLY > 0)
+			result = g_Controllers[rdi].state.Gamepad.sThumbLY / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbLY < 0)
+			result = -g_Controllers[rdi].state.Gamepad.sThumbLY / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbLX < 0)
+			result = -g_Controllers[rdi].state.Gamepad.sThumbLX / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbLX > 0)
+			result = g_Controllers[rdi].state.Gamepad.sThumbLX / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_RS_UP_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbRY > 0)
+			result = g_Controllers[rdi].state.Gamepad.sThumbRY / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbRY < 0)
+			result = -g_Controllers[rdi].state.Gamepad.sThumbRY / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbRX < 0)
+			result = -g_Controllers[rdi].state.Gamepad.sThumbRX / (float)(0x7FFF);
+		break;
+	case XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF:
+		if (g_Controllers[rdi].state.Gamepad.sThumbRX > 0)
+			result = g_Controllers[rdi].state.Gamepad.sThumbRX / (float)(0x7FFF);
+		break;
+	default:
+		break;
+	}
+	return result;
+}
+
+bool bGetAnalogDigitalActivationState(int index, WORD bind, int actid)
+{
+	WORD threshold = FEUPDOWN_ANALOG_THRESHOLD;
+	if (actid == GAMEACTION_SHIFTUP || actid == GAMEACTION_SHIFTDOWN)
+		threshold = SHIFT_ANALOG_THRESHOLD;
+
+	bool bCurrentXInputKeyState = false;
+	int rdi = index;
+	switch (bind)
+	{
+	case XINPUT_GAMEPAD_LT_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.bLeftTrigger > TRIGGER_ACTIVATION_THRESHOLD);
+		break;
+	case XINPUT_GAMEPAD_RT_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.bRightTrigger > TRIGGER_ACTIVATION_THRESHOLD);
+		break;
+	case XINPUT_GAMEPAD_LS_UP_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLY > threshold);
+		break;
+	case XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLY < -threshold);
+		break;
+	case XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLX < -threshold);
+		break;
+	case XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLX > threshold);
+		break;
+	case XINPUT_GAMEPAD_RS_UP_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRY > threshold);
+		break;
+	case XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRY < -threshold);
+		break;
+	case XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRX < -threshold);
+		break;
+	case XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF:
+		bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRX > threshold);
+		break;
+	}
+
+	return bCurrentXInputKeyState;
+}
+
 // based on MW -- may change across games
 class InputDevice
 {
@@ -490,65 +597,7 @@ public:
 				if (bIsActionAnalog((ActionID)i))
 				{
 					if (bIsBindingAnalog(XInputBindings[i]))
-					{
-						float result = 0.0f;
-						switch (XInputBindings[i])
-						{
-						case XINPUT_GAMEPAD_LT_CONFIGDEF:
-							result = g_Controllers[rdi].state.Gamepad.bLeftTrigger / 255.0f;
-							break;
-						case XINPUT_GAMEPAD_RT_CONFIGDEF:
-							result = g_Controllers[rdi].state.Gamepad.bRightTrigger / 255.0f;
-							break;
-						case XINPUT_GAMEPAD_LS_X_CONFIGDEF:
-							result = g_Controllers[rdi].state.Gamepad.sThumbLX / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_RS_X_CONFIGDEF:
-							result = g_Controllers[rdi].state.Gamepad.sThumbRX / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_LS_Y_CONFIGDEF:
-							result = g_Controllers[rdi].state.Gamepad.sThumbLY / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_RS_Y_CONFIGDEF:
-							result = g_Controllers[rdi].state.Gamepad.sThumbRY / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_LS_UP_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbLY > 0)
-								result = g_Controllers[rdi].state.Gamepad.sThumbLY / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbLY < 0)
-								result = -g_Controllers[rdi].state.Gamepad.sThumbLY / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbLX < 0)
-								result = -g_Controllers[rdi].state.Gamepad.sThumbLX / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbLX > 0)
-								result = g_Controllers[rdi].state.Gamepad.sThumbLX / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_RS_UP_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbRY > 0)
-								result = g_Controllers[rdi].state.Gamepad.sThumbRY / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbRY < 0)
-								result = -g_Controllers[rdi].state.Gamepad.sThumbRY / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbRX < 0)
-								result = -g_Controllers[rdi].state.Gamepad.sThumbRX / (float)(0x7FFF);
-							break;
-						case XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF:
-							if (g_Controllers[rdi].state.Gamepad.sThumbRX > 0)
-								result = g_Controllers[rdi].state.Gamepad.sThumbRX / (float)(0x7FFF);
-							break;
-						default:
-							break;
-						}
-						fresult = result;
-					}
+						fresult = GetAnalogStickValue(rdi, XInputBindings[i]);
 					else
 					{
 						bCurrentXInputKeyState = wButtons & XInputBindings[i];
@@ -559,7 +608,6 @@ public:
 
 					if (bCurrentVKeyState)
 						fresult = 1.0f;
-
 				}
 				else
 				{
@@ -586,45 +634,11 @@ public:
 
 						if (bIsBindingAnalog(SecondBind)) // digital directions with an axis
 						{
-							WORD threshold = FEUPDOWN_ANALOG_THRESHOLD;
-
-							switch (SecondBind)
-							{
-							case XINPUT_GAMEPAD_LT_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.bLeftTrigger > TRIGGER_ACTIVATION_THRESHOLD);
-								break;
-							case XINPUT_GAMEPAD_RT_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.bRightTrigger > TRIGGER_ACTIVATION_THRESHOLD);
-								break;
-							case XINPUT_GAMEPAD_LS_UP_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbLY > threshold);
-								break;
-							case XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbLY < -threshold);
-								break;
-							case XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbLX < -threshold);
-								break;
-							case XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbLX > threshold);
-								break;
-							case XINPUT_GAMEPAD_RS_UP_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbRY > threshold);
-								break;
-							case XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbRY < -threshold);
-								break;
-							case XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbRX < -threshold);
-								break;
-							case XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF:
-								bCurrentXInputKeyState2 = (g_Controllers[rdi].state.Gamepad.sThumbRX > threshold);
-								break;
-							}
+							bCurrentXInputKeyState2 = bGetAnalogDigitalActivationState(rdi, SecondBind, i);
 						}
+
 						else
 							bCurrentXInputKeyState2 = wButtons & SecondBind;
-
 					}
 					else
 					{
@@ -634,43 +648,7 @@ public:
 
 					if (bIsBindingAnalog(XInputBindings[i])) // digital directions with an axis
 					{
-						WORD threshold = FEUPDOWN_ANALOG_THRESHOLD;
-						if (i == GAMEACTION_SHIFTUP || i == GAMEACTION_SHIFTDOWN)
-							threshold = SHIFT_ANALOG_THRESHOLD;
-
-						switch (XInputBindings[i])
-						{
-						case XINPUT_GAMEPAD_LT_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.bLeftTrigger > TRIGGER_ACTIVATION_THRESHOLD);
-							break;
-						case XINPUT_GAMEPAD_RT_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.bRightTrigger > TRIGGER_ACTIVATION_THRESHOLD);
-							break;
-						case XINPUT_GAMEPAD_LS_UP_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLY > threshold);
-							break;
-						case XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLY < -threshold);
-							break;
-						case XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLX < -threshold);
-							break;
-						case XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbLX > threshold);
-							break;
-						case XINPUT_GAMEPAD_RS_UP_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRY > threshold);
-							break;
-						case XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRY < -threshold);
-							break;
-						case XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRX < -threshold);
-							break;
-						case XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF:
-							bCurrentXInputKeyState = (g_Controllers[rdi].state.Gamepad.sThumbRX > threshold);
-							break;
-						}
+						bCurrentXInputKeyState = bGetAnalogDigitalActivationState(rdi, XInputBindings[i], i);
 						if (bCurrentXInputKeyState || bCurrentXInputKeyState2)
 							fresult = 1.0f;
 					}
@@ -683,9 +661,9 @@ public:
 					}
 					if (bCurrentVKeyState)
 						fresult = 1.0f;
-
 				}
 
+				// write value to the main array
 				CurrValues[fDeviceIndex][i] = fresult;
 
 				// update prev values
@@ -708,9 +686,6 @@ public:
 					if (CurrValues[fDeviceIndex][i] > 0)
 						CurrValues[fDeviceIndex][i] = 0;
 				}
-
-
-
 			}
 			bDoPolling = true;
 		}
@@ -1188,10 +1163,10 @@ int Init()
 	}
 	else
 		SetCursor(NULL);
-		
+#ifndef GAME_PROSTREET	
 	// kill garage camera control with FE pad buttons (leave only the stick)
 	injector::MakeJMP(FENG_SHOWCASECAM_JMP_FROM, FENG_SHOWCASECAM_JMP_TO, true);
-
+#endif
 	// FEngHud -- joy handler fix
 	injector::MakeJMP(FENGHUD_JOYHANDLER_JMP_FROM, FENGHUD_JOYHANDLER_JMP_TO, true);
 
