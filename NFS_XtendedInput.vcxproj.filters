@@ -25,6 +25,9 @@
     <None Include="Config-Carbon\NFS_XtendedInput.ini">
       <Filter>Config-Carbon</Filter>
     </None>
+    <None Include="Config-ProStreet\NFS_XtendedInput.ini">
+      <Filter>Config-ProStreet</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
@@ -33,6 +36,9 @@
     <Filter Include="Config-Carbon">
       <UniqueIdentifier>{aa174bd9-fc93-4623-8735-0e94fa5df835}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config-ProStreet">
+      <UniqueIdentifier>{e071ac55-7df4-4759-89de-a2e900d9fee2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Config-MW\EventReference.txt">
@@ -40,6 +46,9 @@
     </Text>
     <Text Include="Config-Carbon\EventReference.txt">
       <Filter>Config-Carbon</Filter>
+    </Text>
+    <Text Include="Config-ProStreet\EventReference.txt">
+      <Filter>Config-ProStreet</Filter>
     </Text>
   </ItemGroup>
 </Project>
