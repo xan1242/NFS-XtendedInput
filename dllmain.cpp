@@ -1180,10 +1180,10 @@ int Init()
 		// disable Win32 cursor hiding
 		injector::MakeJMP(WIN32_MOUSEHIDE_JMP_FROM, WIN32_MOUSEHIDE_JMP_TO, true);
 #ifndef GAME_MW
-		injector::MakeNOP(0x00711EE2, 6, true);
-		injector::MakeCALL(0x00711EE2, DummyFuncStd, true);
-		injector::MakeNOP(0x00711EF3, 6, true);
-		injector::MakeCALL(0x00711EF3, DummyFuncStd, true);
+		injector::MakeNOP(SHOWCURSOR_HOOK_ADDR1, 6, true);
+		injector::MakeCALL(SHOWCURSOR_HOOK_ADDR1, DummyFuncStd, true);
+		injector::MakeNOP(SHOWCURSOR_HOOK_ADDR2, 6, true);
+		injector::MakeCALL(SHOWCURSOR_HOOK_ADDR2, DummyFuncStd, true);
 #endif
 	}
 	else
@@ -1269,11 +1269,11 @@ int Init()
 		}
 	}
 	// force analog zooming in FE orbit camera
-	injector::MakeJMP(0x0084FBDA, 0x0084FBE2, true);
+	injector::MakeJMP(FE_ANALOGZOOM_JMP_FROM, FE_ANALOGZOOM_JMP_TO, true);
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
-	injector::WriteMemory<unsigned int>(0x696071, 0x9C1760, true);
+	injector::WriteMemory<unsigned int>(DEADZONE_FLOAT_POINTER_ADDR, SMALL_FLOAT_ADDR, true);
 	// remove deadzone for FE activations...
-	injector::WriteMemory<int>(0x59FF6E, (int)&FEActivationFloat, true);
+	injector::WriteMemory<int>(FE_DEADZONE_POINTER_ADDR, (int)&FEActivationFloat, true);
 
 
 #ifdef GAME_CARBON
