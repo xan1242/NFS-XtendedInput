@@ -112,7 +112,9 @@ int (__thiscall* _cFEng_FindPackage)(void* cFEng, char* pkg) = (int (__thiscall*
 bool(__thiscall* _cFEng_IsPackageInControl)(void* cFEng, char* pkg) = (bool(__thiscall*)(void*, char*))CFENG_ISPACKAGEINCONTROL_ADDR;
 FEObject* (*FEngFindObject)(char* pkg_name, unsigned int obj_hash) = (FEObject* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
 
-//void(*FEngSetLanguageHash)(void* FEObject, unsigned int langhash) = (void(*)(void*, unsigned int))FENG_SETLANGHASH_ADDR;
+#ifdef GAME_MW
+void(*FEngSetLanguageHash)(void* FEObject, unsigned int langhash) = (void(*)(void*, unsigned int))FENG_SETLANGHASH_ADDR;
+#endif
 void* (*CreateResourceFile)(char* filename, int ResFileType, int unk1, int unk2, int unk3) = (void* (*)(char*, int, int, int, int))CREATERESOURCEFILE_ADDR;
 void(__thiscall* ResourceFile_BeginLoading)(void* ResourceFile, void* callback, void* unk) = (void(__thiscall*)(void*, void*, void*))RESFILE_BEGINLOADING_ADDR;
 void(*ServiceResourceLoading)() = (void(*)())SERVICERESOURCELOADING_ADDR;
