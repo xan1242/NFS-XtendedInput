@@ -32,7 +32,7 @@ You cannot enter the "Controls" settings menu as it currently crashes the game, 
 
 The button remaps will change the textures as well according to what you set it to (only for gamepads).
 
-Default mapping follows the Xbox 360 version of NFS Most Wanted.
+Default mapping follows the Xbox 360 version of the games.
 
 Default controller button mappings are:
 
@@ -50,9 +50,9 @@ Default controller button mappings are:
 
 - Speedbreaker: X button
 
-- Look back: Left shoulder
+- Look back: Left shoulder (Pro Street: Y)
 
-- Change camera: Right shoulder
+- Change camera: Right shoulder (Pro Street: X)
 
 - Shift up/down: Right Stick Y axis up/down
 
@@ -65,6 +65,18 @@ Default controller button mappings are:
 (Carbon only)
 
 - Activate crew member: Y
+
+(Pro Street only)
+
+- Clutch: Left shoulder
+
+- Toggle arrow indicators: D-Pad Up
+
+- Toggle best line indicators: D-Pad Down
+
+- Toggle Leaderboards: D-Pad Left
+
+- Toggle minimap: D-Pad Right
 
 One note about the World Map screen: during this screen and only then, you can control the mouse cursor with the right analog stick (and click with the Left shoulder button). If you're using the OS mouse, it **will ** take control of it (and subequently confine the mouse wihin the game window).
 
@@ -146,7 +158,7 @@ Second mode is GetKeyboardState (buffered). This will store all keys in a buffer
 
 - Steering: Left/Right
 
-- E-Brake: Space
+- E-Brake: Space (Pro Street: Right Control)
 
 - NOS: Left Alt
 
@@ -176,6 +188,10 @@ Second mode is GetKeyboardState (buffered). This will store all keys in a buffer
 
 - Activate crew member: Right Control
 
+(Pro Street only)
+
+- Clutch: Space
+
 ### FrontEnd
 
 They should be identical to the default game, with one exception: the navigation keys do not control the camera anymore. They were moved to their own buttons.
@@ -190,19 +206,19 @@ They should be identical to the default game, with one exception: the navigation
 
 - Car orbit: WASD
 
-- Button 0: 3 (Carbon & newer: 5)
+- Button 0: Most Wanted: 3, Carbon: 5, Pro Street: 3
 
-- Button 1: 5 (Carbon & newer: 3)
+- Button 1: Most Wanted: 5, Carbon: 3, Pro Street: 4
 
-- Button 2: T
+- Button 2: Most Wanted: T, Pro Street: 5
 
-- Button 3: R
+- Button 3: Most Wanted: R, Pro Street: M
 
 - Button 4: 2
 
 - Button 5: 1
 
-- Start: 4 (Carbon & newer: Space)
+- Start: Most Wanted: 4, Carbon & newer: Space
 
 - Quit game: Q
 
