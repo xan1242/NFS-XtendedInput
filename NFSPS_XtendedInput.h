@@ -52,7 +52,8 @@
 
 #define FEPACKAGE_FORALLOBJ_ADDR 0x00625070
 #define FEPACKAGE_FINDOBJBYHASH_ADDR 0x00629140
-
+#define FENGINE_PROCESSPADSFORPACKAGE_ADDR 0x0062F920
+#define FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR 0x0063296C
 
 #define CFENG_SERVICE_ADDR 0x006328A0
 #define CFENG_SERVICE_CALL_ADDR 0x005EEEAB
@@ -255,7 +256,7 @@ bool cFEng_IsPackageInControl_Fast(unsigned int pkg_name_hash);
 int(*FE_String_Printf)(void* FEObject, const char* fmt, ...) = (int(*)(void*, const char*, ...))FE_STRING_PRINTF_ADDRESS;
 void* (*FEngFindObject_Title)(char* pkg_name, unsigned int obj_hash) = (void* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
 
-char* SplashPkgName = "DEMO_SPLASH.fng";
+char* SplashPkgName = "Splash.fng";
 
 
 void SetTitleScreenText()

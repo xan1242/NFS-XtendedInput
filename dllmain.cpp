@@ -1207,9 +1207,7 @@ int Init()
 	{
 		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, CFENG_RENDEOBJ_NOP_AMOUNT, true); // cFEng render object
 		injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
-#ifdef GAME_CARBON
 		injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
-#endif
 #ifdef GAME_PROSTREET
 		injector::MakeNOP(CFENG_RENDEROBJ_NOP2_ADDR, CFENG_RENDEOBJ_NOP_AMOUNT, true); // cFEng render object
 #endif
@@ -1264,9 +1262,19 @@ int Init()
 	}
 
 #endif // GAME_CARBON
+#ifdef GAME_PROSTREET
+	// fix the "view details" string update in the FEHubMap screen
+	injector::MakeCALL(0x007ECD78, FE_SetLanguageHash_Hook, true);
+	injector::MakeCALL(0x007ECD59, FE_SetLanguageHash_Hook, true);
+	injector::MakeCALL(0x007ECD0D, FE_SetLanguageHash_Hook, true);
+#endif
 
+
+	//AttachConsole(ATTACH_PARENT_PROCESS);
+	//AllocConsole();
 	//freopen("CON", "w", stdout);
 	//freopen("CON", "w", stderr);
+	
 
 #endif
 

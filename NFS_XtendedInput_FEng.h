@@ -249,8 +249,8 @@ void(__thiscall* SelectCarCameraMover_SetHRotateSpeed)(void* SelectCarCameraMove
 void(__thiscall* SelectCarCameraMover_SetVRotateSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETVROTATESPEED_ADDR;
 void(__thiscall* SelectCarCameraMover_SetZoomSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETZOOMSPEED_ADDR;
 void(__thiscall* FeGarageMain_ZoomCameraView)(void* FEGarageMain, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))FEGARAGEMAIN_ZOOMCAMERAVIEW_ADDR;
-#ifdef GAME_CARBON
 void(__thiscall* FEngine_ProcessPadsForPackage)(void* FEngine, void* FEPackage) = (void(__thiscall*)(void*, void*))FENGINE_PROCESSPADSFORPACKAGE_ADDR;
+#ifdef GAME_CARBON
 void*(__thiscall* FEPackage_FindObjectByHash)(void* FEPackage, unsigned int namehash) = (void*(__thiscall*)(void*, unsigned int))FEPACKAGE_FINDOBJBYHASH_ADDR;
 void(__thiscall* FEWorldMapStateManager_HandleScreenTick)(void* FEWorldMapStateManager) = (void(__thiscall*)(void*))FEWORLDMAPSTATEMANAGER_TICK_ADDR;
 void(__thiscall* WorldMap_UnfocusQuickList)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_UNFOCUSQUICKLIST_ADDR;
@@ -688,9 +688,14 @@ void SetBindingButtonTexture(ActionID id, WORD buttonmask)
 		break;
 	case FRONTENDACTION_BUTTON0:
 		ButtonTexHashes[FE_SELECT_TEX] = GetAppropriateButtonTex(buttonmask);
+#ifdef GAME_PROSTREET
+		ButtonTexHashes[FE_BUTTON1_TEX] = GetAppropriateButtonTex(buttonmask);
+#endif
 		break;
 	case FRONTENDACTION_BUTTON1:
+#ifndef GAME_PROSTREET
 		ButtonTexHashes[FE_BUTTON1_TEX] = GetAppropriateButtonTex(buttonmask);
+#endif
 #ifndef GAME_MW
 		ButtonTexHashes[FE_BUTTON0_TEX] = GetAppropriateButtonTex(buttonmask);
 #endif
@@ -932,6 +937,28 @@ void FEPrintf_Hook_WorldMap(char* pkg_name, unsigned int object_hash, char* fmt,
 }
 
 #endif // GAME_CARBON
+
+#ifdef GAME_PROSTREET
+void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
+	void* cbpointer = &callback;
+
+	FEPackage_ForAllObjects(FEPackage, &cbpointer);
+
+	return FEngine_ProcessPadsForPackage((void*)thethis, FEPackage);
+}
+
+void FE_SetLanguageHash_Hook(char* pkg_name, unsigned int obj_hash, unsigned int lang_hash)
+{
+	FE_String_Printf(FEngFindObject(pkg_name, 0xBC928EF5), GetLocalizedString(lang_hash));
+	FE_String_Printf(FEngFindObject(pkg_name, obj_hash), GetLocalizedString(lang_hash));
+}
+
+#endif
 
 #endif // GAME_MW
 
