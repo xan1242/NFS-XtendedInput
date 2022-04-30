@@ -40,6 +40,10 @@
 #include "NFSC_XtendedInput.h"
 float FEActivationFloat = 0.999999f;
 #endif
+#ifdef GAME_PROSTREET
+#include "NFSPS_XtendedInput.h"
+float FEActivationFloat = 0.999999f;
+#endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
 
@@ -257,7 +261,9 @@ void ReadXInput_Extra()
 		{
 			if ((wButtons & XINPUT_GAMEPAD_BACK)) // trigger once only on button down state
 			{
+#ifndef GAME_PROSTREET
 				FESendKeystroke('Q');
+#endif
 			}
 			bQuitButtonOldState = (wButtons & XINPUT_GAMEPAD_BACK);
 		}
@@ -1214,7 +1220,7 @@ int Init()
 
 	if (bUseDynamicFEngSwitching)
 	{
-		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 6, true); // cFEng render object
+		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, CFENG_RENDEOBJ_NOP_AMOUNT, true); // cFEng render object
 		injector::MakeJMP(FENG_SETVISIBLE_ADDR, FEngSetVisible, true);
 		injector::MakeNOP(0x0052AEC3, 2, true);
 		injector::MakeNOP(0x0052F33C, 2, true);
@@ -1246,9 +1252,14 @@ int Init()
 
 	if (bUseDynamicFEngSwitching)
 	{
-		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, 2, true); // cFEng render object
+		injector::MakeNOP(CFENG_RENDEROBJ_NOP_ADDR, CFENG_RENDEOBJ_NOP_AMOUNT, true); // cFEng render object
 		injector::MakeCALL(CFENG_SERVICE_CALL_ADDR, cFEng_Service_Hook, true);
+#ifdef GAME_CARBON
 		injector::MakeCALL(FENGINE_PROCESSPADSFORPACKAGE_CALL_ADDR, FEngine_ProcessPadsForPackage_Hook, true);
+#endif
+#ifdef GAME_PROSTREET
+		injector::MakeNOP(CFENG_RENDEROBJ_NOP2_ADDR, CFENG_RENDEOBJ_NOP_AMOUNT, true); // cFEng render object
+#endif
 	}
 	else
 	{

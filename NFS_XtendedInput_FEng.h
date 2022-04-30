@@ -8,6 +8,9 @@
 #ifdef GAME_CARBON
 #include "NFSC_XtendedInput.h"
 #endif
+#ifdef GAME_PROSTREET
+#include "NFSPS_XtendedInput.h"
+#endif
 
 #include <windows.h>
 #include <timeapi.h>
@@ -109,7 +112,7 @@ int (__thiscall* _cFEng_FindPackage)(void* cFEng, char* pkg) = (int (__thiscall*
 bool(__thiscall* _cFEng_IsPackageInControl)(void* cFEng, char* pkg) = (bool(__thiscall*)(void*, char*))CFENG_ISPACKAGEINCONTROL_ADDR;
 FEObject* (*FEngFindObject)(char* pkg_name, unsigned int obj_hash) = (FEObject* (*)(char*, unsigned int))FENG_FINDOBJECT_ADDR;
 
-void(*FEngSetLanguageHash)(void* FEObject, unsigned int langhash) = (void(*)(void*, unsigned int))FENG_SETLANGHASH_ADDR;
+//void(*FEngSetLanguageHash)(void* FEObject, unsigned int langhash) = (void(*)(void*, unsigned int))FENG_SETLANGHASH_ADDR;
 void* (*CreateResourceFile)(char* filename, int ResFileType, int unk1, int unk2, int unk3) = (void* (*)(char*, int, int, int, int))CREATERESOURCEFILE_ADDR;
 void(__thiscall* ResourceFile_BeginLoading)(void* ResourceFile, void* callback, void* unk) = (void(__thiscall*)(void*, void*, void*))RESFILE_BEGINLOADING_ADDR;
 void(*ServiceResourceLoading)() = (void(*)())SERVICERESOURCELOADING_ADDR;
@@ -150,11 +153,10 @@ int __declspec(naked) cFEng_FindPackageWithControl()
 }
 
 
+#ifdef GAME_MW
 unsigned int MouseStateArrayOffsetUpdater_Address = 0;
 bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
 
-
-#ifdef GAME_MW
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 {
 	if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
@@ -238,23 +240,21 @@ void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 }
 
 void(*FE_Object_SetVisibility)(void* FEObject, bool visibility) = (void(*)(void*, bool))FENG_SETOBJECTVISIBILITY_ADDR;
-void(__thiscall* FEPackage_UpdateObject)(void* FEPackage, void* FEObject, int unk) = (void(__thiscall*)(void*, void*, int))FEPACKAGE_UPDATEOBJ_ADDR;
+void(__thiscall* FEPackage_ForAllObjects)(void* FEPackage, void* CallbackVT) = (void(__thiscall*)(void*, void*))FEPACKAGE_FORALLOBJ_ADDR;
+void(__thiscall* cFEng_Service)(void* cFEng, int unk1, int unk2) = (void(__thiscall*)(void*, int unk1, int unk2))CFENG_SERVICE_ADDR;
+char* (*GetLocalizedString)(unsigned int langhash) = (char* (*)(unsigned int))GETLOCALIZEDSTRING_ADDR;
+
 #ifdef GAME_CARBON
 void(__thiscall* SelectCarCameraMover_SetHRotateSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETHROTATESPEED_ADDR;
 void(__thiscall* SelectCarCameraMover_SetVRotateSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETVROTATESPEED_ADDR;
 void(__thiscall* SelectCarCameraMover_SetZoomSpeed)(void* SelectCarCameraMover, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))SELECTCAR_SETZOOMSPEED_ADDR;
 void(__thiscall* FeGarageMain_ZoomCameraView)(void* FEGarageMain, float speed, bool activate) = (void(__thiscall*)(void*, float, bool))FEGARAGEMAIN_ZOOMCAMERAVIEW_ADDR;
 
-unsigned int cFEngGameInterface_RenderObject_Address = 0;
-void(__thiscall* cFEngGameInterface_RenderObject)(void* cFEngGameInterface, void* FEObject) = (void(__thiscall*)(void*, void*))CFENGGAMEINTERFACE_RENDEROBJ_ADDR; 
-void(__thiscall* FEPackage_ForAllObjects)(void* FEPackage, void* CallbackVT) = (void(__thiscall*)(void*, void*))FEPACKAGE_FORALLOBJ_ADDR;
 void(__thiscall* FEngine_ProcessPadsForPackage)(void* FEngine, void* FEPackage) = (void(__thiscall*)(void*, void*))FENGINE_PROCESSPADSFORPACKAGE_ADDR;
-void(__thiscall* cFEng_Service)(void* cFEng, int unk1, int unk2) = (void(__thiscall*)(void*, int unk1, int unk2))CFENG_SERVICE_ADDR;
 void*(__thiscall* FEPackage_FindObjectByHash)(void* FEPackage, unsigned int namehash) = (void*(__thiscall*)(void*, unsigned int))FEPACKAGE_FINDOBJBYHASH_ADDR;
 void(__thiscall* FEWorldMapStateManager_HandleScreenTick)(void* FEWorldMapStateManager) = (void(__thiscall*)(void*))FEWORLDMAPSTATEMANAGER_TICK_ADDR;
 void(__thiscall* WorldMap_UnfocusQuickList)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_UNFOCUSQUICKLIST_ADDR;
 void(__thiscall* WorldMap_SetQuickListInFocus)(void* WorldMap) = (void(__thiscall*)(void*))WORLDMAP_SETQUICKLISTINFOCUS_ADDR;
-char*(*GetLocalizedString)(unsigned int langhash) = (char*(*)(unsigned int))GETLOCALIZEDSTRING_ADDR;
 
 
 #endif
@@ -340,7 +340,9 @@ int __stdcall FEngFindImage(char* pkgname, int hash)
 	return result;
 }
 
+#ifndef GAME_PROSTREET
 void(*FESendKeystroke)(unsigned int key) = (void(*)(unsigned int))FE_SENDKEY_ADDR;
+#endif
 
 // functions wrapped because the compiler loves to check the ESP during debugging which causes errors
 int __stdcall cFEng_FindPackage(char* pkg)
@@ -387,11 +389,13 @@ void FEngSetInvisible_CheckObj(FEObject* inobj, unsigned int obj_hash)
 		FEngSetInvisible(inobj);
 }
 
+#ifdef GAME_MW
 void FEngSetLanguageHash_CheckObj(FEObject* inobj, unsigned int obj_hash, unsigned int lang_hash)
 {
 	if (inobj->NameHash == obj_hash)
 		FEngSetLanguageHash(inobj, lang_hash);
 }
+#endif
 
 void* FEngSetTextureHash_CheckObj(FEObject* inobj, unsigned int obj_hash, unsigned int tex_hash)
 {
@@ -442,9 +446,11 @@ void UpdateFECursorPos()
 			bShowMouse = false;
 	}
 #else
+#ifdef GAME_CARBON
 	if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
 		bShowMouse = false;
-#endif
+#endif // GAME_CARBON
+#endif // GAME_MW
 
 	if (bUseWin32Cursor)
 	{
@@ -798,21 +804,6 @@ struct FEObjectCallbackStruct
 	void* Function;
 };
 
-void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
-{
-	unsigned int thethis = 0;
-	_asm mov thethis, ecx
-
-	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH))
-	{
-		FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
-		void* cbpointer = &callback;
-
-		FEPackage_ForAllObjects(FEPackage, &cbpointer);
-	}
-	return FEngine_ProcessPadsForPackage((void*)thethis, FEPackage);
-}
-
 void __stdcall cFEng_Service_Hook(int unk1, int unk2)
 {
 	unsigned int thethis = 0;
@@ -840,6 +831,21 @@ void __stdcall cFEng_Service_Hook(int unk1, int unk2)
 }
 #ifdef GAME_CARBON
 // world map fixes for Carbon
+void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage)
+{
+	unsigned int thethis = 0;
+	_asm mov thethis, ecx
+
+	if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH))
+	{
+		FEObjectCallbackStruct callback = { NULL, &FEObjectCallback_Function };
+		void* cbpointer = &callback;
+
+		FEPackage_ForAllObjects(FEPackage, &cbpointer);
+	}
+	return FEngine_ProcessPadsForPackage((void*)thethis, FEPackage);
+}
+
 void* __stdcall FEPackage_FindObjectByHash_Hide_Hook(unsigned int namehash)
 {
 	unsigned int thethis = 0;
