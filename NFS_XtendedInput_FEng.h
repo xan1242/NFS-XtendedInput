@@ -429,7 +429,9 @@ void UpdateFECursorPos()
 	MousePos.y = (int)((float)(MousePos.y) * ratio);
 
 #ifdef GAME_PROSTREET
-	MousePos.x = MousePos.x - 107;
+	float window_aspect = (float)(windowRect.right - windowRect.left) / (float)(windowRect.bottom - windowRect.top);
+	float shiftpos = ((window_aspect * 480.0f) - 640.0f) / 2.0f;
+	MousePos.x = MousePos.x - shiftpos;
 #endif
 
 	// car orbiting position calculation - always relative to old
