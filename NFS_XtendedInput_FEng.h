@@ -426,6 +426,9 @@ void UpdateFECursorPos()
 	MousePos.x = (int)((float)(MousePos.x) * ratio);
 	MousePos.y = (int)((float)(MousePos.y) * ratio);
 
+#ifdef GAME_PROSTREET
+	MousePos.x = MousePos.x - 107;
+#endif
 
 	// car orbiting position calculation - always relative to old
 	*(int*)FEMOUSECURSOR_CARORBIT_X_ADDR = MousePos.x - *(int*)FEMOUSECURSOR_X_ADDR;
