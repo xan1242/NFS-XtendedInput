@@ -794,7 +794,7 @@ public:
 		// So I'll set an action to a high state while in FE. FE isn't even controlled by the controller, so it should be safe.
 		if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR != 6)
 		{
-			CurrValues[0][GAMEACTION_GAS] = 1.0;
+			CurrValues[0][NULL_ACTION] = 1.0;
 		}
 #endif
 
