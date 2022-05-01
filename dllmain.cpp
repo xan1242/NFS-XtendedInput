@@ -51,6 +51,12 @@ float FEActivationFloat = 0.999999f;
 #endif
 #ifdef GAME_WORLD
 #include "NFSW_XtendedInput.h"
+
+BOOL IsDebuggerPresent_Hook()
+{
+	return FALSE;
+}
+
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
@@ -371,6 +377,57 @@ bool bIsHudVisible()
 {
 	return false;
 }
+
+// world, for whatever reason, uses direct pointers to the class instead of accessing the device scalar array normally
+// copied this code snippet from Carbon 0x00696166
+unsigned int loc_75E375 = 0x75E375 + MainBase;
+unsigned int loc_75E363 = 0x75E363 + MainBase;
+void __declspec(naked) UnscrewWorldDeviceScalars()
+{
+	_asm
+	{
+		mov ecx, [ebx+0x18]
+		shl esi, 4
+		add esi, ecx
+		test esi, esi
+		jnz unscrew_jnz
+		jmp loc_75E363
+		unscrew_jnz:
+		jmp loc_75E375
+	}
+}
+
+unsigned int loc_75E237 = 0x75E237 + MainBase;
+unsigned int loc_75E225 = 0x75E225 + MainBase;
+void __declspec(naked) UnscrewWorldDeviceScalars2()
+{
+	_asm
+	{
+		mov ecx, [ebx + 0x18]
+		shl edi, 4
+		add edi, ecx
+		mov [ebp-8], edi
+		test edi, edi
+		jnz unscrew2_jnz
+		jmp loc_75E225
+		unscrew2_jnz :
+		jmp loc_75E237
+	}
+}
+
+unsigned int loc_75E25F = 0x75E25F + MainBase;
+void __declspec(naked) UnscrewWorldDeviceScalars3()
+{
+	_asm
+	{
+		mov edx, [ebx + 0x18]
+		shl edi, 4
+		add edi, edx
+		jmp loc_75E25F
+	}
+}
+
+
 #endif
 bool bCheckSecondBind()
 {
@@ -866,7 +923,7 @@ void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, I
 	return result;
 }
 #else
-void* (__thiscall* Managed_Alloc)(int size) = (void* (__thiscall*)(int))MANAGED_ALLOCATOR_ADDR;
+void* (*Managed_Alloc)(int size) = (void* (*)(int))MANAGED_ALLOCATOR_ADDR;
 void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
 {
 	void* result = Managed_Alloc(INIT_LIST_ALLOC_SIZE);
@@ -878,7 +935,6 @@ void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, I
 	}
 	return result;
 }
-
 #endif
 void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollection)
 {
@@ -889,11 +945,9 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 
 	_asm mov thethis, ecx
 
-	//printf("InputMapping: 0x%X\n", thethis);
-
 	// use game's own memory management to avoid trouble
-	*(void**)(thethis) = (void*)thethis;
-	*(void**)(thethis+4) = (void*)thethis;
+	* (void**)(thethis) = (void*)thethis;
+	*(void**)(thethis + 4) = (void*)thethis;
 	*(int*)(thethis + 8) = 0;
 
 	for (unsigned int i = 0; i < MAX_ACTIONID; i++)
@@ -910,7 +964,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 			map.UpperDZ = 0.0;
 			map.Action = (ActionID)i;
 			map.DeviceScalarIndex = i;
-			map.ComboDeviceScalarIndex = i;
+			map.ComboDeviceScalarIndex = -1;
 			map.PreviousValue = -1.0f;
 			map.CurrentValue = -1.0f;
 			list_current = *(int*)(thethis + 4);
@@ -929,6 +983,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 
 	return (void*)thethis;
 }
+
 #if not defined (GAME_UC) || not defined (GAME_WORLD)
 void HandleSelectCarCamera(void* SelectCarObj, SHORT XAxis, SHORT YAxis)
 {
@@ -1326,6 +1381,26 @@ int Init()
 
 	SetUnbindableButtonTextures();
 #endif // GAME_UC
+
+#ifdef GAME_WORLD
+	// RECALCULATE FUNCTION POINTERS -- they shift around
+	UTL_Com_Object_IList_Constructor = (void* (__thiscall*)(void*, unsigned int))UTL_ILIST_CONSTRUCTOR_ADDR;
+	InitProfileSettings = (void(*)())(0x756960 + MainBase);
+	Managed_Alloc = (void* (*)(int))MANAGED_ALLOCATOR_ADDR;
+
+	loc_75E375 = 0x75E375 + MainBase;
+	loc_75E363 = 0x75E363 + MainBase;
+	loc_75E237 = 0x75E237 + MainBase;
+	loc_75E225 = 0x75E225 + MainBase;
+	loc_75E25F = 0x75E25F + MainBase;
+
+	injector::MakeJMP(0x0075E358 + MainBase, UnscrewWorldDeviceScalars, true);
+	injector::MakeJMP(0x0075E217 + MainBase, UnscrewWorldDeviceScalars2, true);
+	injector::MakeJMP(0x0075E254 + MainBase, UnscrewWorldDeviceScalars3, true);
+
+	injector::MakeNOP(0x0080005E + MainBase, 6, true);
+#endif
+
 	// Init state
 	ZeroMemory(g_Controllers, sizeof(CONTROLLER_STATE) * MAX_CONTROLLERS);
 

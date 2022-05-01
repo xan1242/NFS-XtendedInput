@@ -1389,6 +1389,8 @@ char ActionIDStr[MAX_ACTIONID][41] =
 	"GAMEACTION_STEERRIGHT",
 	"GAMEACTION_TURNLEFT",
 	"GAMEACTION_TURNRIGHT",
+	"Unknown_5",
+	"Unknown_6",
 	"GAMEACTION_GAS",
 	"GAMEACTION_BRAKE",
 	"GAMEACTION_HANDBRAKE",
@@ -1440,8 +1442,8 @@ char ActionIDStr[MAX_ACTIONID][41] =
 	"CAMERAACTION_MOVE_RIGHT",
 	"CAMERAACTION_MOVE_FORWARD",
 	"CAMERAACTION_MOVE_BACKWARD",
-	"CAMERAACTION_FOV_SMALLER",
 	"CAMERAACTION_FOV_LARGER",
+	"CAMERAACTION_FOV_SMALLER",
 	"CAMERAACTION_CRANE_DOWN",
 	"CAMERAACTION_CRANE_UP",
 	"CAMERAACTION_DOLLY_LEFT",
@@ -1509,6 +1511,43 @@ char ActionIDStr[MAX_ACTIONID][41] =
 	"DEBUGACTION_TOGGLECARCOLOUR",
 	"DEBUGACTION_TOGGLEDEMOCAMERAS",
 	"DEBUGACTION_TOGGLEMENU",
+	"Unknown_127",
+	"Unknown_128",
+	"Unknown_129",
+	"Unknown_130",
+	"Unknown_131",
+	"Unknown_132",
+	"Unknown_133",
+	"Unknown_134",
+	"Unknown_135",
+	"Unknown_136",
+	"Unknown_137",
+	"Unknown_138",
+	"Unknown_139",
+	"Unknown_140",
+	"Unknown_141",
+	"Unknown_142",
+	"Unknown_143",
+	"Unknown_144",
+	"Unknown_145",
+	"Unknown_146",
+	"Unknown_147",
+	"Unknown_148",
+	"Unknown_149",
+	"Unknown_150",
+	"Unknown_151",
+	"Unknown_152",
+	"Unknown_153",
+	"Unknown_154",
+	"Unknown_155",
+	"Unknown_156",
+	"Unknown_157",
+	"Unknown_158",
+	"Unknown_159",
+	"Unknown_160",
+	"Unknown_161",
+	"Unknown_162",
+	"Unknown_163",
 	"ACTION_EXITAPPLICATION",
 	"ACTION_PLUGGED",
 	"ACTION_UNPLUGGED",
@@ -1780,10 +1819,6 @@ bool bIsActionDebug(ActionID in)
 	case DEBUGACTION_MOVE_D_RIGHT:
 	case DEBUGACTION_MOVE_D_FORWARD:
 	case DEBUGACTION_MOVE_D_BACK:
-	case DEBUGACTION_LOOK_D_UP:
-	case DEBUGACTION_LOOK_D_DOWN:
-	case DEBUGACTION_LOOK_D_LEFT:
-	case DEBUGACTION_LOOK_D_RIGHT:
 	case DEBUGACTION_TOGGLEAI:
 #endif
 #ifdef GAME_DEBUG_VERSION
