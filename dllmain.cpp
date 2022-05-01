@@ -31,8 +31,9 @@
 
 #include "NFS_XtendedInput_XInputConfig.h"
 #include "NFS_XtendedInput_VKHash.h"
+#ifndef GAME_UC
 #include "NFS_XtendedInput_FEng.h"
-
+#endif
 #ifdef GAME_MW
 #include "NFSMW_XtendedInput.h"
 #endif
@@ -43,6 +44,9 @@ float FEActivationFloat = 0.999999f;
 #ifdef GAME_PROSTREET
 #include "NFSPS_XtendedInput.h"
 float FEActivationFloat = 0.999999f;
+#endif
+#ifdef GAME_UC
+#include "NFSUC_XtendedInput.h"
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
@@ -205,11 +209,12 @@ HRESULT UpdateControllerState()
 			g_Controllers[0].state.Gamepad.sThumbRX = 0;
 			g_Controllers[0].state.Gamepad.sThumbRY = 0;
 		}
-
+#ifndef GAME_UC
 		if ((g_Controllers[0].state.Gamepad.wButtons || g_Controllers[0].state.Gamepad.sThumbLX || g_Controllers[0].state.Gamepad.sThumbLY || g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || g_Controllers[0].state.Gamepad.bRightTrigger || g_Controllers[0].state.Gamepad.bLeftTrigger) && bUseDynamicFEngSwitching)
 		{
 			LastControlledDevice = LASTCONTROLLED_CONTROLLER;
 		}
+#endif
 
 	}
 	else
@@ -253,6 +258,7 @@ HRESULT UpdateControllerState()
 // old function -- repurposed to send keyboard-exclusive commands to the game
 void ReadXInput_Extra()
 {
+#if not defined (GAME_PROSTREET) || not defined (GAME_UC)
 	if (g_Controllers[0].bConnected)
 	{
 		WORD wButtons = g_Controllers[0].state.Gamepad.wButtons;
@@ -261,9 +267,9 @@ void ReadXInput_Extra()
 		{
 			if ((wButtons & XINPUT_GAMEPAD_BACK)) // trigger once only on button down state
 			{
-#ifndef GAME_PROSTREET
+
 				FESendKeystroke('Q');
-#endif
+
 			}
 			bQuitButtonOldState = (wButtons & XINPUT_GAMEPAD_BACK);
 		}
@@ -322,6 +328,7 @@ void ReadXInput_Extra()
 		}
 #endif
 	}
+#endif // GAME_UC
 }
 
 void __stdcall ReadControllerData()
@@ -330,6 +337,29 @@ void __stdcall ReadControllerData()
 	ReadXInput_Extra();
 	if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
 		GetKeyboardState(VKeyStates[0]);
+}
+
+bool bIsHudVisible()
+{
+	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
+	{
+		int FirstLocalPlayer = **(int**)PLAYER_ILISTABLE_ADDR;
+		if (FirstLocalPlayer)
+		{
+			int LocalPlayerVtable = *(int*)(FirstLocalPlayer);
+			int(__thiscall * LocalPlayer_GetHUD)(void* dis) = (int(__thiscall*)(void*)) * (int*)(LocalPlayerVtable + PLAYER_GETHUD_VTABLE_OFFSET);
+			int LocalPlayerHUD = LocalPlayer_GetHUD((void*)FirstLocalPlayer);
+			if (LocalPlayerHUD)
+			{
+				int LocalPlayerHUDVtable = *(int*)(LocalPlayerHUD);
+				int(__thiscall * FEngHud_IsHudVisible)(void* dis) = (int(__thiscall*)(void*)) * (int*)(LocalPlayerHUDVtable + FENGHUD_ISVISIBLE_VTABLE_OFFSET);
+
+				if (FEngHud_IsHudVisible((void*)LocalPlayerHUD)) // is HUD being drawn at all
+					return true;
+			}
+		}
+	}
+	return false;
 }
 
 bool bCheckSecondBind()
@@ -524,9 +554,10 @@ public:
 				XInputBindings[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
 			else
 				XInputBindings[i] = inXInputConfigDef;
-
+#ifndef GAME_UC
 			if (bIsActionTextureBindable((ActionID)i))
 				SetBindingButtonTexture((ActionID)i, XInputBindings[i]);
+#endif
 		}
 		
 		inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
@@ -891,7 +922,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 
 	return (void*)thethis;
 }
-
+#ifndef GAME_UC
 void HandleSelectCarCamera(void* SelectCarObj, SHORT XAxis, SHORT YAxis)
 {
 	if (XAxis || YAxis || bMousePressedDown)
@@ -1002,9 +1033,11 @@ int __stdcall ftol2_to_int_bool()
 
 #endif
 
-#endif
+#endif // GAME_UC
 #pragma runtime_checks( "", restore )
+#endif
 
+#ifndef GAME_UC
 unsigned int GameWndProcAddr = 0;
 LRESULT(WINAPI* GameWndProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1079,15 +1112,18 @@ void __stdcall DummyFuncStd(BOOL dummy)
 {
 	return;
 }
+#endif // GAME_UC
 
 void InitConfig()
 {
 	CIniReader inireader("");
 
 	KeyboardReadingMode = inireader.ReadInteger("Input", "KeyboardReadingMode", 0);
+#ifndef GAME_UC
 	bConfineMouse = inireader.ReadInteger("Input", "ConfineMouse", 0);
 	bUseWin32Cursor = inireader.ReadInteger("Input", "UseWin32Cursor", 1);
 	bUseCustomCursor = inireader.ReadInteger("Input", "UseCustomCursor", 1);
+#endif
 	INPUT_DEADZONE_LS = (inireader.ReadFloat("Input", "DeadzonePercentLS", 0.24f) * FLOAT(0x7FFF));
 	INPUT_DEADZONE_RS = (inireader.ReadFloat("Input", "DeadzonePercentRS", 0.24f) * FLOAT(0x7FFF));
 	INPUT_DEADZONE_LS_P2 = (inireader.ReadFloat("Input", "DeadzonePercentLS_P2", 0.24f) * FLOAT(0x7FFF));
@@ -1098,23 +1134,30 @@ void InitConfig()
 
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
+#ifndef GAME_UC
 	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
+#endif
 }
 
 int Init()
 {
 	InitConfig();
 
+	injector::WriteMemory<unsigned int>(INPUTDEVICE_FACTORY_INITIALIZER_ADDR, (unsigned int)&InputDeviceFactory, true);
+	injector::MakeCALL(INPUTMAPPING_CONSTRUCTOR_CALL_ADDR, InputMapping_Constructor, true);
 
+	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
+	injector::WriteMemory<unsigned int>(DEADZONE_FLOAT_POINTER_ADDR, (unsigned int)SMALL_FLOAT_ADDR, true);
+
+	// kill DInput initialization
+	injector::MakeNOP(DINPUT_KILL_ADDR, 5, true);
+
+#ifndef GAME_UC
 	// dereference the current WndProc from the game executable and write to the function pointer (to maximize compatibility)
 	GameWndProcAddr = *(unsigned int*)WNDPROC_POINTER_ADDR;
 	GameWndProc = (LRESULT(WINAPI*)(HWND, UINT, WPARAM, LPARAM))GameWndProcAddr;
 	injector::WriteMemory<unsigned int>(WNDPROC_POINTER_ADDR, (unsigned int)&CustomWndProc, true);
 
-	injector::WriteMemory<unsigned int>(INPUTDEVICE_FACTORY_INITIALIZER_ADDR, (unsigned int)&InputDeviceFactory, true);
-	injector::MakeCALL(INPUTMAPPING_CONSTRUCTOR_CALL_ADDR, InputMapping_Constructor, true);
-	// kill DInput initialization
-	injector::MakeNOP(DINPUT_KILL_ADDR, 5, true);
 
 	// Mouse stuff
 	injector::MakeJMP(FEMOUSE_UPDATE_CALL_ADDR, UpdateFECursorPos, true);
@@ -1221,8 +1264,6 @@ int Init()
 	}
 	// force analog zooming in FE orbit camera
 	injector::MakeJMP(FE_ANALOGZOOM_JMP_FROM, FE_ANALOGZOOM_JMP_TO, true);
-	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
-	injector::WriteMemory<unsigned int>(DEADZONE_FLOAT_POINTER_ADDR, SMALL_FLOAT_ADDR, true);
 	// remove deadzone for FE activations...
 	injector::WriteMemory<int>(FE_DEADZONE_POINTER_ADDR, (int)&FEActivationFloat, true);
 
@@ -1279,7 +1320,7 @@ int Init()
 #endif
 
 	SetUnbindableButtonTextures();
-
+#endif // GAME_UC
 	// Init state
 	ZeroMemory(g_Controllers, sizeof(CONTROLLER_STATE) * MAX_CONTROLLERS);
 

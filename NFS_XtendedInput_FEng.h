@@ -529,28 +529,7 @@ void UpdateFECursorPos()
 }
 
 
-bool bIsHudVisible()
-{
-	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
-	{
-		int FirstLocalPlayer = **(int**)PLAYER_ILISTABLE_ADDR;
-		if (FirstLocalPlayer)
-		{
-			int LocalPlayerVtable = *(int*)(FirstLocalPlayer);
-			int(__thiscall * LocalPlayer_GetHUD)(void* dis) = (int(__thiscall*)(void*)) * (int*)(LocalPlayerVtable + PLAYER_GETHUD_VTABLE_OFFSET);
-			int LocalPlayerHUD = LocalPlayer_GetHUD((void*)FirstLocalPlayer);
-			if (LocalPlayerHUD)
-			{
-				int LocalPlayerHUDVtable = *(int*)(LocalPlayerHUD);
-				int(__thiscall * FEngHud_IsHudVisible)(void* dis) = (int(__thiscall*)(void*)) * (int*)(LocalPlayerHUDVtable + FENGHUD_ISVISIBLE_VTABLE_OFFSET);
-
-				if (FEngHud_IsHudVisible((void*)LocalPlayerHUD)) // is HUD being drawn at all
-					return true;
-			}
-		}
-	}
-	return false;
-}
+bool bIsHudVisible();
 
 
 #ifdef GAME_MW

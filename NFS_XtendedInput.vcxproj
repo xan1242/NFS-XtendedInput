@@ -282,6 +282,7 @@
     <ClInclude Include="NFSC_XtendedInput.h" />
     <ClInclude Include="NFSMW_XtendedInput.h" />
     <ClInclude Include="NFSPS_XtendedInput.h" />
+    <ClInclude Include="NFSUC_XtendedInput.h" />
     <ClInclude Include="NFS_XtendedInput.h" />
     <ClInclude Include="NFS_XtendedInputButtons.h" />
     <ClInclude Include="NFS_XtendedInput_VKHash.h" />
