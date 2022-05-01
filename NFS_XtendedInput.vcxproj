@@ -334,12 +334,14 @@
     <None Include="Config-Carbon\NFS_XtendedInput.ini" />
     <None Include="Config-MW\NFS_XtendedInput.ini" />
     <None Include="Config-ProStreet\NFS_XtendedInput.ini" />
+    <None Include="Config-UC\NFS_XtendedInput.ini" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Config-Carbon\EventReference.txt" />
     <Text Include="Config-MW\EventReference.txt" />
     <Text Include="Config-ProStreet\EventReference.txt" />
+    <Text Include="Config-UC\EventReference.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -29,6 +29,9 @@
     <None Include="Config-ProStreet\NFS_XtendedInput.ini">
       <Filter>Config-ProStreet</Filter>
     </None>
+    <None Include="Config-UC\NFS_XtendedInput.ini">
+      <Filter>Config-UC</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
@@ -40,6 +43,9 @@
     <Filter Include="Config-ProStreet">
       <UniqueIdentifier>{e071ac55-7df4-4759-89de-a2e900d9fee2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config-UC">
+      <UniqueIdentifier>{40ec82e6-65d1-4ce2-8f9c-fbe5c54c0c55}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Config-MW\EventReference.txt">
@@ -50,6 +56,9 @@
     </Text>
     <Text Include="Config-ProStreet\EventReference.txt">
       <Filter>Config-ProStreet</Filter>
+    </Text>
+    <Text Include="Config-UC\EventReference.txt">
+      <Filter>Config-UC</Filter>
     </Text>
   </ItemGroup>
 </Project>
