@@ -1132,10 +1132,9 @@ void InitConfig()
 	SHIFT_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_Shifting", 0.75f) * FLOAT(0x7FFF));
 	FEUPDOWN_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogStickDigital", 0.50f) * FLOAT(0x7FFF));
 	TRIGGER_ACTIVATION_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f) * FLOAT(0x7FFF));
-
+#ifndef GAME_UC
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
-#ifndef GAME_UC
 	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
 #endif
 }
@@ -1146,9 +1145,10 @@ int Init()
 
 	injector::WriteMemory<unsigned int>(INPUTDEVICE_FACTORY_INITIALIZER_ADDR, (unsigned int)&InputDeviceFactory, true);
 	injector::MakeCALL(INPUTMAPPING_CONSTRUCTOR_CALL_ADDR, InputMapping_Constructor, true);
-
+#ifndef GAME_MW
 	// Lower hardcoded deadzone to 0.000001 - VERY IMPORTANT
 	injector::WriteMemory<unsigned int>(DEADZONE_FLOAT_POINTER_ADDR, (unsigned int)SMALL_FLOAT_ADDR, true);
+#endif
 
 	// kill DInput initialization
 	injector::MakeNOP(DINPUT_KILL_ADDR, 5, true);
@@ -1267,8 +1267,6 @@ int Init()
 	injector::MakeJMP(FE_ANALOGZOOM_JMP_FROM, FE_ANALOGZOOM_JMP_TO, true);
 	// remove deadzone for FE activations...
 	injector::WriteMemory<int>(FE_DEADZONE_POINTER_ADDR, (int)&FEActivationFloat, true);
-
-
 
 	injector::MakeJMP(FEPHOTOMODE_HANDLESCREENTICK_HOOK_ADDR, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
 	injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLELTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
