@@ -17,6 +17,7 @@
     <ClInclude Include="NFSC_XtendedInput.h" />
     <ClInclude Include="NFSPS_XtendedInput.h" />
     <ClInclude Include="NFSUC_XtendedInput.h" />
+    <ClInclude Include="NFSW_XtendedInput.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

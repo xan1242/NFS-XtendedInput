@@ -32,7 +32,7 @@
 
 #include "NFS_XtendedInput_XInputConfig.h"
 #include "NFS_XtendedInput_VKHash.h"
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 #include "NFS_XtendedInput_FEng.h"
 #endif
 #ifdef GAME_MW
@@ -48,6 +48,9 @@ float FEActivationFloat = 0.999999f;
 #endif
 #ifdef GAME_UC
 #include "NFSUC_XtendedInput.h"
+#endif
+#ifdef GAME_WORLD
+#include "NFSW_XtendedInput.h"
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
@@ -210,7 +213,7 @@ HRESULT UpdateControllerState()
 			g_Controllers[0].state.Gamepad.sThumbRX = 0;
 			g_Controllers[0].state.Gamepad.sThumbRY = 0;
 		}
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 		if ((g_Controllers[0].state.Gamepad.wButtons || g_Controllers[0].state.Gamepad.sThumbLX || g_Controllers[0].state.Gamepad.sThumbLY || g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || g_Controllers[0].state.Gamepad.bRightTrigger || g_Controllers[0].state.Gamepad.bLeftTrigger) && bUseDynamicFEngSwitching)
 		{
 			LastControlledDevice = LASTCONTROLLED_CONTROLLER;
@@ -340,6 +343,7 @@ void __stdcall ReadControllerData()
 		GetKeyboardState(VKeyStates[0]);
 }
 
+#ifndef GAME_WORLD
 bool bIsHudVisible()
 {
 	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
@@ -362,7 +366,12 @@ bool bIsHudVisible()
 	}
 	return false;
 }
-
+#else
+bool bIsHudVisible()
+{
+	return false;
+}
+#endif
 bool bCheckSecondBind()
 {
 	return FE_Secondary_Up || FE_Secondary_Down || FE_Secondary_Left || FE_Secondary_Right;
@@ -555,7 +564,7 @@ public:
 				XInputBindings[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
 			else
 				XInputBindings[i] = inXInputConfigDef;
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 			if (bIsActionTextureBindable((ActionID)i))
 				SetBindingButtonTexture((ActionID)i, XInputBindings[i]);
 #endif
@@ -792,7 +801,12 @@ InputDevice* InputDeviceFactory(int DeviceIndex)
 
 #pragma runtime_checks( "", off )
 
+
+#ifndef GAME_WORLD
 void* (__thiscall*FastMem_Alloc)(void* FastMem, int size, char* debug_str) = (void* (__thiscall*)(void*, int, char*))FASTMEM_ALLOC_ADDR;
+#endif
+
+
 #ifdef GAME_MW
 void* (*FastMem_InitListAllocator)() = (void* (*)())FASTMEM_INITLISTALLOCATOR_ADDR;
 void* (__stdcall*FastMem_ListAllocator)(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap) = (void* (__stdcall*)(void*, void*, InputMapEntry*))FASTMEM_LISTALLOCATOR_ADDR;
@@ -839,29 +853,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 }
 #else
 
-int __declspec(naked) FastMem_InitListAllocator()
-{
-	_asm
-	{
-		push    0
-		push    INIT_LIST_ALLOC_SIZE
-		mov     ecx, GLOBAL_FASTMEM_ADDR
-		call    FastMem_Alloc
-		test    eax, eax
-		jz      loc_635074
-		mov		[eax], eax
-
-	loc_635074:
-		lea     ecx, [eax + 4]
-		test    ecx, ecx
-		jz      locret_63507D
-		mov		[ecx], eax
-
-	locret_63507D:
-		ret
-	}
-}
-
+#ifndef GAME_WORLD
 void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
 {
 	void* result = FastMem_Alloc((void*)GLOBAL_FASTMEM_ADDR, INIT_LIST_ALLOC_SIZE, NULL);
@@ -873,7 +865,21 @@ void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, I
 	}
 	return result;
 }
+#else
+void* (__thiscall* Managed_Alloc)(int size) = (void* (__thiscall*)(int))MANAGED_ALLOCATOR_ADDR;
+void* __stdcall FastMem_ListAllocator(void* CurrentListPos, void* NextListPos, InputMapEntry* inInputMap)
+{
+	void* result = Managed_Alloc(INIT_LIST_ALLOC_SIZE);
+	if (result)
+	{
+		*(void**)result = CurrentListPos;
+		*(void**)((int)result + 4) = NextListPos;
+		memcpy((void*)((int)result + 8), inInputMap, sizeof(InputMapEntry));
+	}
+	return result;
+}
 
+#endif
 void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollection)
 {
 	volatile unsigned int thethis = 0;
@@ -923,7 +929,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 
 	return (void*)thethis;
 }
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 void HandleSelectCarCamera(void* SelectCarObj, SHORT XAxis, SHORT YAxis)
 {
 	if (XAxis || YAxis || bMousePressedDown)
@@ -1038,7 +1044,7 @@ int __stdcall ftol2_to_int_bool()
 #pragma runtime_checks( "", restore )
 #endif
 
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 unsigned int GameWndProcAddr = 0;
 LRESULT(WINAPI* GameWndProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1120,7 +1126,7 @@ void InitConfig()
 	CIniReader inireader("");
 
 	KeyboardReadingMode = inireader.ReadInteger("Input", "KeyboardReadingMode", 0);
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 	bConfineMouse = inireader.ReadInteger("Input", "ConfineMouse", 0);
 	bUseWin32Cursor = inireader.ReadInteger("Input", "UseWin32Cursor", 1);
 	bUseCustomCursor = inireader.ReadInteger("Input", "UseCustomCursor", 1);
@@ -1132,7 +1138,7 @@ void InitConfig()
 	SHIFT_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_Shifting", 0.75f) * FLOAT(0x7FFF));
 	FEUPDOWN_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogStickDigital", 0.50f) * FLOAT(0x7FFF));
 	TRIGGER_ACTIVATION_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f) * FLOAT(0x7FFF));
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
 	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
@@ -1153,7 +1159,7 @@ int Init()
 	// kill DInput initialization
 	injector::MakeNOP(DINPUT_KILL_ADDR, 5, true);
 
-#ifndef GAME_UC
+#if not defined (GAME_UC) || not defined (GAME_WORLD)
 	// dereference the current WndProc from the game executable and write to the function pointer (to maximize compatibility)
 	GameWndProcAddr = *(unsigned int*)WNDPROC_POINTER_ADDR;
 	GameWndProc = (LRESULT(WINAPI*)(HWND, UINT, WPARAM, LPARAM))GameWndProcAddr;
@@ -1331,6 +1337,11 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
 {
 	if (reason == DLL_PROCESS_ATTACH)
 	{
+#ifdef GAME_WORLD
+		uintptr_t base = (uintptr_t)GetModuleHandleA(NULL);
+		MainBase = base - 0x400000;
+#endif
+
 		Init();
 	}
 	return TRUE;
