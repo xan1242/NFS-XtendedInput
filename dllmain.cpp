@@ -787,6 +787,17 @@ public:
 			}
 			bDoPolling = true;
 		}
+
+
+#ifdef GAME_WORLD
+		// I *truly* do not understand this game. So, the inputs will only start working if a button was pressed BEFORE entering the game.
+		// So I'll set an action to a high state while in FE. FE isn't even controlled by the controller, so it should be safe.
+		if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR != 6)
+		{
+			CurrValues[0][GAMEACTION_GAS] = 1.0;
+		}
+#endif
+
 	}
 	virtual int GetNumDeviceScalar()
 	{
@@ -1397,8 +1408,6 @@ int Init()
 	injector::MakeJMP(0x0075E358 + MainBase, UnscrewWorldDeviceScalars, true);
 	injector::MakeJMP(0x0075E217 + MainBase, UnscrewWorldDeviceScalars2, true);
 	injector::MakeJMP(0x0075E254 + MainBase, UnscrewWorldDeviceScalars3, true);
-
-	injector::MakeNOP(0x0080005E + MainBase, 6, true);
 #endif
 
 	// Init state
