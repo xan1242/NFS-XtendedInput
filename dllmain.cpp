@@ -32,7 +32,7 @@
 
 #include "NFS_XtendedInput_XInputConfig.h"
 #include "NFS_XtendedInput_VKHash.h"
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 #include "NFS_XtendedInput_FEng.h"
 #endif
 #ifdef GAME_MW
@@ -219,7 +219,7 @@ HRESULT UpdateControllerState()
 			g_Controllers[0].state.Gamepad.sThumbRX = 0;
 			g_Controllers[0].state.Gamepad.sThumbRY = 0;
 		}
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 		if ((g_Controllers[0].state.Gamepad.wButtons || g_Controllers[0].state.Gamepad.sThumbLX || g_Controllers[0].state.Gamepad.sThumbLY || g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || g_Controllers[0].state.Gamepad.bRightTrigger || g_Controllers[0].state.Gamepad.bLeftTrigger) && bUseDynamicFEngSwitching)
 		{
 			LastControlledDevice = LASTCONTROLLED_CONTROLLER;
@@ -565,7 +565,7 @@ public:
 		fPrevValues = PrevValues[DeviceIndex];
 		fCurrentValues = CurrValues[DeviceIndex];
 		fDeviceScalar = new (nothrow) DeviceScalar[MAX_ACTIONID];
-#if !defined (GAME_MW) || !defined (GAME_WORLD)
+#ifndef NO_PROFILE_SETTINGS
 		InitProfileSettings();
 #endif
 	}
@@ -621,7 +621,7 @@ public:
 				XInputBindings[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
 			else
 				XInputBindings[i] = inXInputConfigDef;
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 			if (bIsActionTextureBindable((ActionID)i))
 				SetBindingButtonTexture((ActionID)i, XInputBindings[i]);
 #endif
@@ -995,7 +995,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
 	return (void*)thethis;
 }
 
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 void HandleSelectCarCamera(void* SelectCarObj, SHORT XAxis, SHORT YAxis)
 {
 	if (XAxis || YAxis || bMousePressedDown)
@@ -1110,7 +1110,7 @@ int __stdcall ftol2_to_int_bool()
 #pragma runtime_checks( "", restore )
 #endif
 
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 unsigned int GameWndProcAddr = 0;
 LRESULT(WINAPI* GameWndProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -1192,7 +1192,7 @@ void InitConfig()
 	CIniReader inireader("");
 
 	KeyboardReadingMode = inireader.ReadInteger("Input", "KeyboardReadingMode", 0);
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 	bConfineMouse = inireader.ReadInteger("Input", "ConfineMouse", 0);
 	bUseWin32Cursor = inireader.ReadInteger("Input", "UseWin32Cursor", 1);
 	bUseCustomCursor = inireader.ReadInteger("Input", "UseCustomCursor", 1);
@@ -1204,7 +1204,7 @@ void InitConfig()
 	SHIFT_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_Shifting", 0.75f) * FLOAT(0x7FFF));
 	FEUPDOWN_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogStickDigital", 0.50f) * FLOAT(0x7FFF));
 	TRIGGER_ACTIVATION_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f) * FLOAT(0x7FFF));
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
 	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
@@ -1225,7 +1225,7 @@ int Init()
 	// kill DInput initialization
 	injector::MakeNOP(DINPUT_KILL_ADDR, 5, true);
 
-#if !defined (GAME_UC) || !defined (GAME_WORLD)
+#ifndef NO_FENG
 	// dereference the current WndProc from the game executable and write to the function pointer (to maximize compatibility)
 	GameWndProcAddr = *(unsigned int*)WNDPROC_POINTER_ADDR;
 	GameWndProc = (LRESULT(WINAPI*)(HWND, UINT, WPARAM, LPARAM))GameWndProcAddr;

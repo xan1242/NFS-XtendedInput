@@ -1,6 +1,9 @@
 #pragma once
 unsigned int MainBase;
 
+#define NO_FENG
+#define NO_PROFILE_SETTINGS
+
 #define GAMEFLOWMANAGER_STATUS_ADDR (0x00CFC730 + MainBase)
 #define UTL_ILIST_CONSTRUCTOR_ADDR (0x00753940 + MainBase)
 
@@ -21,4 +24,4 @@ float smallfloat = 0.000001;
 #define INPUTMAPPING_CONSTRUCTOR_CALL_ADDR (0x0075EB43 + MainBase)
 #define INPUTDEVICE_FACTORY_INITIALIZER_ADDR (0xB10F9D + MainBase)
 
-void(*InitProfileSettings)() = (void(*)())(0x756960 + MainBase);
+//void(*InitProfileSettings)() = (void(*)())(0x756960 + MainBase);
