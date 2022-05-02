@@ -22,7 +22,9 @@
 #include "NFS_XtendedInput.h"
 #include "NFS_XtentedInput_ActionID.h"
 
-#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+#define USE_XINPUT_9_1_0
+
+#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/) && !defined(USE_XINPUT_9_1_0)
 #include <XInput.h>
 #pragma comment(lib,"xinput.lib")
 #else

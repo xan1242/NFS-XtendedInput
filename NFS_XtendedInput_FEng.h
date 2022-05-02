@@ -165,6 +165,10 @@ void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 	{
 		if (ControllerIconMode == CONTROLLERICON_PS4)
 			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
+		else if (ControllerIconMode == CONTROLLERICON_XBOX360)
+			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_X360);
+		else if (ControllerIconMode == CONTROLLERICON_PS3)
+			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS3);
 		else
 			FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
 	}
@@ -234,6 +238,10 @@ void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash)
 	{
 		if (ControllerIconMode == CONTROLLERICON_PS4)
 			FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
+		else if (ControllerIconMode == CONTROLLERICON_XBOX360)
+			FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_X360);
+		else if (ControllerIconMode == CONTROLLERICON_PS3)
+			FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS3);
 		else
 			FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
 	}
@@ -557,6 +565,17 @@ void SetUnbindableButtonTextures()
 {
 	switch (ControllerIconMode)
 	{
+	case CONTROLLERICON_PS3:
+		ButtonTexHashes[FE_LANALOG_TEX] = PS4_LANALOG_HASH;
+		ButtonTexHashes[FE_LANALOG_UP_TEX] = PS4_LANALOG_UP_HASH;
+		ButtonTexHashes[FE_LANALOG_UP_SWEDISH_TEX] = PS4_LANALOG_UP_HASH;
+		ButtonTexHashes[FE_LANALOG_UP_FRENCH_TEX] = PS4_LANALOG_UP_HASH;
+		ButtonTexHashes[FE_LANALOG_DOWN_TEX] = PS4_LANALOG_DOWN_HASH;
+		ButtonTexHashes[FE_LANALOG_DOWN_FRENCH_TEX] = PS4_LANALOG_DOWN_HASH;
+		ButtonTexHashes[FE_LANALOG_DOWN_SWEDISH_TEX] = PS4_LANALOG_DOWN_HASH;
+
+		break;
+
 	case CONTROLLERICON_PS4:
 		ButtonTexHashes[FE_LANALOG_TEX] = PS4_LANALOG_HASH;
 		ButtonTexHashes[FE_LANALOG_UP_TEX] = PS4_LANALOG_UP_HASH;
@@ -567,6 +586,8 @@ void SetUnbindableButtonTextures()
 		ButtonTexHashes[FE_LANALOG_DOWN_SWEDISH_TEX] = PS4_LANALOG_DOWN_HASH;
 
 		break;
+
+	case CONTROLLERICON_XBOX360: // TODO: add Xbox 360 buttons to tpk
 	case CONTROLLERICON_XBOXONE:
 	default:
 		ButtonTexHashes[FE_LANALOG_TEX] = XBONE_LANALOG_HASH;

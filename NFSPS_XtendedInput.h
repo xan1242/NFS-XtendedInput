@@ -268,6 +268,10 @@ void SetTitleScreenText()
 	{
 		if (ControllerIconMode == CONTROLLERICON_PS4)
 			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
+		else if (ControllerIconMode == CONTROLLERICON_XBOX360)
+			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_X360);
+		else if (ControllerIconMode == CONTROLLERICON_PS3)
+			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PS3);
 		else
 			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
 	}
