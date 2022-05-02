@@ -32,9 +32,7 @@
 
 #include "NFS_XtendedInput_XInputConfig.h"
 #include "NFS_XtendedInput_VKHash.h"
-#ifndef NO_FENG
-#include "NFS_XtendedInput_FEng.h"
-#endif
+
 #ifdef GAME_MW
 #include "NFSMW_XtendedInput.h"
 #endif
@@ -57,6 +55,10 @@ BOOL IsDebuggerPresent_Hook()
 	return FALSE;
 }
 
+#endif
+
+#ifndef NO_FENG
+#include "NFS_XtendedInput_FEng.h"
 #endif
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers 
