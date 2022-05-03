@@ -3,6 +3,7 @@ unsigned int MainBase;
 
 #define NO_FENG
 #define NO_PROFILE_SETTINGS
+#define NO_QUIT_BUTTON
 
 #define GAMEFLOWMANAGER_STATUS_ADDR (0x00CFC730 + MainBase)
 #define UTL_ILIST_CONSTRUCTOR_ADDR (0x00753940 + MainBase)
