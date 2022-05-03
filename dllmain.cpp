@@ -272,7 +272,7 @@ HRESULT UpdateControllerState()
 // old function -- repurposed to send keyboard-exclusive commands to the game
 void ReadXInput_Extra()
 {
-#if not defined (GAME_PROSTREET) || not defined (GAME_UC)
+#ifndef NO_QUIT_BUTTON
 	if (g_Controllers[0].bConnected)
 	{
 		WORD wButtons = g_Controllers[0].state.Gamepad.wButtons;
@@ -1357,10 +1357,10 @@ int Init()
 
 	injector::MakeNOP(0x008577AC, 2, true);
 
+	injector::WriteMemory<unsigned int>(FEWORLDMAPSTATEMANAGER_TICK_VT_ADDR, (unsigned int)&FEWorldMapStateManager_HandleScreenTick_Hook, true);
 
 	if (bUseDynamicFEngSwitching)
 	{
-		injector::WriteMemory<unsigned int>(FEWORLDMAPSTATEMANAGER_TICK_VT_ADDR, (unsigned int)&FEWorldMapStateManager_HandleScreenTick_Hook, true);
 		injector::MakeCALL(0x005C670E, WorldMap_UnfocusQuickList_Hook, true);
 		injector::MakeCALL(0x005CE0B9, WorldMap_SetQuickListInFocus_Hook, true);
 		injector::MakeCALL(0x005CE309, WorldMap_SetQuickListInFocus_Hook, true);
