@@ -1205,7 +1205,7 @@ void InitConfig()
 	INPUT_DEADZONE_RS_P2 = (inireader.ReadFloat("Input", "DeadzonePercentRS_P2", 0.24f) * FLOAT(0x7FFF));
 	SHIFT_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_Shifting", 0.75f) * FLOAT(0x7FFF));
 	FEUPDOWN_ANALOG_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogStickDigital", 0.50f) * FLOAT(0x7FFF));
-	TRIGGER_ACTIVATION_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f) * FLOAT(0x7FFF));
+	TRIGGER_ACTIVATION_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f) * FLOAT(0xFF));
 #ifndef NO_FENG
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
