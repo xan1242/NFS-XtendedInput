@@ -270,7 +270,7 @@ HRESULT UpdateControllerState()
 // old function -- repurposed to send keyboard-exclusive commands to the game
 void ReadXInput_Extra()
 {
-#if not defined (GAME_PROSTREET) || not defined (GAME_UC)
+#ifndef NO_QUIT_BUTTON
 	if (g_Controllers[0].bConnected)
 	{
 		WORD wButtons = g_Controllers[0].state.Gamepad.wButtons;
