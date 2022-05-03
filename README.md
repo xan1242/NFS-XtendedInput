@@ -4,7 +4,7 @@ This is a plugin for NFS games by Black Box (MW and newer only) which brings XIn
 
 Currently a work in progress, but fully usable and playable!
 
-Planned to bring to NFS World in the future!
+(NFS World currently at ALPHA stage!)
 
 [Also available for Underground and Underground 2 here](https://github.com/xan1242/NFSU-XtendedInput)
 

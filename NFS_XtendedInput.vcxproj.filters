@@ -33,6 +33,9 @@
     <None Include="Config-UC\NFS_XtendedInput.ini">
       <Filter>Config-UC</Filter>
     </None>
+    <None Include="Config-World\NFS_XtendedInput.ini">
+      <Filter>Config-World</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
@@ -47,6 +50,9 @@
     <Filter Include="Config-UC">
       <UniqueIdentifier>{40ec82e6-65d1-4ce2-8f9c-fbe5c54c0c55}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config-World">
+      <UniqueIdentifier>{4bb155ce-d2af-4e08-a1e0-a6697c053b00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Config-MW\EventReference.txt">
@@ -60,6 +66,9 @@
     </Text>
     <Text Include="Config-UC\EventReference.txt">
       <Filter>Config-UC</Filter>
+    </Text>
+    <Text Include="Config-World\EventReference.txt">
+      <Filter>Config-World</Filter>
     </Text>
   </ItemGroup>
 </Project>

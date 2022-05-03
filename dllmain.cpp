@@ -13,6 +13,10 @@
 // TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
 // TODO (Carbon): ingame button prompt during tutorial - find the texture hash for that and replace it
 // TODO (Undercover): UI texture switching & maybe higher res support - it was excluded because UI is working with APT and not FEng (only the HUD works on FEng)
+// TODO (Pro Street): multiplayer menu UI shows some missing strings on console objects... also shows too many of them at the end of race so that needs investigating. Tested in LAN mode.
+// TODO (World): IT'S RANDOM! It sometimes works, sometimes not... I'm speechless at the moment. Currently no idea if even the powerups trigger on the D-Pad at all! (because I have no way to test it currently! I'm testing with Berkay's old Offline Server which has broken powerups.)
+// TODO (World): make proper config, currently using a mostly copy-paste from Carbon...
+
 
 #include "stdafx.h"
 #include "stdio.h"
@@ -49,12 +53,6 @@ float FEActivationFloat = 0.999999f;
 #endif
 #ifdef GAME_WORLD
 #include "NFSW_XtendedInput.h"
-
-BOOL IsDebuggerPresent_Hook()
-{
-	return FALSE;
-}
-
 #endif
 
 #ifndef NO_FENG
