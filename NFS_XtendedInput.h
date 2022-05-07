@@ -1,24 +1,5 @@
 #pragma once
 
-// compile time hasher thanks to C++11
-// P.S. it causes IntelliSense to freak out in some cases, but it still compiles
-constexpr int NFS_HASH(char* string)
-{
-	if (string == NULL) // sanity check
-		return 0;
-
-	char* _string = ((char*)string);
-	int result = -1;
-
-	while (*_string != 0) 
-	{ 
-		result = result * 0x21 + (unsigned int)(*_string);
-		_string = _string + 1;
-	}
-
-	return result;
-}
-
 #define FE_SPLASH_TEXT_XBOX "Press MENU or A button"
 #define FE_SPLASH_TEXT_PS4 "Press OPTIONS or X button"
 #define FE_SPLASH_TEXT_PC "CLICK or ENTER to continue"
