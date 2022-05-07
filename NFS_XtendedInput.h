@@ -1,5 +1,43 @@
 #pragma once
 
+//constexpr int32_t compiler_stringhash(char* string)
+//{
+//	if (string == NULL) // sanity check
+//		return 0;
+//
+//	char* _string = ((char*)string);
+//	int32_t result = -1;
+//
+//	while (*_string != 0) { // loop through each char until string terminator is reached
+//		result = result * 0x21 + (unsigned int)(*_string);
+//		_string = _string + 1;
+//	}
+//
+//	return result;
+//}
+//
+//#define NFS_HASH(s) compiler_stringhash(s)
+
+template <int V> static constexpr int compiler_stringhash_template = V;
+static constexpr int compiler_stringhash(char* str)
+{
+	if (str == NULL)
+		return 0;
+
+	char* _str = ((char*)str);
+	int result = -1;
+
+	while (*_str != 0)
+	{
+		result = result * 0x21 + (unsigned int)(*_str);
+		_str = _str + 1;
+	}
+
+	return result;
+}
+
+#define NFS_HASH(s) compiler_stringhash_template<compiler_stringhash(s)>
+
 #define FE_SPLASH_TEXT_XBOX "Press MENU or A button"
 #define FE_SPLASH_TEXT_PS4 "Press OPTIONS or X button"
 #define FE_SPLASH_TEXT_PC "CLICK or ENTER to continue"

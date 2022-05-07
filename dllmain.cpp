@@ -92,22 +92,20 @@ unsigned int KeyboardReadingMode = 0; // 0 = buffered synchronous, 1 = unbuffere
 
 void*(__thiscall* UTL_Com_Object_IList_Constructor)(void* thethis, unsigned int unk) = (void*(__thiscall*)(void*, unsigned int))UTL_ILIST_CONSTRUCTOR_ADDR;
 
-int bStringHash(char* a1)
+int bStringHash(char* str)
 {
-	char* v1; // edx@1
-	char v2; // cl@1
-	int result; // eax@1
-
-	if (a1 == NULL)
+	if (str == NULL)
 		return 0;
 
-	v1 = a1;
-	v2 = *a1;
-	for (result = -1; v2; ++v1)
+	char* _str = ((char*)str);
+	int result = -1;
+
+	while (*_str != 0)
 	{
-		result = v2 + 33 * result;
-		v2 = v1[1];
+		result = result * 0x21 + (unsigned int)(*_str);
+		_str = _str + 1;
 	}
+
 	return result;
 }
 
