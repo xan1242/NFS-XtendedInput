@@ -10,7 +10,8 @@ constexpr int NFS_HASH(char* string)
 	char* _string = ((char*)string);
 	int result = -1;
 
-	while (*_string != 0) { // loop through each char until string terminator is reached
+	while (*_string != 0) 
+	{ 
 		result = result * 0x21 + (unsigned int)(*_string);
 		_string = _string + 1;
 	}
