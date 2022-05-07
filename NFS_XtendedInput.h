@@ -1,5 +1,24 @@
 #pragma once
 
+// compile time hasher thanks to C++11
+// I tried making a macro version but failed xdddd
+// P.S. it causes IntelliSense to freak out in some cases, but it still compiles
+constexpr int HASH(char* string)
+{
+	if (string == NULL) // sanity check
+		return 0;
+
+	char* _string = ((char*)string);
+	int result = -1;
+
+	while (*_string != 0) { // loop through each char until string terminator is reached
+		result = result * 0x21 + (unsigned int)(*_string);
+		_string = _string + 1;
+	}
+
+	return result;
+}
+
 #define FE_SPLASH_TEXT_XBOX "Press MENU or A button"
 #define FE_SPLASH_TEXT_PS4 "Press OPTIONS or X button"
 #define FE_SPLASH_TEXT_PC "CLICK or ENTER to continue"
