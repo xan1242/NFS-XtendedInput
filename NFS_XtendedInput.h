@@ -1,9 +1,8 @@
 #pragma once
 
 // compile time hasher thanks to C++11
-// I tried making a macro version but failed xdddd
 // P.S. it causes IntelliSense to freak out in some cases, but it still compiles
-constexpr int HASH(char* string)
+constexpr int NFS_HASH(char* string)
 {
 	if (string == NULL) // sanity check
 		return 0;
