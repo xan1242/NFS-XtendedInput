@@ -1,23 +1,5 @@
 #pragma once
 
-//constexpr int32_t compiler_stringhash(char* string)
-//{
-//	if (string == NULL) // sanity check
-//		return 0;
-//
-//	char* _string = ((char*)string);
-//	int32_t result = -1;
-//
-//	while (*_string != 0) { // loop through each char until string terminator is reached
-//		result = result * 0x21 + (unsigned int)(*_string);
-//		_string = _string + 1;
-//	}
-//
-//	return result;
-//}
-//
-//#define NFS_HASH(s) compiler_stringhash(s)
-
 template <int V> static constexpr int compiler_stringhash_template = V;
 static constexpr int compiler_stringhash(char* str)
 {
