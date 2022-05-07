@@ -8,6 +8,7 @@
 // TODO: kill DInput enough so that it doesn't detect XInput controllers but still detects wheels
 // TODO: proper raw input for keyboard (and maybe non XInput gamepads?)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
+// TODO: loading screen control tips
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
