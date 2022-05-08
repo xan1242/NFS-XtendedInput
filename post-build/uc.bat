@@ -4,7 +4,9 @@ echo Creating directories...
 IF EXIST "Release-UC\Release-UC-Pack" RMDIR /S /Q "Release-UC\Release-UC-Pack"
 MKDIR "Release-UC\Release-UC-Pack"
 MKDIR "Release-UC\Release-UC-Pack\scripts"
-
+:: Summon the binary
+echo Copying the binary
+COPY /Y "Release-UC\NFS_XtendedInput.asi" "Release-UC\Release-UC-Pack\scripts"
 :: Summon text files
 echo Summoning text files
 COPY /Y "Config-UC\NFS_XtendedInput.ini" "Release-UC\Release-UC-Pack\scripts"

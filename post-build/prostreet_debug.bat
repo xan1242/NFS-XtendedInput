@@ -5,6 +5,9 @@ IF EXIST "Debug-ProStreet\Debug-ProStreet-Pack" RMDIR /S /Q "Debug-ProStreet\Deb
 MKDIR "Debug-ProStreet\Debug-ProStreet-Pack"
 MKDIR "Debug-ProStreet\Debug-ProStreet-Pack\Global"
 MKDIR "Debug-ProStreet\Debug-ProStreet-Pack\scripts"
+:: Summon the binary
+echo Copying the binary
+COPY /Y "Debug-ProStreet\NFS_XtendedInput.asi" "Debug-ProStreet\Debug-ProStreet-Pack\scripts"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
 xnfstpktool -w "XtendedInputButtons\8A69054A.ini" "Debug-ProStreet\Debug-ProStreet-Pack\Global\XtendedInputButtons.tpk"

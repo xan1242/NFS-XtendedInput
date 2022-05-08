@@ -5,6 +5,9 @@ IF EXIST "Release-Carbon\Release-Carbon-Pack" RMDIR /S /Q "Release-Carbon\Releas
 MKDIR "Release-Carbon\Release-Carbon-Pack"
 MKDIR "Release-Carbon\Release-Carbon-Pack\Global"
 MKDIR "Release-Carbon\Release-Carbon-Pack\scripts"
+:: Summon the binary
+echo Copying the binary
+COPY /Y "Release-Carbon\NFS_XtendedInput.asi" "Release-Carbon\Release-Carbon-Pack\scripts"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
 xnfstpktool -w "XtendedInputButtons\8A69054A.ini" "Release-Carbon\Release-Carbon-Pack\Global\XtendedInputButtons.tpk"

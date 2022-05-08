@@ -5,6 +5,9 @@ IF EXIST "Debug-MW\Debug-MW-Pack" RMDIR /S /Q "Debug-MW\Debug-MW-Pack"
 MKDIR "Debug-MW\Debug-MW-Pack"
 MKDIR "Debug-MW\Debug-MW-Pack\Global"
 MKDIR "Debug-MW\Debug-MW-Pack\scripts"
+:: Summon the binary
+echo Copying the binary
+COPY /Y "Debug-MW\NFS_XtendedInput.asi" "Debug-MW\Debug-MW-Pack\scripts"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
 xnfstpktool -w2 "XtendedInputButtons\8A69054A.ini" "Debug-MW\Debug-MW-Pack\Global\XtendedInputButtons.tpk"

@@ -5,6 +5,9 @@ IF EXIST "Release-MW\Release-MW-Pack" RMDIR /S /Q "Release-MW\Release-MW-Pack"
 MKDIR "Release-MW\Release-MW-Pack"
 MKDIR "Release-MW\Release-MW-Pack\Global"
 MKDIR "Release-MW\Release-MW-Pack\scripts"
+:: Summon the binary
+echo Copying the binary
+COPY /Y "Release-MW\NFS_XtendedInput.asi" "Release-MW\Release-MW-Pack\scripts"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
 xnfstpktool -w2 "XtendedInputButtons\8A69054A.ini" "Release-MW\Release-MW-Pack\Global\XtendedInputButtons.tpk"
