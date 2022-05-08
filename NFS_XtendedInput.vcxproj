@@ -45,7 +45,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3C558AD9-5F9C-4A14-8F07-800F46C132C7}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>QRHiddenOptions</RootNamespace>
+    <RootNamespace>NFS_XtendedInput</RootNamespace>
     <ProjectName>NFS_XtendedInput</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -172,7 +172,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-World|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <TargetExt>.asi</TargetExt>
-    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-MW|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -210,6 +209,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\mw_debug.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Carbon|Win32'">
     <ClCompile>
@@ -222,6 +225,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\carbon_debug.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-ProStreet|Win32'">
     <ClCompile>
@@ -234,6 +241,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\prostreet_debug.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-UC|Win32'">
     <ClCompile>
@@ -246,6 +257,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\uc_debug.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-World|Win32'">
     <ClCompile>
@@ -258,6 +273,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\world_debug.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MW|Win32'">
     <ClCompile>
@@ -275,6 +294,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\mw.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Carbon|Win32'">
     <ClCompile>
@@ -292,6 +315,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\carbon.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ProStreet|Win32'">
     <ClCompile>
@@ -309,6 +336,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\prostreet.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-UC|Win32'">
     <ClCompile>
@@ -326,6 +357,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\uc.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-World|Win32'">
     <ClCompile>
@@ -343,6 +378,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <PostBuildEvent>
+      <Message>Making final build package...</Message>
+      <Command>@post-build\world.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="NFSC_XtendedInput.h" />
@@ -411,6 +450,16 @@
     <None Include="Config-ProStreet\NFS_XtendedInput.ini" />
     <None Include="Config-UC\NFS_XtendedInput.ini" />
     <None Include="Config-World\NFS_XtendedInput.ini" />
+    <None Include="post-build\carbon.bat" />
+    <None Include="post-build\carbon_debug.bat" />
+    <None Include="post-build\mw.bat" />
+    <None Include="post-build\mw_debug.bat" />
+    <None Include="post-build\prostreet.bat" />
+    <None Include="post-build\prostreet_debug.bat" />
+    <None Include="post-build\uc.bat" />
+    <None Include="post-build\uc_debug.bat" />
+    <None Include="post-build\world.bat" />
+    <None Include="post-build\world_debug.bat" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>

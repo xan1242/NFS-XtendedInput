@@ -36,6 +36,36 @@
     <None Include="Config-World\NFS_XtendedInput.ini">
       <Filter>Config-World</Filter>
     </None>
+    <None Include="post-build\carbon.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\carbon_debug.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\mw.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\mw_debug.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\prostreet.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\prostreet_debug.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\uc.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\uc_debug.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\world.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\world_debug.bat">
+      <Filter>post-build</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
@@ -52,6 +82,9 @@
     </Filter>
     <Filter Include="Config-World">
       <UniqueIdentifier>{4bb155ce-d2af-4e08-a1e0-a6697c053b00}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="post-build">
+      <UniqueIdentifier>{04169ee6-7f55-422e-8cc4-8bfce312e488}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
