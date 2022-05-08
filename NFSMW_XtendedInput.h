@@ -264,6 +264,7 @@ void SetTitleScreenText()
 	int title_screen_type = TitleScreenVisible();
 	int obj_hash = 0xC6CC55A4;
 	char* pkg_name = SplashPkgName;
+	char* splash_txt = FE_SPLASH_TEXT_PC;
 
 	if (title_screen_type)
 	{
@@ -275,12 +276,24 @@ void SetTitleScreenText()
 
 		if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
 		{
-			if (ControllerIconMode == CONTROLLERICON_PS4)
-				FEPrintf(pkg_name, FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
-			else
-				FEPrintf(pkg_name, FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
+			switch (ControllerIconMode)
+			{
+			case CONTROLLERICON_PS3:
+				splash_txt = FE_SPLASH_TEXT_PS3;
+				break;
+			case CONTROLLERICON_XBOX360:
+				splash_txt = FE_SPLASH_TEXT_XBOX360;
+				break;
+			case CONTROLLERICON_PS4:
+				splash_txt = FE_SPLASH_TEXT_PS4;
+				break;
+			case CONTROLLERICON_XBOXONE:
+			default:
+				splash_txt = FE_SPLASH_TEXT_XBOX;
+				break;
+			}
 		}
-		else
-			FEPrintf(pkg_name, FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
+
+		FEPrintf(pkg_name, FEngFindObject_Title(pkg_name, obj_hash), splash_txt);
 	}
 }

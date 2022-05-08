@@ -277,16 +277,29 @@ void SetTitleScreenText()
 {
 	int obj_hash = 0xC4DF3FF2;
 	char* pkg_name = SplashPkgName;
+	char* splash_txt = FE_SPLASH_TEXT_PC;
 
 	if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
 	{
-		if (ControllerIconMode == CONTROLLERICON_PS4)
-			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
-		else
-			FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
+		switch (ControllerIconMode)
+		{
+		case CONTROLLERICON_PS3:
+			splash_txt = FE_SPLASH_TEXT_PS3;
+			break;
+		case CONTROLLERICON_XBOX360:
+			splash_txt = FE_SPLASH_TEXT_XBOX360;
+			break;
+		case CONTROLLERICON_PS4:
+			splash_txt = FE_SPLASH_TEXT_PS4;
+			break;
+		case CONTROLLERICON_XBOXONE:
+		default:
+			splash_txt = FE_SPLASH_TEXT_XBOX;
+			break;
+		}
 	}
-	else
-		FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
+	
+	FE_String_Printf(FEngFindObject_Title(pkg_name, obj_hash), splash_txt);
 }
 
 void(* InitProfileSettings)() = (void(*)())0x00679BF0;

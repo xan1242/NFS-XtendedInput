@@ -21,7 +21,9 @@ static constexpr int compiler_stringhash(char* str)
 #define NFS_HASH(s) compiler_stringhash_template<compiler_stringhash(s)>
 
 #define FE_SPLASH_TEXT_XBOX "Press MENU or A button"
+#define FE_SPLASH_TEXT_XBOX360 "Press START or A button"
 #define FE_SPLASH_TEXT_PS4 "Press OPTIONS or X button"
+#define FE_SPLASH_TEXT_PS3 "Press START or X button"
 #define FE_SPLASH_TEXT_PC "CLICK or ENTER to continue"
 
 #define LASTCONTROLLED_KB 0
@@ -31,5 +33,7 @@ unsigned int LastControlledDeviceOldState = 0;
 
 #define CONTROLLERICON_XBOXONE 0
 #define CONTROLLERICON_PS4 1
+#define CONTROLLERICON_XBOX360 2
+#define CONTROLLERICON_PS3 3
 
-unsigned int ControllerIconMode = 0; // 0 = Xbox (One and later only for now), 1 = PlayStation (4 only now) -- planned to add: Nintendo (Wii/U Classic Controller, Switch), PS3/PS2, Xbox 360
+unsigned int ControllerIconMode = 0; // read modes above
