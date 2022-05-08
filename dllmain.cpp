@@ -1208,6 +1208,7 @@ void InitConfig()
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
 	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
+	strcpy(ButtonTexFilename, inireader.ReadString("Icons", "ButtonTexFilename", "GLOBAL\\XtendedInputButtons.tpk"));
 #endif
 }
 

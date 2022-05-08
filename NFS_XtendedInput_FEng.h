@@ -41,6 +41,7 @@ HCURSOR NFSCursor;
 // FE texture button re-mapping
 unsigned int ButtonTexHashes[FE_TEX_HASH_COUNT];
 bool bLoadedConsoleButtonTex = false;
+char ButtonTexFilename[128];
 
 enum FEObjType
 {
@@ -760,7 +761,7 @@ void UpdateControllerFEng(FEObject* inobj)
 {
 	if (!bLoadedConsoleButtonTex)
 	{
-		LoadResourceFile("GLOBAL\\XtendedInputButtons.tpk", 0, 0, NULL, 0, 0, 0);
+		LoadResourceFile(ButtonTexFilename, 0, 0, NULL, 0, 0, 0);
 		ServiceResourceLoading();
 		bLoadedConsoleButtonTex = true;
 	}
