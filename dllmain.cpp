@@ -94,8 +94,9 @@ bool bMouseLook = true;
 
 void*(__thiscall* UTL_Com_Object_IList_Constructor)(void* thethis, unsigned int unk) = (void*(__thiscall*)(void*, unsigned int))UTL_ILIST_CONSTRUCTOR_ADDR;
 void (__thiscall* DebugWorldCameraMover_Update)(void* thethis, float unk) = (void (__thiscall*)(void*, float))DebugWorldCameraMover_Update_Addr;
-#ifndef NO_FENG
+
 void* (__thiscall* DebugWorldCameraMover_Constructor)(void* thethis, void* vector1, void* vector2, int joyport, int unk) = (void* (__thiscall*)(void*, void*, void*, int, int))DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_ADDR;
+#ifndef NO_FENG
 void* (__thiscall* DebugWorldCameraMover_Destructor)(void* thethis) = (void* (__thiscall*)(void*))DEBUGWORLDCAMERAMOVER_DESTRUCTOR_ADDR;
 #endif
 
@@ -641,8 +642,8 @@ void __stdcall DebugWorldCameraMover_Update_Hook(float unk)
 	POINT MousePos;
 	GetCursorPos(&MousePos);
 	GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
-	int CenterX = ((windowRect.right) / 2);
-	int CenterY = ((windowRect.bottom) / 2);
+	int CenterX = ((windowRect.right - windowRect.left) / 2) + windowRect.left;
+	int CenterY = ((windowRect.bottom - windowRect.top) / 2) + windowRect.top;
 
 	// get original speeds
 	MouseLook_XSpeed = *(short*)(thethis + DEBUGWORLDCAMERAMOVER_XSPEED_OFFSET);
@@ -673,17 +674,24 @@ void __stdcall DebugWorldCameraMover_Update_Hook(float unk)
 }
 
 // constructor/destructor hooks for mouse hiding
-#ifndef NO_FENG
+
 void* __stdcall DebugWorldCameraMover_Constructor_Hook(void* vector1, void* vector2, int joyport, int unk)
 {
 	unsigned int thethis;
 	_asm mov thethis, ecx
-
+#ifndef NO_FENG
 	bInDebugWorldCamera = true;
+#endif
+	RECT windowRect;
+	GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
+	int CenterX = ((windowRect.right - windowRect.left) / 2) + windowRect.left;
+	int CenterY = ((windowRect.bottom - windowRect.top) / 2) + windowRect.top;
+	SetCursorPos(CenterX, CenterY);
+
 
 	return DebugWorldCameraMover_Constructor((void*)thethis, vector1, vector2, joyport, unk);
 }
-
+#ifndef NO_FENG
 void* DebugWorldCameraMover_Destructor_Hook()
 {
 	unsigned int thethis;
@@ -1588,9 +1596,10 @@ int Init()
 		DebugWorldCameraMover_Cave1_FullExit = DEBUGWORLDCAMERAMOVER_CAVE1_FULLEXIT;
 		DebugWorldCameraMover_Cave2_Exit = DEBUGWORLDCAMERAMOVER_CAVE2_EXIT;
 #endif
-#ifndef NO_FENG
+
 		// implement DebugWorldCameraMover detection -- for cursor hiding
 		injector::MakeCALL(DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_HOOK_ADDR, DebugWorldCameraMover_Constructor_Hook, true);
+#ifndef NO_FENG
 		injector::MakeCALL(DEBUGWORLDCAMERAMOVER_DESTRUCTOR_HOOK_ADDR, DebugWorldCameraMover_Destructor_Hook, true);
 #endif
 
