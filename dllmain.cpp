@@ -9,7 +9,6 @@
 // TODO: proper raw input for keyboard (and maybe non XInput gamepads?)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO: loading screen control tips
-// TODO: mouselook sensitivity
 // TODO: mouselook jerky movement -- update the mouse centering somewhere else perhaps
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
