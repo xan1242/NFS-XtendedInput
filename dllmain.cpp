@@ -848,7 +848,6 @@ public:
 			if (bDoPolling)
 			{
 				float fresult = 0;
-				float mresult = 0; // mouse result
 				rdi = fDeviceIndex;
 				if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
 					bCurrentVKeyState = VKeyStates[0][VKeyBindings[i]] >> 7;
@@ -858,25 +857,6 @@ public:
 				if (bIsActionDebug((ActionID)i))
 				{
 					rdi = 1; // debug (camera) actions are always read from the second port, but the PC version omits it entirely so this is a workaround
-
-					//// mouselook
-					//switch (i)
-					//{
-					//case DEBUGACTION_LOOK_UP:
-					//	mresult = MouseRelativePosCalcY();
-					//	break;
-					//case DEBUGACTION_LOOK_DOWN:
-					//	mresult = -MouseRelativePosCalcY();
-					//	break;
-					//case DEBUGACTION_LOOK_LEFT:
-					//	mresult = -MouseRelativePosCalcX();
-					//	break;
-					//case DEBUGACTION_LOOK_RIGHT:
-					//	mresult = MouseRelativePosCalcX();
-					//	break;
-					//default:
-					//	break;
-					//}
 
 				}
 
@@ -953,7 +933,7 @@ public:
 				}
 
 				// write value to the main array
-				CurrValues[fDeviceIndex][i] = fresult + mresult;
+				CurrValues[fDeviceIndex][i] = fresult;
 
 				// update prev values
 				if (CurrValues[fDeviceIndex][i] != PrevValues[fDeviceIndex][i])
