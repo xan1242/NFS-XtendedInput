@@ -10,7 +10,7 @@
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO: loading screen control tips
 // TODO: mouselook sensitivity
-// TODO: mouselook proper cursor centering
+// TODO: mouselook jerky movement
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
@@ -547,6 +547,7 @@ bool bGetAnalogDigitalActivationState(int index, WORD bind, int actid)
 float DebugWorldCameraMover_16bit_max = 65536.0f;
 int MouseLook_XSpeed = 0;
 int MouseLook_YSpeed = 0;
+float MouseLookSensitivity = 1.0f;
 bool bDisableDebugWorldCameraUpdating = true;
 
 // caves necessary as original values are in 16-bit values, this extends it to 32-bits
@@ -651,11 +652,11 @@ void __stdcall DebugWorldCameraMover_Update_Hook(float unk)
 
 #ifndef GAME_WORLD
 	// add mouse speed to the original speed
-	MouseLook_XSpeed += -(MousePos.x - CenterX) * 1000;
-	MouseLook_YSpeed += -(MousePos.y - CenterY) * 1000;
+	MouseLook_XSpeed += -(int)((float)((MousePos.x - CenterX) * 1000) * MouseLookSensitivity);
+	MouseLook_YSpeed += -(int)((float)((MousePos.y - CenterY) * 1000) * MouseLookSensitivity);
 #else
-	MouseLook_XSpeed += -(MousePos.x - CenterX) * 100;
-	MouseLook_YSpeed += -(MousePos.y - CenterY) * 100;
+	MouseLook_XSpeed += -(int)((float)((MousePos.x - CenterX) * 100) * MouseLookSensitivity);
+	MouseLook_YSpeed += -(int)((float)((MousePos.y - CenterY) * 100) * MouseLookSensitivity);
 #endif
 	SetCursorPos(CenterX, CenterY);
 
@@ -1367,6 +1368,7 @@ void InitConfig()
 	bUseWin32Cursor = inireader.ReadInteger("Input", "UseWin32Cursor", 1);
 	bUseCustomCursor = inireader.ReadInteger("Input", "UseCustomCursor", 1);
 	bMouseLook = inireader.ReadInteger("Input", "MouseLook", 1);
+	MouseLookSensitivity = inireader.ReadFloat("Input", "MouseLookSensitivity", 1.0f);
 #endif
 	INPUT_DEADZONE_LS = (inireader.ReadFloat("Input", "DeadzonePercentLS", 0.24f) * FLOAT(0x7FFF));
 	INPUT_DEADZONE_RS = (inireader.ReadFloat("Input", "DeadzonePercentRS", 0.24f) * FLOAT(0x7FFF));
