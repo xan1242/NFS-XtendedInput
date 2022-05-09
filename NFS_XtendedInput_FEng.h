@@ -35,6 +35,7 @@ bool bUseWin32Cursor = true;
 bool bUseCustomCursor = true;
 bool bLastUsedVirtualMouse = false;
 bool bUseDynamicFEngSwitching = true;
+bool bInDebugWorldCamera = false;
 HCURSOR NFSCursor;
 #define MOUSEHIDE_TIME 5000
 
@@ -459,6 +460,9 @@ void UpdateFECursorPos()
 		bShowMouse = false;
 #endif // GAME_CARBON
 #endif // GAME_MW
+
+	if (bInDebugWorldCamera)
+		bShowMouse = false;
 
 	if (bUseWin32Cursor)
 	{
