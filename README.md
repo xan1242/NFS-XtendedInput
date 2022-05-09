@@ -20,6 +20,8 @@ Currently a work in progress, but fully usable and playable!
 
 - Re-done mouse input - also using Win32 for mouse input (with auto hiding after 5 seconds)
 
+- Mouse look for debug camera
+
 - Optional - Win32 / OS mouse rendering with a custom cursor
 
 - All game actions are now rebindable
