@@ -37,3 +37,5 @@ unsigned int LastControlledDeviceOldState = 0;
 #define CONTROLLERICON_PS3 3
 
 unsigned int ControllerIconMode = 0; // read modes above
+
+bool bInDebugWorldCamera = false;

@@ -35,7 +35,6 @@ bool bUseWin32Cursor = true;
 bool bUseCustomCursor = true;
 bool bLastUsedVirtualMouse = false;
 bool bUseDynamicFEngSwitching = true;
-bool bInDebugWorldCamera = false;
 HCURSOR NFSCursor;
 #define MOUSEHIDE_TIME 5000
 

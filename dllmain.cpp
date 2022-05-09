@@ -9,7 +9,6 @@
 // TODO: proper raw input for keyboard (and maybe non XInput gamepads?)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
 // TODO: loading screen control tips
-// TODO: mouselook jerky movement -- update the mouse centering somewhere else perhaps
 // TODO (MW): Max performance button is visible in all submenus during Customize for some reason...
 // TODO (MW): CUSTOMIZE MENU IS BUGGY - during career cash status overlaps the max performance buttons...
 // TODO (Carbon): fix mouse wheel zooming (in FE only) and keyboard zooming during photo mode
@@ -95,9 +94,7 @@ void*(__thiscall* UTL_Com_Object_IList_Constructor)(void* thethis, unsigned int 
 void (__thiscall* DebugWorldCameraMover_Update)(void* thethis, float unk) = (void (__thiscall*)(void*, float))DebugWorldCameraMover_Update_Addr;
 
 void* (__thiscall* DebugWorldCameraMover_Constructor)(void* thethis, void* vector1, void* vector2, int joyport, int unk) = (void* (__thiscall*)(void*, void*, void*, int, int))DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_ADDR;
-#ifndef NO_FENG
 void* (__thiscall* DebugWorldCameraMover_Destructor)(void* thethis) = (void* (__thiscall*)(void*))DEBUGWORLDCAMERAMOVER_DESTRUCTOR_ADDR;
-#endif
 
 int bStringHash(char* str)
 {
@@ -128,6 +125,11 @@ WORD FE_Secondary_Left;
 WORD FE_Secondary_Right;
 
 BYTE VKeyBindings[MAX_ACTIONID];
+
+// mouselook vars
+int MouseLook_XSpeed = 0;
+int MouseLook_YSpeed = 0;
+float MouseLookSensitivity = 1.0f;
 
 bool bEnteredWorldMapOnce = false;
 
@@ -346,6 +348,29 @@ void __stdcall ReadControllerData()
 	ReadXInput_Extra();
 	if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
 		GetKeyboardState(VKeyStates[0]);
+
+	// read mouse info for Debug World Camera
+	if (bInDebugWorldCamera)
+	{
+		RECT windowRect;
+		POINT MousePos;
+		GetCursorPos(&MousePos);
+		GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
+		int CenterX = ((windowRect.right - windowRect.left) / 2) + windowRect.left;
+		int CenterY = ((windowRect.bottom - windowRect.top) / 2) + windowRect.top;
+
+#ifndef GAME_WORLD
+		// add mouse speed to the original speed
+		MouseLook_XSpeed = -(int)((float)((MousePos.x - CenterX) * 1000) * MouseLookSensitivity);
+		MouseLook_YSpeed = -(int)((float)((MousePos.y - CenterY) * 1000) * MouseLookSensitivity);
+#else
+		MouseLook_XSpeed = -(int)((float)((MousePos.x - CenterX) * 100) * MouseLookSensitivity);
+		MouseLook_YSpeed = -(int)((float)((MousePos.y - CenterY) * 100) * MouseLookSensitivity);
+#endif
+		SetCursorPos(CenterX, CenterY);
+
+	}
+
 }
 
 #ifndef GAME_WORLD
@@ -544,9 +569,6 @@ bool bGetAnalogDigitalActivationState(int index, WORD bind, int actid)
 
 #pragma runtime_checks( "", off )
 float DebugWorldCameraMover_16bit_max = 65536.0f;
-int MouseLook_XSpeed = 0;
-int MouseLook_YSpeed = 0;
-float MouseLookSensitivity = 1.0f;
 bool bDisableDebugWorldCameraUpdating = true;
 
 // caves necessary as original values are in 16-bit values, this extends it to 32-bits
@@ -638,26 +660,9 @@ void __stdcall DebugWorldCameraMover_Update_Hook(float unk)
 	unsigned int thethis;
 	_asm mov thethis, ecx
 
-	RECT windowRect;
-	POINT MousePos;
-	GetCursorPos(&MousePos);
-	GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
-	int CenterX = ((windowRect.right - windowRect.left) / 2) + windowRect.left;
-	int CenterY = ((windowRect.bottom - windowRect.top) / 2) + windowRect.top;
-
-	// get original speeds
-	MouseLook_XSpeed = *(short*)(thethis + DEBUGWORLDCAMERAMOVER_XSPEED_OFFSET);
-	MouseLook_YSpeed = *(short*)(thethis + DEBUGWORLDCAMERAMOVER_YSPEED_OFFSET);
-
-#ifndef GAME_WORLD
-	// add mouse speed to the original speed
-	MouseLook_XSpeed += -(int)((float)((MousePos.x - CenterX) * 1000) * MouseLookSensitivity);
-	MouseLook_YSpeed += -(int)((float)((MousePos.y - CenterY) * 1000) * MouseLookSensitivity);
-#else
-	MouseLook_XSpeed += -(int)((float)((MousePos.x - CenterX) * 100) * MouseLookSensitivity);
-	MouseLook_YSpeed += -(int)((float)((MousePos.y - CenterY) * 100) * MouseLookSensitivity);
-#endif
-	SetCursorPos(CenterX, CenterY);
+	// add original speeds
+	MouseLook_XSpeed += *(short*)(thethis + DEBUGWORLDCAMERAMOVER_XSPEED_OFFSET);
+	MouseLook_YSpeed += *(short*)(thethis + DEBUGWORLDCAMERAMOVER_YSPEED_OFFSET);
 
 #ifndef DEBUGWORLDCAMERAMOVER_MMX
 	if (!MouseLook_XSpeed && !MouseLook_YSpeed && !CurrValues[0][DEBUGACTION_MOVE_UP] && !CurrValues[0][DEBUGACTION_MOVE_DOWN])
@@ -679,9 +684,7 @@ void* __stdcall DebugWorldCameraMover_Constructor_Hook(void* vector1, void* vect
 {
 	unsigned int thethis;
 	_asm mov thethis, ecx
-#ifndef NO_FENG
 	bInDebugWorldCamera = true;
-#endif
 	RECT windowRect;
 	GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
 	int CenterX = ((windowRect.right - windowRect.left) / 2) + windowRect.left;
@@ -691,7 +694,6 @@ void* __stdcall DebugWorldCameraMover_Constructor_Hook(void* vector1, void* vect
 
 	return DebugWorldCameraMover_Constructor((void*)thethis, vector1, vector2, joyport, unk);
 }
-#ifndef NO_FENG
 void* DebugWorldCameraMover_Destructor_Hook()
 {
 	unsigned int thethis;
@@ -701,7 +703,6 @@ void* DebugWorldCameraMover_Destructor_Hook()
 
 	return DebugWorldCameraMover_Destructor((void*)thethis);
 }
-#endif
 
 #pragma runtime_checks( "", restore )
 
@@ -1596,13 +1597,13 @@ int Init()
 		DebugWorldCameraMover_Cave1_Exit = DEBUGWORLDCAMERAMOVER_CAVE1_EXIT;
 		DebugWorldCameraMover_Cave1_FullExit = DEBUGWORLDCAMERAMOVER_CAVE1_FULLEXIT;
 		DebugWorldCameraMover_Cave2_Exit = DEBUGWORLDCAMERAMOVER_CAVE2_EXIT;
+		DebugWorldCameraMover_Constructor = (void* (__thiscall*)(void*, void*, void*, int, int))DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_ADDR;
+		DebugWorldCameraMover_Destructor = (void* (__thiscall*)(void*))DEBUGWORLDCAMERAMOVER_DESTRUCTOR_ADDR;
 #endif
 
 		// implement DebugWorldCameraMover detection -- for cursor hiding
 		injector::MakeCALL(DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_HOOK_ADDR, DebugWorldCameraMover_Constructor_Hook, true);
-#ifndef NO_FENG
 		injector::MakeCALL(DEBUGWORLDCAMERAMOVER_DESTRUCTOR_HOOK_ADDR, DebugWorldCameraMover_Destructor_Hook, true);
-#endif
 
 	}
 	// Init state
