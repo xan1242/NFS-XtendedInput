@@ -4,7 +4,6 @@
 
 // TODO: bring rumble/vibration function
 // TODO: remapping? -- partially done, but only 1 event per key
-// TODO: port to other games
 // TODO: kill DInput enough so that it doesn't detect XInput controllers but still detects wheels
 // TODO: proper raw input for keyboard (and maybe non XInput gamepads?)
 // TODO: implement the Controls settings menu - it should be possible to make it talk to the INI
