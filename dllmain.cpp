@@ -1467,7 +1467,7 @@ int Init()
 		injector::MakeJMP(FENG_SETVISIBLE_ADDR, FEngSetVisible, true);
 		injector::MakeNOP(0x0052AEC3, 2, true);
 		injector::MakeNOP(0x0052F33C, 2, true);
-		injector::MakeNOP(0x0052F3FA, 3, true);
+		injector::MakeNOP(0x0052F3FA, 6, true);
 		injector::MakeNOP(0x00562C60, 2, true);
 	}
 	else
