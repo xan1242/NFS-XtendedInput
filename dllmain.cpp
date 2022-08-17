@@ -18,6 +18,7 @@
 // TODO (World): make proper config, currently using a mostly copy-paste from Carbon...
 // TODO (World): mouselook, maybe
 
+// TODO (rumble): Port over UpdatePads() and everything below it related to effects (InputEffectState, EffectRamp, EffectWave functions) from the console games -- this has been cut from the PC version
 
 #include "stdafx.h"
 #include "stdio.h"
@@ -711,6 +712,44 @@ void* DebugWorldCameraMover_Destructor_Hook()
 
 // FFB / rumble stuff start
 
+struct EffectWave
+{
+	float Time;
+	float Amplitude;
+	float Frequency;
+	float Offset;
+};
+
+struct EffectRamp
+{
+	float Time;
+	float MaxTime;
+	float Amplitude;
+	float MinAmplitude;
+};
+
+struct InputEffectState
+{
+	EffectWave RoadNoise[4];
+	EffectWave SkidNoise[4];
+	EffectWave SlipNoise[4];
+	EffectWave EngineNoise[4];
+	EffectWave DraftNoise[4];
+	EffectWave DriftNoise[4];
+	EffectRamp CollisionNoise[2];
+	EffectRamp ShiftPotentialNoise[2];
+	EffectRamp NOSNoise[2];
+	EffectRamp EngineBlownNoise[2];
+	EffectRamp ShiftNoise[2];
+	EffectRamp SuspensionDigression[2];
+	float Volume_Left;
+	float Volume_Right;
+	float Volume_QuietScale;
+	float Mag_right;
+	BOOL Enabled;
+};
+
+InputEffectState effect_states[8];
 
 class IFeedback
 {
@@ -724,55 +763,56 @@ public:
 	}
 	virtual void PauseEffects()
 	{
-		puts("IFeedback::PauseEffects");
+		//puts("IFeedback::PauseEffects");
 	}
 	virtual void ResumeEffects()
 	{
-		puts("IFeedback::ResumeEffects");
+		//puts("IFeedback::ResumeEffects");
 	}
 	virtual void ResetEffects()
 	{
-		puts("IFeedback::ResetEffects");
+		//puts("IFeedback::ResetEffects");
 	}
 	virtual void BeginUpdate()
 	{
-		puts("IFeedback::BeginUpdate");
+		//puts("IFeedback::BeginUpdate");
 	}
 	virtual void EndUpdate()
 	{
-		puts("IFeedback::EndUpdate");
+		//puts("IFeedback::EndUpdate");
 	}
 	virtual void UpdateRoadNoise(int unk, void* SimSurface, float slipAngle)
 	{
-		puts("IFeedback::UpdateRoadNoise");
+		//puts("IFeedback::UpdateRoadNoise");
 	}
 	virtual void UpdateTireSkid(int unk, void *SimSurface, float slipAngle)
 	{
-		puts("IFeedback::UpdateTireSkid");
+		//puts("IFeedback::UpdateTireSkid");
 	}
 	virtual void UpdateTireSlip(int unk, void* SimSurface, float slipAngle)
 	{
-		puts("IFeedback::UpdateTireSlip");
+		//puts("IFeedback::UpdateTireSlip");
 	}
 	virtual void UpdateRPM(float unk1, float unk2, float unk3)
 	{
-		puts("IFeedback::UpdateRPM");
+		//puts("IFeedback::UpdateRPM");
 	}
 	virtual void UpdateShiftPotential(int ShiftPotential)
 	{
-		puts("IFeedback::UpdateShiftPotential");
+		//puts("IFeedback::UpdateShiftPotential");
 	}
 	virtual void UpdateNOS(int engaged, float NOSamount)
 	{
-		puts("IFeedback::UpdateNOS");
+		if (engaged)
+			puts("IFeedback::UpdateNOS"); // this works
 	}
 	virtual void UpdateEngineBlown(int unk)
 	{
-		puts("IFeedback::UpdateEngineBlown");
+		//puts("IFeedback::UpdateEngineBlown");
 	}
 	virtual void UpdateShifting(int unk)
 	{
-		puts("IFeedback::UpdateShifting");
+		//puts("IFeedback::UpdateShifting");
 	}
 #ifndef GAME_MW
 	virtual void UpdateDrafting()
@@ -793,7 +833,7 @@ public:
 #endif
 	virtual void ReportCollision(void* collisioninfo, int unk)
 	{
-		puts("IFeedback::ReportCollision");
+		//puts("IFeedback::ReportCollision");
 	}
 
 };
@@ -818,26 +858,10 @@ public:
 
 	InputDevice(int DeviceIndex)
 	{
-		//UTL_Com_Object_IList_Constructor(&Padding1, 4);
-		//mFFB = new IFeedback(&Padding1);
-
-		// HACK: since we do not have a proper implementation and we *just* want this to work, I'll steal the vftable and generate same conditions as in the game
-		// otherwise the game just ignores this
-
-		// save the vftable to a var
-		//void* FFB_vftable = *(void**)&mFFB;
-		// then replace it with the IUnknown vftable
-		//*(void**)&mFFB = (void*)0x00890970;
-		// do the IFeedback shenanigans...
 		mFFB.UTL_List_Owner = &Padding1;
 		memset(&Padding1, 0, sizeof(long) * 5);
 		UTL_Com_Object_IList_Constructor(&Padding1, 4);
 		UTL_Com_Object_IList_Add(&Padding1, (void*)FEEDBACK_IHANDLE_ADDR, &mFFB);
-
-		printf("FeedbackHandle: 0x%X\nUnkHandle: 0x%X\nUnkHandle2: 0x%X\nPadding2: 0x%X\n", FeedbackHandle, UnkHandle, UnkHandle2, Padding2);
-
-		// and at the end restore the vftable to normal
-		//*(void**)&mFFB = FFB_vftable
 
 		fDeviceIndex = DeviceIndex;
 		fControllerCurve = 1.0f;
