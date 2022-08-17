@@ -742,35 +742,35 @@ public:
 	{
 		puts("IFeedback::EndUpdate");
 	}
-	virtual void UpdateRoadNoise()
+	virtual void UpdateRoadNoise(int unk, void* SimSurface, float slipAngle)
 	{
 		puts("IFeedback::UpdateRoadNoise");
 	}
-	virtual void UpdateTireSkid(bool unk, void *SimSurface, float slipAngle)
+	virtual void UpdateTireSkid(int unk, void *SimSurface, float slipAngle)
 	{
 		puts("IFeedback::UpdateTireSkid");
 	}
-	virtual void UpdateTireSlip()
+	virtual void UpdateTireSlip(int unk, void* SimSurface, float slipAngle)
 	{
 		puts("IFeedback::UpdateTireSlip");
 	}
-	virtual void UpdateRPM()
+	virtual void UpdateRPM(float unk1, float unk2, float unk3)
 	{
 		puts("IFeedback::UpdateRPM");
 	}
-	virtual void UpdateShiftPotential()
+	virtual void UpdateShiftPotential(int ShiftPotential)
 	{
 		puts("IFeedback::UpdateShiftPotential");
 	}
-	virtual void UpdateNOS()
+	virtual void UpdateNOS(int engaged, float NOSamount)
 	{
 		puts("IFeedback::UpdateNOS");
 	}
-	virtual void UpdateEngineBlown()
+	virtual void UpdateEngineBlown(int unk)
 	{
 		puts("IFeedback::UpdateEngineBlown");
 	}
-	virtual void UpdateShifting()
+	virtual void UpdateShifting(int unk)
 	{
 		puts("IFeedback::UpdateShifting");
 	}
@@ -791,7 +791,7 @@ public:
 	{
 	}
 #endif
-	virtual void ReportCollision()
+	virtual void ReportCollision(void* collisioninfo, int unk)
 	{
 		puts("IFeedback::ReportCollision");
 	}
@@ -833,6 +833,9 @@ public:
 		memset(&Padding1, 0, sizeof(long) * 5);
 		UTL_Com_Object_IList_Constructor(&Padding1, 4);
 		UTL_Com_Object_IList_Add(&Padding1, (void*)FEEDBACK_IHANDLE_ADDR, &mFFB);
+
+		printf("FeedbackHandle: 0x%X\nUnkHandle: 0x%X\nUnkHandle2: 0x%X\nPadding2: 0x%X\n", FeedbackHandle, UnkHandle, UnkHandle2, Padding2);
+
 		// and at the end restore the vftable to normal
 		//*(void**)&mFFB = FFB_vftable
 
