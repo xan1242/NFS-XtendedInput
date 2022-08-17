@@ -90,6 +90,8 @@ unsigned int KeyboardReadingMode = 0; // 0 = buffered synchronous, 1 = unbuffere
 bool bMouseLook = true;
 
 void*(__thiscall* UTL_Com_Object_IList_Constructor)(void* thethis, unsigned int unk) = (void*(__thiscall*)(void*, unsigned int))UTL_ILIST_CONSTRUCTOR_ADDR;
+void*(__thiscall* UTL_Com_Object_IList_Add)(void* thethis, void* IHandle, void* UTL_IUnknown) = (void* (__thiscall*)(void*, void*, void*))UTL_ILIST_ADD_ADDR;
+
 void (__thiscall* DebugWorldCameraMover_Update)(void* thethis, float unk) = (void (__thiscall*)(void*, float))DebugWorldCameraMover_Update_Addr;
 
 void* (__thiscall* DebugWorldCameraMover_Constructor)(void* thethis, void* vector1, void* vector2, int joyport, int unk) = (void* (__thiscall*)(void*, void*, void*, int, int))DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_ADDR;
@@ -707,6 +709,97 @@ void* DebugWorldCameraMover_Destructor_Hook()
 
 // Mouselook stuff end
 
+// FFB / rumble stuff start
+
+
+class IFeedback
+{
+public:
+	void* UTL_List_Owner;
+
+	virtual void* dtor(bool something)
+	{
+		delete(this);
+		return this;
+	}
+	virtual void PauseEffects()
+	{
+		puts("IFeedback::PauseEffects");
+	}
+	virtual void ResumeEffects()
+	{
+		puts("IFeedback::ResumeEffects");
+	}
+	virtual void ResetEffects()
+	{
+		puts("IFeedback::ResetEffects");
+	}
+	virtual void BeginUpdate()
+	{
+		puts("IFeedback::BeginUpdate");
+	}
+	virtual void EndUpdate()
+	{
+		puts("IFeedback::EndUpdate");
+	}
+	virtual void UpdateRoadNoise()
+	{
+		puts("IFeedback::UpdateRoadNoise");
+	}
+	virtual void UpdateTireSkid(bool unk, void *SimSurface, float slipAngle)
+	{
+		puts("IFeedback::UpdateTireSkid");
+	}
+	virtual void UpdateTireSlip()
+	{
+		puts("IFeedback::UpdateTireSlip");
+	}
+	virtual void UpdateRPM()
+	{
+		puts("IFeedback::UpdateRPM");
+	}
+	virtual void UpdateShiftPotential()
+	{
+		puts("IFeedback::UpdateShiftPotential");
+	}
+	virtual void UpdateNOS()
+	{
+		puts("IFeedback::UpdateNOS");
+	}
+	virtual void UpdateEngineBlown()
+	{
+		puts("IFeedback::UpdateEngineBlown");
+	}
+	virtual void UpdateShifting()
+	{
+		puts("IFeedback::UpdateShifting");
+	}
+#ifndef GAME_MW
+	virtual void UpdateDrafting()
+	{
+	}
+	virtual void UpdateDrifSlip()
+	{
+	}
+	virtual void UpdateDrifSkid()
+	{
+	}
+	virtual void UpdateSteering()
+	{
+	}
+	virtual void UpdateShockDigression()
+	{
+	}
+#endif
+	virtual void ReportCollision()
+	{
+		puts("IFeedback::ReportCollision");
+	}
+
+};
+
+// FFB / rumble stuff end
+
 // based on MW -- may change across games
 class InputDevice
 {
@@ -721,11 +814,28 @@ public:
 	float* fCurrentValues;
 	int fDeviceIndex;
 	float fControllerCurve;
+	IFeedback mFFB;
 
 	InputDevice(int DeviceIndex)
 	{
+		//UTL_Com_Object_IList_Constructor(&Padding1, 4);
+		//mFFB = new IFeedback(&Padding1);
+
+		// HACK: since we do not have a proper implementation and we *just* want this to work, I'll steal the vftable and generate same conditions as in the game
+		// otherwise the game just ignores this
+
+		// save the vftable to a var
+		//void* FFB_vftable = *(void**)&mFFB;
+		// then replace it with the IUnknown vftable
+		//*(void**)&mFFB = (void*)0x00890970;
+		// do the IFeedback shenanigans...
+		mFFB.UTL_List_Owner = &Padding1;
 		memset(&Padding1, 0, sizeof(long) * 5);
 		UTL_Com_Object_IList_Constructor(&Padding1, 4);
+		UTL_Com_Object_IList_Add(&Padding1, (void*)FEEDBACK_IHANDLE_ADDR, &mFFB);
+		// and at the end restore the vftable to normal
+		//*(void**)&mFFB = FFB_vftable
+
 		fDeviceIndex = DeviceIndex;
 		fControllerCurve = 1.0f;
 		fPrevValues = PrevValues[DeviceIndex];
@@ -975,16 +1085,16 @@ public:
 	}
 	virtual void StartVibration()
 	{
-		//printf("Called InputDevice::StartVibration\n");
+		printf("Called InputDevice::StartVibration\n");
 	}
 	virtual void StopVibration()
 	{
 		// this seems to be only called when the controller is unplugged...
 		//printf("Called InputDevice::StopVibration\n");
 	}
-	virtual int GetInterfaces()
+	virtual void* GetInterfaces()
 	{
-		return 0;
+		return &mFFB;
 	}
 	virtual int GetSecondaryDevice()
 	{
@@ -1555,10 +1665,7 @@ int Init()
 #endif
 
 
-	//AttachConsole(ATTACH_PARENT_PROCESS);
-	//AllocConsole();
-	//freopen("CON", "w", stdout);
-	//freopen("CON", "w", stderr);
+
 	
 
 #endif
@@ -1620,7 +1727,10 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
 		uintptr_t base = (uintptr_t)GetModuleHandleA(NULL);
 		MainBase = base - 0x400000;
 #endif
-
+		//AttachConsole(ATTACH_PARENT_PROCESS);
+		//AllocConsole();
+		freopen("CON", "w", stdout);
+		freopen("CON", "w", stderr);
 		Init();
 	}
 	return TRUE;
