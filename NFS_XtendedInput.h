@@ -1,13 +1,13 @@
 #pragma once
 
-template <int V> static constexpr int compiler_stringhash_template = V;
-static constexpr int compiler_stringhash(char* str)
+template <unsigned int V> static constexpr unsigned int compiler_stringhash_template = V;
+static constexpr unsigned int compiler_stringhash(char* str)
 {
 	if (str == NULL)
 		return 0;
 
 	char* _str = ((char*)str);
-	int result = -1;
+	unsigned int result = -1;
 
 	while (*_str != 0)
 	{
