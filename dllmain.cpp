@@ -839,8 +839,10 @@ public:
 				bInShowcase = true;
 		}
 #endif
-		for (unsigned int i = 0; i < MAX_ACTIONID; i++)
+		for (unsigned int j = 0; j < MAX_ACTIONID; j++)
 		{
+			ActionID i = (ActionID)j;
+
 			if (bIsActionFrontEnd((ActionID)i) && bIsHudVisible())
 				bDoPolling = false;
 
@@ -858,17 +860,20 @@ public:
 			{
 				float fresult = 0;
 				rdi = fDeviceIndex;
-				if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
-					bCurrentVKeyState = VKeyStates[0][VKeyBindings[i]] >> 7;
+				if (VKeyBindings[i])
+				{
+					if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
+						bCurrentVKeyState = VKeyStates[0][VKeyBindings[i]] >> 7;
+					else
+						bCurrentVKeyState = GetAsyncKeyState(VKeyBindings[i]) >> 15;
+				}
 				else
-					bCurrentVKeyState = GetAsyncKeyState(VKeyBindings[i]) >> 15;
+					bCurrentVKeyState = false;
 
 				if (bIsActionDebug((ActionID)i))
 				{
 					rdi = 1; // debug (camera) actions are always read from the second port, but the PC version omits it entirely so this is a workaround
-
 				}
-
 
 				wButtons = g_Controllers[rdi].state.Gamepad.wButtons;
 
@@ -1555,10 +1560,6 @@ int Init()
 #endif
 
 
-	//AttachConsole(ATTACH_PARENT_PROCESS);
-	//AllocConsole();
-	//freopen("CON", "w", stdout);
-	//freopen("CON", "w", stderr);
 	
 
 #endif
@@ -1607,6 +1608,12 @@ int Init()
 	}
 	// Init state
 	ZeroMemory(g_Controllers, sizeof(CONTROLLER_STATE) * MAX_CONTROLLERS);
+
+
+	//AttachConsole(ATTACH_PARENT_PROCESS);
+	//AllocConsole();
+	//freopen("CON", "w", stdout);
+	//freopen("CON", "w", stderr);
 
 	return 0;
 }
