@@ -363,14 +363,22 @@ MigrationBackup/
 FodyWeavers.xsd
 
 [Dd]ebug-MW/
+/Debug-MW-Win7
 [Rr]elease-MW/
+/Release-MW-Win7
 /Debug-Carbon
 /Release-Carbon
+/Debug-Carbon-Win7
+/Release-Carbon-Win7
 /Debug-ProStreet
 /Release-ProStreet
+/Debug-ProStreet-Win7
+/Release-ProStreet-Win7
 /Debug-UC
 /Release-UC
+/Debug-UC-Win7
+/Release-UC-Win7
 /Debug-World
 /Release-World
-/Release-MW-Win7
-/Debug-MW-Win7
+/Debug-World-Win7
+/Release-World-Win7

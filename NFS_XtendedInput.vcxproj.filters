@@ -72,6 +72,30 @@
     <None Include="post-build\mw_debug_win7.bat">
       <Filter>post-build</Filter>
     </None>
+    <None Include="post-build\carbon_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\carbon_debug_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\prostreet_debug_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\prostreet_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\uc_debug_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\uc_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\world_debug_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
+    <None Include="post-build\world_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
