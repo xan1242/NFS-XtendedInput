@@ -412,124 +412,127 @@ void* FEngSetTextureHash_CheckObj(FEObject* inobj, unsigned int obj_hash, unsign
 
 void UpdateFECursorPos()
 {
-	bool bMouseInGameWindow = false;
-	bool bShowMouse = true;
-	POINT MousePos;
-	GetCursorPos(&MousePos);
-	GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
+	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR != 0) // don't execute until we're in the game... fixes BSOD crash on old ATI video drivers...
+	{
+		bool bMouseInGameWindow = false;
+		bool bShowMouse = true;
+		POINT MousePos;
+		GetCursorPos(&MousePos);
+		GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
 
-	float ratio = 480.0 / (windowRect.bottom - windowRect.top); // scaling it to 480 height since that's what FE wants
+		float ratio = 480.0 / (windowRect.bottom - windowRect.top); // scaling it to 480 height since that's what FE wants
 
-	if ((MousePos.x >= windowRect.left) || (MousePos.x <= windowRect.right) && (MousePos.y >= windowRect.top) || (MousePos.y <= windowRect.bottom))
-		bMouseInGameWindow = true;
+		if ((MousePos.x >= windowRect.left) || (MousePos.x <= windowRect.right) && (MousePos.y >= windowRect.top) || (MousePos.y <= windowRect.bottom))
+			bMouseInGameWindow = true;
 
-	MousePos.x = MousePos.x - windowRect.left;
-	MousePos.y = MousePos.y - windowRect.top;
+		MousePos.x = MousePos.x - windowRect.left;
+		MousePos.y = MousePos.y - windowRect.top;
 
-	MousePos.x = (int)((float)(MousePos.x) * ratio);
-	MousePos.y = (int)((float)(MousePos.y) * ratio);
+		MousePos.x = (int)((float)(MousePos.x) * ratio);
+		MousePos.y = (int)((float)(MousePos.y) * ratio);
 
 #ifdef GAME_PROSTREET
-	float window_aspect = (float)(windowRect.right - windowRect.left) / (float)(windowRect.bottom - windowRect.top);
-	float shiftpos = ((window_aspect * 480.0f) - 640.0f) / 2.0f;
-	MousePos.x = MousePos.x - shiftpos;
+		float window_aspect = (float)(windowRect.right - windowRect.left) / (float)(windowRect.bottom - windowRect.top);
+		float shiftpos = ((window_aspect * 480.0f) - 640.0f) / 2.0f;
+		MousePos.x = MousePos.x - shiftpos;
 #endif
 
-	// car orbiting position calculation - always relative to old
-	*(int*)FEMOUSECURSOR_CARORBIT_X_ADDR = MousePos.x - *(int*)FEMOUSECURSOR_X_ADDR;
-	*(int*)FEMOUSECURSOR_CARORBIT_Y_ADDR = MousePos.y - *(int*)FEMOUSECURSOR_Y_ADDR;
+		// car orbiting position calculation - always relative to old
+		* (int*)FEMOUSECURSOR_CARORBIT_X_ADDR = MousePos.x - *(int*)FEMOUSECURSOR_X_ADDR;
+		*(int*)FEMOUSECURSOR_CARORBIT_Y_ADDR = MousePos.y - *(int*)FEMOUSECURSOR_Y_ADDR;
 
-	// get time since last movement and hide it after a while (unless the cursor is within the game window so we don't hide it)
-	if ((MousePos.x != *(int*)FEMOUSECURSOR_X_ADDR) || (MousePos.y != *(int*)FEMOUSECURSOR_Y_ADDR))
-		TimeSinceLastMouseMovement = timeGetTime();
-	else
-	{
-		if ((TimeSinceLastMouseMovement + MOUSEHIDE_TIME) < timeGetTime())
-			bShowMouse = false;
-	}
+		// get time since last movement and hide it after a while (unless the cursor is within the game window so we don't hide it)
+		if ((MousePos.x != *(int*)FEMOUSECURSOR_X_ADDR) || (MousePos.y != *(int*)FEMOUSECURSOR_Y_ADDR))
+			TimeSinceLastMouseMovement = timeGetTime();
+		else
+		{
+			if ((TimeSinceLastMouseMovement + MOUSEHIDE_TIME) < timeGetTime())
+				bShowMouse = false;
+		}
 #ifdef GAME_MW
-	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
-	{
-		if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
-			bShowMouse = false;
-	}
+		if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 6)
+		{
+			if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
+				bShowMouse = false;
+		}
 #else
 #ifdef GAME_CARBON
-	if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
-		bShowMouse = false;
+		if (*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR && cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH))
+			bShowMouse = false;
 #endif // GAME_CARBON
 #endif // GAME_MW
 
-	if (bInDebugWorldCamera)
-		bShowMouse = false;
+		if (bInDebugWorldCamera)
+			bShowMouse = false;
 
-	if (bUseWin32Cursor)
-	{
-		if (bShowMouse)
-			SetCursor(NFSCursor);
+		if (bUseWin32Cursor)
+		{
+			if (bShowMouse)
+				SetCursor(NFSCursor);
+			else
+				SetCursor(NULL);
+		}
 		else
+		{
 			SetCursor(NULL);
-	}
-	else
-	{
-		SetCursor(NULL);
-		if (bShowMouse)
-			*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
+			if (bShowMouse)
+				*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
+			else
+				*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = true;
+		}
+
+		if (!bLastUsedVirtualMouse || bUseWin32Cursor)
+		{
+			*(int*)FEMOUSECURSOR_X_ADDR = MousePos.x;
+			*(int*)FEMOUSECURSOR_Y_ADDR = MousePos.y;
+		}
+
+		// track mouse click state - make sure it lasts for exactly 1 tick of a loop, because the game is a little overzelaous with reading this input
+		if (bMousePressedDown != bMousePressedDownOldState)
+		{
+			*(bool*)FEMOUSECURSOR_BUTTONPRESS_ADDR = bMousePressedDown;
+			*(bool*)FEMOUSECURSOR_BUTTONPRESS2_ADDR = bMousePressedDown;
+			*(bool*)FEMOUSECURSOR_BUTTONPRESS3_ADDR = !bMousePressedDown;
+			bMousePressedDownOldState = bMousePressedDown;
+		}
 		else
-			*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = true;
-	}
+		{
+			//*(bool*)FEMOUSECURSOR_BUTTONPRESS_ADDR = false; // except this one, it's used for car orbiting
+			*(bool*)FEMOUSECURSOR_BUTTONPRESS2_ADDR = false;
+			*(bool*)FEMOUSECURSOR_BUTTONPRESS3_ADDR = false;
+		}
 
-	if (!bLastUsedVirtualMouse || bUseWin32Cursor)
-	{
-		*(int*)FEMOUSECURSOR_X_ADDR = MousePos.x;
-		*(int*)FEMOUSECURSOR_Y_ADDR = MousePos.y;
-	}
+		// track mouse click state - make sure it lasts for exactly 1 tick of a loop, because the game is a little overzelaous with reading this input
+		if (bMouse2PressedDown != bMouse2PressedDownOldState)
+		{
+			*(bool*)FEMOUSECURSOR_BUTTON2PRESS_ADDR = bMouse2PressedDown;
+			*(bool*)FEMOUSECURSOR_BUTTON2PRESS2_ADDR = bMouse2PressedDown;
+			*(bool*)FEMOUSECURSOR_BUTTON2PRESS3_ADDR = !bMouse2PressedDown;
+			bMouse2PressedDownOldState = bMouse2PressedDown;
+		}
+		else
+		{
+			*(bool*)FEMOUSECURSOR_BUTTON2PRESS2_ADDR = false;
+			*(bool*)FEMOUSECURSOR_BUTTON2PRESS3_ADDR = false;
+		}
+		// track mouse click state - make sure it lasts for exactly 1 tick of a loop, because the game is a little overzelaous with reading this input
+		if (bMouse3PressedDown != bMouse3PressedDownOldState)
+		{
+			*(bool*)FEMOUSECURSOR_BUTTON3PRESS_ADDR = bMouse3PressedDown;
+			*(bool*)FEMOUSECURSOR_BUTTON3PRESS2_ADDR = bMouse3PressedDown;
+			*(bool*)FEMOUSECURSOR_BUTTON3PRESS3_ADDR = !bMouse3PressedDown;
+			bMouse3PressedDownOldState = bMouse3PressedDown;
+		}
+		else
+		{
+			*(bool*)FEMOUSECURSOR_BUTTON3PRESS2_ADDR = false;
+			*(bool*)FEMOUSECURSOR_BUTTON3PRESS3_ADDR = false;
+		}
 
-	// track mouse click state - make sure it lasts for exactly 1 tick of a loop, because the game is a little overzelaous with reading this input
-	if (bMousePressedDown != bMousePressedDownOldState)
-	{
-		*(bool*)FEMOUSECURSOR_BUTTONPRESS_ADDR = bMousePressedDown;
-		*(bool*)FEMOUSECURSOR_BUTTONPRESS2_ADDR = bMousePressedDown;
-		*(bool*)FEMOUSECURSOR_BUTTONPRESS3_ADDR = !bMousePressedDown;
-		bMousePressedDownOldState = bMousePressedDown;
+		if (MouseWheelValue)
+			*(int*)FEMOUSEWHEEL_ADDR = MouseWheelValue;
+		MouseWheelValue = 0;
 	}
-	else
-	{
-		//*(bool*)FEMOUSECURSOR_BUTTONPRESS_ADDR = false; // except this one, it's used for car orbiting
-		*(bool*)FEMOUSECURSOR_BUTTONPRESS2_ADDR = false;
-		*(bool*)FEMOUSECURSOR_BUTTONPRESS3_ADDR = false;
-	}
-
-	// track mouse click state - make sure it lasts for exactly 1 tick of a loop, because the game is a little overzelaous with reading this input
-	if (bMouse2PressedDown != bMouse2PressedDownOldState)
-	{
-		*(bool*)FEMOUSECURSOR_BUTTON2PRESS_ADDR = bMouse2PressedDown;
-		*(bool*)FEMOUSECURSOR_BUTTON2PRESS2_ADDR = bMouse2PressedDown;
-		*(bool*)FEMOUSECURSOR_BUTTON2PRESS3_ADDR = !bMouse2PressedDown;
-		bMouse2PressedDownOldState = bMouse2PressedDown;
-	}
-	else
-	{
-		*(bool*)FEMOUSECURSOR_BUTTON2PRESS2_ADDR = false;
-		*(bool*)FEMOUSECURSOR_BUTTON2PRESS3_ADDR = false;
-	}
-	// track mouse click state - make sure it lasts for exactly 1 tick of a loop, because the game is a little overzelaous with reading this input
-	if (bMouse3PressedDown != bMouse3PressedDownOldState)
-	{
-		*(bool*)FEMOUSECURSOR_BUTTON3PRESS_ADDR = bMouse3PressedDown;
-		*(bool*)FEMOUSECURSOR_BUTTON3PRESS2_ADDR = bMouse3PressedDown;
-		*(bool*)FEMOUSECURSOR_BUTTON3PRESS3_ADDR = !bMouse3PressedDown;
-		bMouse3PressedDownOldState = bMouse3PressedDown;
-	}
-	else
-	{
-		*(bool*)FEMOUSECURSOR_BUTTON3PRESS2_ADDR = false;
-		*(bool*)FEMOUSECURSOR_BUTTON3PRESS3_ADDR = false;
-	}
-
-	if (MouseWheelValue)
-		*(int*)FEMOUSEWHEEL_ADDR = MouseWheelValue;
-	MouseWheelValue = 0;
 }
 
 
