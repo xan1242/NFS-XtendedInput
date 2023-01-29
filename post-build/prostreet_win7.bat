@@ -3,14 +3,14 @@
 echo Creating directories...
 IF EXIST "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack" RMDIR /S /Q "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack"
 MKDIR "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack"
-MKDIR "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\Global"
+MKDIR "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\GLOBAL"
 MKDIR "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\scripts"
 :: Summon the binary
 echo Copying the binary
 COPY /Y "Release-ProStreet-Win7\NFS_XtendedInput.asi" "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\scripts"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
-xnfstpktool -w "XtendedInputButtons\8A69054A.ini" "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\Global\XtendedInputButtons.tpk"
+xnfstpktool -w "XtendedInputButtons\8A69054A.ini" "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\GLOBAL\XtendedInputButtons.tpk"
 :: Summon text files
 echo Summoning text files
 COPY /Y "Config-ProStreet\NFS_XtendedInput.ini" "Release-ProStreet-Win7\Release-ProStreet-Win7-Pack\scripts"

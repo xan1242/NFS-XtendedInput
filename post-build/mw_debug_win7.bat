@@ -3,14 +3,14 @@
 echo Creating directories...
 IF EXIST "Debug-MW-Win7\Debug-MW-Win7-Pack" RMDIR /S /Q "Debug-MW-Win7\Debug-MW-Win7-Pack"
 MKDIR "Debug-MW-Win7\Debug-MW-Win7-Pack"
-MKDIR "Debug-MW-Win7\Debug-MW-Win7-Pack\Global"
+MKDIR "Debug-MW-Win7\Debug-MW-Win7-Pack\GLOBAL"
 MKDIR "Debug-MW-Win7\Debug-MW-Win7-Pack\scripts"
 :: Summon the binary
 echo Copying the binary
 COPY /Y "Debug-MW-Win7\NFS_XtendedInput.asi" "Debug-MW-Win7\Debug-MW-Win7-Pack\scripts"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
-xnfstpktool -w2 "XtendedInputButtons\8A69054A.ini" "Debug-MW-Win7\Debug-MW-Win7-Pack\Global\XtendedInputButtons.tpk"
+xnfstpktool -w2 "XtendedInputButtons\8A69054A.ini" "Debug-MW-Win7\Debug-MW-Win7-Pack\GLOBAL\XtendedInputButtons.tpk"
 :: Summon text files
 echo Summoning text files
 COPY /Y "Config-MW\NFS_XtendedInput.ini" "Debug-MW-Win7\Debug-MW-Win7-Pack\scripts"
