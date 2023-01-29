@@ -66,6 +66,9 @@
     <None Include="post-build\world_debug.bat">
       <Filter>post-build</Filter>
     </None>
+    <None Include="post-build\mw_win7.bat">
+      <Filter>post-build</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
