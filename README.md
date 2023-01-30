@@ -254,6 +254,26 @@ They should be identical to the default game, with one exception: the navigation
 
 - Drop car: 5
 
+## Windows 7 compatibility
+
+To use in Windows 7 (and maybe Vista & XP), you need to use the "Win7" builds.
+
+Requirements are:
+
+- [Xbox 360 Controller Driver](https://archive.org/details/xbox-360-64-engwin-7)
+
+- [DirectX Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=8109) (for XInput 9.1.0)
+
+- [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe) (2019 is used by ASI Loader, 2015 is used by XtendedInput, both are included in the installation package)
+
+This was tested on a Pentium 3 machine running Windows 7 and it is fully working.
+
+These builds are made with SSE instructions enabled (and other extensions disabled), so it should also work on Athlon XP as well.
+
+The release package comes with a special build of ASI loader which is made without any CPU extensions required. It is also patched to work in Windows XP.
+
+These builds may or may not work in Windows XP with some hacks, YMMV as it wasn't tested. Follow the instructions found [here](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170) to find out more. TLDR: "The last version of the Visual C++ Redistributable that works on Windows XP shipped in Visual Studio 2019 version 16.7 (file versions starting with **14.27**)."
+
 ## TODO list:
 
 - Check the top of the source file
