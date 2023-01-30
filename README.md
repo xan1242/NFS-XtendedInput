@@ -264,7 +264,7 @@ Requirements are:
 
 - [DirectX Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=8109) (for XInput 9.1.0)
 
-- [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe) (2019 is used by ASI Loader, 2015 is used by XtendedInput, both are included in the installation package)
+- [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe) (2019 are used by ASI Loader and XtendedInput, both are included in the installation package)
 
 This was tested on a Pentium 3 machine running Windows 7 and it is fully working.
 
