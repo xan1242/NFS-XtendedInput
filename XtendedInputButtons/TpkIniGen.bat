@@ -1,7 +1,9 @@
 @echo off
 :: TPK Generator for XNFSTPKTool
 set ININAME=8A69054A.ini
-IF NOT "%~1"=="" set ININAME="%1"
+set FOLDERNAME=.
+IF NOT "%~1"=="" set FOLDERNAME="%1"
+IF NOT "%~2"=="" set ININAME="%2"
 
 <nul (set/p nlv=[TPK])> %ININAME%                              & ECHO(>> %ININAME%
 <nul (set/p nlv=Name = XTENDEDINPUTBUTTONS)>> %ININAME%        & ECHO(>> %ININAME%
@@ -13,7 +15,7 @@ ECHO(>> %ININAME%
 <nul (set/p nlv=Animations = 0)>> %ININAME%
 ECHO(>> %ININAME%
 ECHO(>> %ININAME%
-FOR /R . %%T IN (*.dds) DO (
+FOR /R %FOLDERNAME% %%T IN (*.dds) DO (
 <nul (set/p nlv=[)>> %ININAME%
 strhash %%~nT>> %ININAME%
 <nul (set/p nlv=])>> %ININAME%                                 & ECHO(>> %ININAME%
