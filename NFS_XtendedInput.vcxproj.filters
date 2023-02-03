@@ -96,6 +96,9 @@
     <None Include="post-build\world_win7.bat">
       <Filter>post-build</Filter>
     </None>
+    <None Include="XtendedInputButtons\TpkIniGen.bat">
+      <Filter>XtendedInputButtons</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Config-MW">
@@ -115,6 +118,9 @@
     </Filter>
     <Filter Include="post-build">
       <UniqueIdentifier>{04169ee6-7f55-422e-8cc4-8bfce312e488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XtendedInputButtons">
+      <UniqueIdentifier>{bd6bb895-c828-46a0-b93d-f7b70a7008fc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

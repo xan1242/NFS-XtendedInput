@@ -886,6 +886,7 @@
     <None Include="post-build\world_debug_win7.bat" />
     <None Include="post-build\world_win7.bat" />
     <None Include="README.md" />
+    <None Include="XtendedInputButtons\TpkIniGen.bat" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Config-Carbon\EventReference.txt" />
