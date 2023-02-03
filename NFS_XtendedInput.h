@@ -24,6 +24,7 @@ static constexpr unsigned int compiler_stringhash(char* str)
 #define FE_SPLASH_TEXT_XBOX360 "Press START or A button"
 #define FE_SPLASH_TEXT_PS4 "Press OPTIONS or X button"
 #define FE_SPLASH_TEXT_PS3 "Press START or X button"
+#define FE_SPLASH_TEXT_SWITCH "Press + button"
 #define FE_SPLASH_TEXT_PC "CLICK or ENTER to continue"
 
 #define LASTCONTROLLED_KB 0
@@ -35,6 +36,8 @@ unsigned int LastControlledDeviceOldState = 0;
 #define CONTROLLERICON_PS4 1
 #define CONTROLLERICON_XBOX360 2
 #define CONTROLLERICON_PS3 3
+#define CONTROLLERICON_SWITCH 4
+#define CONTROLLERICON_XB360MW 5
 
 unsigned int ControllerIconMode = 0; // read modes above
 

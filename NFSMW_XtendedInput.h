@@ -303,11 +303,15 @@ void SetTitleScreenText()
 			case CONTROLLERICON_PS3:
 				splash_txt = FE_SPLASH_TEXT_PS3;
 				break;
+			case CONTROLLERICON_XB360MW:
 			case CONTROLLERICON_XBOX360:
 				splash_txt = FE_SPLASH_TEXT_XBOX360;
 				break;
 			case CONTROLLERICON_PS4:
 				splash_txt = FE_SPLASH_TEXT_PS4;
+				break;
+			case CONTROLLERICON_SWITCH:
+				splash_txt = FE_SPLASH_TEXT_SWITCH;
 				break;
 			case CONTROLLERICON_XBOXONE:
 			default:

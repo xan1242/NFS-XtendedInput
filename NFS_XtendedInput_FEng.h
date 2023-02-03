@@ -562,30 +562,13 @@ void __stdcall CustomTuningScreen_NotificationMessage_Hook(unsigned int unk1, vo
 
 void SetUnbindableButtonTextures()
 {
-	switch (ControllerIconMode)
-	{
-	case CONTROLLERICON_PS4:
-		ButtonTexHashes[FE_LANALOG_TEX] = PS4_LANALOG_HASH;
-		ButtonTexHashes[FE_LANALOG_UP_TEX] = PS4_LANALOG_UP_HASH;
-		ButtonTexHashes[FE_LANALOG_UP_SWEDISH_TEX] = PS4_LANALOG_UP_HASH;
-		ButtonTexHashes[FE_LANALOG_UP_FRENCH_TEX] = PS4_LANALOG_UP_HASH;
-		ButtonTexHashes[FE_LANALOG_DOWN_TEX] = PS4_LANALOG_DOWN_HASH;
-		ButtonTexHashes[FE_LANALOG_DOWN_FRENCH_TEX] = PS4_LANALOG_DOWN_HASH;
-		ButtonTexHashes[FE_LANALOG_DOWN_SWEDISH_TEX] = PS4_LANALOG_DOWN_HASH;
-
-		break;
-	case CONTROLLERICON_XBOXONE:
-	default:
-		ButtonTexHashes[FE_LANALOG_TEX] = XBONE_LANALOG_HASH;
-		ButtonTexHashes[FE_LANALOG_UP_TEX] = XBONE_LANALOG_UP_HASH;
-		ButtonTexHashes[FE_LANALOG_UP_SWEDISH_TEX] = XBONE_LANALOG_UP_HASH;
-		ButtonTexHashes[FE_LANALOG_UP_FRENCH_TEX] = XBONE_LANALOG_UP_HASH;
-		ButtonTexHashes[FE_LANALOG_DOWN_TEX] = XBONE_LANALOG_DOWN_HASH;
-		ButtonTexHashes[FE_LANALOG_DOWN_FRENCH_TEX] = XBONE_LANALOG_DOWN_HASH;
-		ButtonTexHashes[FE_LANALOG_DOWN_SWEDISH_TEX] = XBONE_LANALOG_DOWN_HASH;
-
-		break;
-	}
+	ButtonTexHashes[FE_LANALOG_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_CONFIGDEF);
+	ButtonTexHashes[FE_LANALOG_UP_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_UP_CONFIGDEF);
+	ButtonTexHashes[FE_LANALOG_UP_SWEDISH_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_UP_CONFIGDEF);
+	ButtonTexHashes[FE_LANALOG_UP_FRENCH_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_UP_CONFIGDEF);
+	ButtonTexHashes[FE_LANALOG_DOWN_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF);
+	ButtonTexHashes[FE_LANALOG_DOWN_FRENCH_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF);
+	ButtonTexHashes[FE_LANALOG_DOWN_SWEDISH_TEX] = GetAppropriateButtonTex(XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF);
 }
 
 void SetBindingButtonTexture(ActionID id, WORD buttonmask)
