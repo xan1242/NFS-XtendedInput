@@ -12,7 +12,7 @@ Currently a work in progress, but fully usable and playable!
 
 - Automatic UI and text swapping for button icons - dynamically detects when you use either a keyboard or a controller
 
-- Choice between Xbox (One and 360) and PS4/PS3 icons (made by [AeroWidescreen (Aero_)](https://github.com/AeroWidescreen) )
+- Choice between Xbox (One and 360), PS4/PS3 and Switch icons (made by [AeroWidescreen (Aero_)](https://github.com/AeroWidescreen) )
 
 - Console control feature parity (except rumble): restored debug camera analog control
 
