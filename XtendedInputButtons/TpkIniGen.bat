@@ -1,6 +1,7 @@
 @echo off
 :: TPK Generator for XNFSTPKTool
-set ININAME=XtendedInputButtons.ini
+set ININAME=8A69054A.ini
+IF NOT "%~1"=="" set ININAME="%1"
 
 <nul (set/p nlv=[TPK])> %ININAME%                              & ECHO(>> %ININAME%
 <nul (set/p nlv=Name = XTENDEDINPUTBUTTONS)>> %ININAME%        & ECHO(>> %ININAME%
@@ -43,3 +44,4 @@ strhash %%~nT>> %ININAME%
 <nul (set/p nlv=PixelFormatUnk3 = 0x6)>> %ININAME%             & ECHO(>> %ININAME%
 ECHO(>> %ININAME%
 )
+EXIT /B 0
