@@ -42,3 +42,4 @@ unsigned int LastControlledDeviceOldState = 0;
 unsigned int ControllerIconMode = 0; // read modes above
 
 bool bInDebugWorldCamera = false;
+bool bGlobalDoPolling = true;

@@ -412,7 +412,7 @@ void* FEngSetTextureHash_CheckObj(FEObject* inobj, unsigned int obj_hash, unsign
 
 void UpdateFECursorPos()
 {
-	if (*(int*)GAMEFLOWMANAGER_STATUS_ADDR != 0) // don't execute until we're in the game... fixes BSOD crash on old ATI video drivers...
+	if ((*(int*)GAMEFLOWMANAGER_STATUS_ADDR != 0) && bGlobalDoPolling) // don't execute until we're in the game... fixes BSOD crash on old ATI video drivers...
 	{
 		bool bMouseInGameWindow = false;
 		bool bShowMouse = true;

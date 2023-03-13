@@ -275,7 +275,7 @@ HRESULT UpdateControllerState()
 void ReadXInput_Extra()
 {
 #ifndef NO_QUIT_BUTTON
-	if (g_Controllers[0].bConnected)
+	if (g_Controllers[0].bConnected && bGlobalDoPolling)
 	{
 		WORD wButtons = g_Controllers[0].state.Gamepad.wButtons;
 
@@ -349,7 +349,7 @@ void __stdcall ReadControllerData()
 		GetKeyboardState(VKeyStates[0]);
 
 	// read mouse info for Debug World Camera
-	if (bInDebugWorldCamera)
+	if (bInDebugWorldCamera && bGlobalDoPolling)
 	{
 		RECT windowRect;
 		POINT MousePos;
@@ -820,6 +820,9 @@ public:
 	}
 	virtual void PollDevice()
 	{
+		if (!bGlobalDoPolling)
+			return;
+
 		ReadControllerData();
 		WORD wButtons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
 		WORD SecondBind = 0;
@@ -1618,6 +1621,16 @@ int Init()
 	return 0;
 }
 
+extern "C" __declspec(dllexport) bool GetPollingState()
+{
+	return bGlobalDoPolling;
+}
+
+extern "C" __declspec(dllexport) bool SetPollingState(bool state)
+{
+	bGlobalDoPolling = state;
+	return state;
+}
 
 BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
 {
