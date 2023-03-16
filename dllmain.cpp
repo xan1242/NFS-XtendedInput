@@ -1859,8 +1859,8 @@ int Init()
 
 	//AttachConsole(ATTACH_PARENT_PROCESS);
 	//AllocConsole();
-	freopen("CON", "w", stdout);
-	freopen("CON", "w", stderr);
+	//freopen("CON", "w", stdout);
+	//freopen("CON", "w", stderr);
 
 	return 0;
 }
