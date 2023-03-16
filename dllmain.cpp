@@ -519,6 +519,31 @@ float GetAnalogStickValue(int index, WORD bind)
 	return result;
 }
 
+uint16_t GetAnalogActivity()
+{
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_LT_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_LT_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_RT_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_RT_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_LS_UP_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_LS_UP_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_LS_DOWN_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_LS_LEFT_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_LS_RIGHT_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_RS_UP_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_RS_UP_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_RS_DOWN_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_RS_LEFT_CONFIGDEF;
+	if (GetAnalogStickValue(0, XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF) >= 1.0f)
+		return XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF;
+	return 0;
+}
+
 bool bGetAnalogDigitalActivationState(int index, WORD bind, int actid)
 {
 	WORD threshold = FEUPDOWN_ANALOG_THRESHOLD;
@@ -707,6 +732,120 @@ void* DebugWorldCameraMover_Destructor_Hook()
 
 // Mouselook stuff end
 
+#ifdef GAME_PROSTREET
+
+bool bIgnorableVKey(int k)
+{
+	switch (k)
+	{
+	case VK_MENU:
+	case VK_CONTROL:
+	case VK_SHIFT:
+	case VK_ESCAPE:
+	case VK_LWIN:
+	case VK_RWIN:
+	case VK_APPS:
+	case VK_LBUTTON:
+	case VK_RBUTTON:
+	case VK_MBUTTON:
+	case VK_XBUTTON1:
+	case VK_XBUTTON2:
+		return true;
+	default:
+		return false;
+	}
+
+	return false;
+}
+
+int KB_GetCurrentPressedKey()
+{
+	switch (KeyboardReadingMode)
+	{
+	case KB_READINGMODE_BUFFERED:
+
+		for (int i = 1; i < 255; i++)
+		{
+			if (i && VKeyStates[0][i] >> 7)
+				if (!bIgnorableVKey(i)) // TODO: separate Left Control and Right Alt
+					return i;
+		}
+		return -1;
+	case KB_READINGMODE_UNBUFFERED_ASYNC:
+	default:
+
+		for (int i = 1; i < 255; i++)
+		{
+			if (i && GetAsyncKeyState(i) >> 15)
+				if (!bIgnorableVKey(i))
+					return i;
+		}
+		return -1;
+	}
+}
+
+void SaveBindingToIni(ActionID id, uint16_t bind)
+{
+	CIniReader inireader("");
+	inireader.WriteString("Events", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
+}
+
+void SaveBindingToIniKB(ActionID id, int bind)
+{
+	CIniReader inireader("");
+	inireader.WriteString("EventsKB", ActionIDStr[id], (char*)VKeyStrings[bind]);
+}
+
+bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary)
+{
+	int KBkey = KB_GetCurrentPressedKey();
+	ActionID id = FindPCRemapActionID(index);
+	if (KBkey != -1)
+	{
+		if (isPrimary)
+		{
+			VKeyBindings[id] = KBkey;
+			SaveBindingToIniKB(id, KBkey);
+		}
+		return true;
+	}
+	return false;
+}
+
+bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex)
+{
+	uint16_t act = GetAnalogActivity();
+	WORD buttons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
+	ActionID id = FindPCRemapActionID(index);
+	if (act)
+	{
+		if (isPrimary)
+		{
+			XInputBindings[id] = act;
+			SaveBindingToIni(id, act);
+			if (bIsActionTextureBindable(id)) // kinda extreme but idc
+				SetBindingButtonTexture(id, XInputBindings[id]);
+		}
+		return true;
+	}
+
+	if (buttons)
+	{
+		if (isPrimary)
+		{
+			XInputBindings[id] = buttons;
+			SaveBindingToIni(id, buttons);
+			if (bIsActionTextureBindable(id))
+				SetBindingButtonTexture(id, XInputBindings[id]);
+		}
+		return true;
+	}
+
+	return false;
+}
+
+#endif
+
 // based on MW -- may change across games
 class InputDevice
 {
@@ -721,6 +860,12 @@ public:
 	float* fCurrentValues;
 	int fDeviceIndex;
 	float fControllerCurve;
+#ifdef GAME_PROSTREET
+	bool bRemappingMode;
+	uint32_t RemapType;
+	uint32_t RemapIndex;
+	uint32_t RemapIsPrimary;
+#endif
 
 	InputDevice(int DeviceIndex)
 	{
@@ -731,6 +876,12 @@ public:
 		fPrevValues = PrevValues[DeviceIndex];
 		fCurrentValues = CurrValues[DeviceIndex];
 		fDeviceScalar = new (nothrow) DeviceScalar[MAX_ACTIONID];
+#ifdef GAME_PROSTREET
+		bRemappingMode = false;
+		RemapType = 0;
+		RemapIndex = 0;
+		RemapIsPrimary = 0;
+#endif
 #ifndef NO_PROFILE_SETTINGS
 		InitProfileSettings();
 #endif
@@ -840,6 +991,22 @@ public:
 		{
 			if (cFEng_FindPackage(FE_SHOWCASE_FNG_NAME) || cFEng_FindPackage("UI_DebugCarCustomize.fng") || *(bool*)CARGUYSCAMERA_ADDR)
 				bInShowcase = true;
+		}
+#endif
+#ifdef GAME_PROSTREET
+		if (bRemappingMode)
+		{
+			if (RemapType == 1)
+			{
+				if (HandleKeyboardRemap(RemapIndex, RemapIsPrimary))
+					bRemappingMode = false;
+			}
+
+			if (RemapType == 3)
+			{
+				if (HandleGamepadRemap(RemapIndex, RemapIsPrimary, fDeviceIndex))
+					bRemappingMode = false;
+			}
 		}
 #endif
 		for (unsigned int j = 0; j < MAX_ACTIONID; j++)
@@ -1036,6 +1203,15 @@ public:
 		return 0;
 	}
 #endif
+#ifdef GAME_PROSTREET
+	virtual void GoRemapButton(uint32_t type, uint32_t button, uint32_t isPrimary, uint32_t unk)
+	{
+		bRemappingMode = true;
+		RemapType = type;
+		RemapIndex = button;
+		RemapIsPrimary = isPrimary;
+	}
+#endif
 };
 
 InputDevice* InputDeviceFactory(int DeviceIndex)
@@ -1046,6 +1222,63 @@ InputDevice* InputDeviceFactory(int DeviceIndex)
 }
 
 #pragma runtime_checks( "", off )
+
+
+#ifdef GAME_PROSTREET
+
+void __stdcall GoRemapButtonHook(uint32_t type, uint32_t button_index, uint32_t isPrimary, uint32_t unk)
+{
+	InputDevice* that;
+	_asm mov that, ecx
+	return that->GoRemapButton(type, button_index, isPrimary, unk);
+}
+
+bool __stdcall GetRemappingModeHook()
+{
+	InputDevice* that;
+	_asm mov that, ecx
+
+	return that->bRemappingMode;
+}
+
+void GetMappingStringHook(char* str, uint32_t type, uint32_t button_index, uint32_t isPrimary, uint32_t unk)
+{
+	if (type == 1 && isPrimary) // TODO: add secondary remapping
+	{
+		strcpy(str, ControlsTextsPC[VKeyBindings[FindPCRemapActionID(button_index)]]);
+		return;
+	}
+
+	if (type == 3 && isPrimary)
+	{
+		strcpy(str, ConvertBitmaskToControlString(ControllerIconMode, XInputBindings[FindPCRemapActionID(button_index)]));
+		return;
+	}
+
+	strcpy(str, "---");
+}
+
+uint32_t GetNumExternalDevices()
+{
+	return 1;
+}
+
+uint32_t GetNumExternalDevicesZero()
+{
+	return 0;
+}
+
+const char* __stdcall GetXtendedInputDeviceName(uint32_t type, uint32_t index)
+{
+	if (type == 1)
+		return "Keyboard";
+	if (type == 3)
+		return "XInput Controller";
+
+	return "Unknown Input Device";
+}
+
+#endif
 
 
 #ifndef GAME_WORLD
@@ -1371,10 +1604,10 @@ void InitConfig()
 
 	KeyboardReadingMode = inireader.ReadInteger("Input", "KeyboardReadingMode", 0);
 #ifndef NO_FENG
-	bConfineMouse = inireader.ReadInteger("Input", "ConfineMouse", 0);
-	bUseWin32Cursor = inireader.ReadInteger("Input", "UseWin32Cursor", 1);
-	bUseCustomCursor = inireader.ReadInteger("Input", "UseCustomCursor", 1);
-	bMouseLook = inireader.ReadInteger("Input", "MouseLook", 1);
+	bConfineMouse = inireader.ReadInteger("Input", "ConfineMouse", 0) != 0;
+	bUseWin32Cursor = inireader.ReadInteger("Input", "UseWin32Cursor", 1) != 0;
+	bUseCustomCursor = inireader.ReadInteger("Input", "UseCustomCursor", 1) != 0;
+	bMouseLook = inireader.ReadInteger("Input", "MouseLook", 1) != 0;
 	MouseLookSensitivity = inireader.ReadFloat("Input", "MouseLookSensitivity", 1.0f);
 #endif
 	INPUT_DEADZONE_LS = (inireader.ReadFloat("Input", "DeadzonePercentLS", 0.24f) * FLOAT(0x7FFF));
@@ -1387,7 +1620,8 @@ void InitConfig()
 #ifndef NO_FENG
 	ControllerIconMode = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
 	LastControlledDevice = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
-	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1);
+	bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1) != 0;
+	bEnableSplashTakeover = inireader.ReadInteger("Icons", "EnableSplashTakeover", 1) != 0;
 	strcpy(ButtonTexFilename, inireader.ReadString("Icons", "ButtonTexFilename", "GLOBAL\\XtendedInputButtons.tpk"));
 #endif
 }
@@ -1498,7 +1732,8 @@ int Init()
 	injector::WriteMemory<unsigned int>(0x008A2A78, (unsigned int)&CustomTuningScreen_NotificationMessage_Hook, true);
 #else
 	// Press START button initial hook...
-	injector::MakeCALL(PRESS_START_HOOK_ADDR, FEngSetLanguageHash_Hook, true);
+	if (bEnableSplashTakeover)
+		injector::MakeCALL(PRESS_START_HOOK_ADDR, FEngSetLanguageHash_Hook, true);
 
 	if (bUseDynamicFEngSwitching)
 	{
@@ -1524,6 +1759,15 @@ int Init()
 	injector::MakeJMP(FEPHOTOMODE_HANDLESCREENTICK_HOOK_ADDR, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
 	injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLELTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
 	injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLERTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
+	injector::MakeCALL(0x007028AA, GetRemappingModeHook, true);
+	injector::MakeCALL(0x006FC03B, GoRemapButtonHook, true);
+	injector::MakeJMP(0x006A5940, GetNumExternalDevices, true);
+	injector::MakeCALL(0x005352FF, GetNumExternalDevicesZero, true);
+	injector::MakeCALL(0x005354FC, GetNumExternalDevicesZero, true);
+	injector::MakeCALL(0x00535596, GetNumExternalDevicesZero, true);
+	injector::MakeJMP(0x006A5950, GetXtendedInputDeviceName, true);
+	injector::MakeCALL(0x0070BCEC, GetMappingStringHook, true);
+	injector::MakeCALL(0x0070BD0A, GetMappingStringHook, true);
 #ifdef GAME_CARBON
 	injector::MakeCALL(0x005C3916, FEPackage_FindObjectByHash_Show_Hook, true);
 	injector::MakeCALL(0x005CDD6D, FEPackage_FindObjectByHash_Hide_Hook, true);
@@ -1615,8 +1859,8 @@ int Init()
 
 	//AttachConsole(ATTACH_PARENT_PROCESS);
 	//AllocConsole();
-	//freopen("CON", "w", stdout);
-	//freopen("CON", "w", stderr);
+	freopen("CON", "w", stdout);
+	freopen("CON", "w", stderr);
 
 	return 0;
 }

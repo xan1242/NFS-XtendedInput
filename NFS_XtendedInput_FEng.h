@@ -737,14 +737,20 @@ void SetControllerFEng(FEObject* inobj)
 			FEngSwapTextureHash(inobj, FE_DefaultButtonTexHashes[i], ButtonTexHashes[i]);
 		}
 	}
-
-	SetTitleScreenText();
+	if (bEnableSplashTakeover)
+		SetTitleScreenText();
 }
 
 
 
 #pragma runtime_checks( "", off )
 
+#ifdef GAME_PROSTREET
+bool bInPCControllerConfig()
+{
+	return cFEng_IsPackageInControl_Fast(NFS_HASH("FeControllerConfig_PC.fng")) || cFEng_IsPackageInControl_Fast(NFS_HASH("FeControllerConfig_PC_ReMap_Dialog.fng"));
+}
+#endif
 
 void UpdateControllerFEng(FEObject* inobj)
 {
@@ -754,9 +760,13 @@ void UpdateControllerFEng(FEObject* inobj)
 		ServiceResourceLoading();
 		bLoadedConsoleButtonTex = true;
 	}
-
+#ifdef GAME_PROSTREET
+	if (!bIsHudVisible() && !bInPCControllerConfig()) // HUD has no controller elements anyway, so no need to check it...
+		SetControllerFEng(inobj);
+#else
 	if (!bIsHudVisible()) // HUD has no controller elements anyway, so no need to check it...
 		SetControllerFEng(inobj);
+#endif
 }
 
 bool __stdcall FEObjectCallback_Function(FEObject* inobj)
@@ -933,7 +943,7 @@ void FE_SetLanguageHash_Hook(char* pkg_name, unsigned int obj_hash, unsigned int
 	FE_String_Printf(FEngFindObject(pkg_name, obj_hash), GetLocalizedString(lang_hash));
 }
 
-#endif
+#endif // GAME_PROSTREET
 
 #endif // GAME_MW
 

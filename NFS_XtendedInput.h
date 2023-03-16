@@ -43,3 +43,4 @@ unsigned int ControllerIconMode = 0; // read modes above
 
 bool bInDebugWorldCamera = false;
 bool bGlobalDoPolling = true;
+bool bEnableSplashTakeover = true;
