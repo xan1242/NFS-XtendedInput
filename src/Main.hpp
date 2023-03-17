@@ -1,4 +1,17 @@
-﻿// Need for Speed (Black Box, MW & newer) - Xtended Input plugin
+﻿/*
+// clang-format off
+// 
+//    MIT License
+//    Need for Speed (Black Box, MW & newer) - Xtended Input plugin
+//    Bringing native XInput to NFS
+//    
+//    Copyright (c) 2022–2023 Lovro Plese (Xan/Tenjoin)
+//    Copyright (c) 2023 Berkay Yigit <mail@berkay.link>
+//
+// clang-format on
+*/
+
+// Need for Speed (Black Box, MW & newer) - Xtended Input plugin
 // Bringing native XInput to NFS
 // by Xan/Tenjoin
 
@@ -22,8 +35,8 @@
 #include "stdafx.h"
 #include "stdio.h"
 #include <windows.h>
-#include "includes\injector\injector.hpp"
-#include "includes\IniReader.h"
+#include <injector\injector.hpp>
+#include <IniReader.h>
 #include "NFS_XtendedInput.h"
 #include "NFS_XtentedInput_ActionID.h"
 
@@ -1875,18 +1888,3 @@ extern "C" __declspec(dllexport) bool SetPollingState(bool state)
 	bGlobalDoPolling = state;
 	return state;
 }
-
-BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD reason, LPVOID /*lpReserved*/)
-{
-	if (reason == DLL_PROCESS_ATTACH)
-	{
-#ifdef GAME_WORLD
-		uintptr_t base = (uintptr_t)GetModuleHandleA(NULL);
-		MainBase = base - 0x400000;
-#endif
-
-		Init();
-	}
-	return TRUE;
-}
-

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="NFSC_XtendedInput.h" />
+    <ClInclude Include="NFSMW_XtendedInput.h" />
+    <ClInclude Include="NFSPS_XtendedInput.h" />
+    <ClInclude Include="NFSUC_XtendedInput.h" />
+    <ClInclude Include="NFSW_XtendedInput.h" />
+    <ClInclude Include="NFS_XtendedInput.h" />
+    <ClInclude Include="NFS_XtendedInputButtons.h" />
+    <ClInclude Include="NFS_XtendedInput_VKHash.h" />
+    <ClInclude Include="NFS_XtendedInput_XInputConfig.h" />
+    <ClInclude Include="NFS_XtendedInput_FEng.h" />
+    <ClInclude Include="NFS_XtentedInput_ActionID.h" />
+    <ClInclude Include="_vs\stdafx.h">
+      <Filter>_vs</Filter>
+    </ClInclude>
+    <ClInclude Include="Main.hpp" />
+    <ClInclude Include="_vs\macros.h">
+      <Filter>_vs</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="_vs">
+      <UniqueIdentifier>{dd2fff72-641a-414c-8963-18f8f15ff519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_win32">
+      <UniqueIdentifier>{36d66f65-b0eb-4a48-bd79-b371b7124b7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="_vs\stdafx.cpp">
+      <Filter>_vs</Filter>
+    </ClCompile>
+    <ClCompile Include="_win32\dllmain.cpp">
+      <Filter>_win32</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="NFS_XtendedInput.licenseheader" />
+  </ItemGroup>
+</Project>

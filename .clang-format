@@ -1,0 +1,34 @@
+BasedOnStyle: Google
+
+# why do these even exist?
+IncludeBlocks: Preserve
+SortIncludes: false
+
+# "int& foo", "int* foo"
+DerivePointerAlignment: false
+PointerAlignment: Left
+PointerBindsToType: true
+
+# namespace foo {} // namespace foo
+FixNamespaceComments: true
+
+# indent all namespace content
+NamespaceIndentation: All
+
+# comments
+ReflowComments: true
+PenaltyBreakComment: 0
+PenaltyBreakOpenParenthesis: 1
+
+# personal preference
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Left
+AlignOperands: true
+BreakBeforeBraces: Attach
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: AfterColon
+BreakStringLiterals: true
+ColumnLimit: 160
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
