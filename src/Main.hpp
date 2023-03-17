@@ -119,14 +119,16 @@ int bStringHash(char* str) {
 float PrevValues[2][MAX_ACTIONID];
 float CurrValues[2][MAX_ACTIONID];
 // button bindings per action ID
-WORD XInputBindings[MAX_ACTIONID];
+WORD XInputBindings_PRIMARY[MAX_ACTIONID];
+WORD XInputBindings_SECONDARY[MAX_ACTIONID];
 // secondary bindings, exclusively for FE navigation with left stick as well (not just D-Pad)
 WORD FE_Secondary_Up;
 WORD FE_Secondary_Down;
 WORD FE_Secondary_Left;
 WORD FE_Secondary_Right;
 
-BYTE VKeyBindings[MAX_ACTIONID];
+BYTE VKeyBindings_PRIMARY[MAX_ACTIONID];
+BYTE VKeyBindings_SECONDARY[MAX_ACTIONID];
 
 // mouselook vars
 int   MouseLook_XSpeed     = 0;
@@ -690,24 +692,25 @@ int KB_GetCurrentPressedKey() {
   }
 }
 
-void SaveBindingToIni(ActionID id, uint16_t bind) {
+void SaveBindingToIni(ActionID id, bool isPrimary, uint16_t bind) {
   CIniReader inireader("");
-  inireader.WriteString("Events", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
+  inireader.WriteString(isPrimary ? "Events_Primary" : "Events_Secondary", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
 }
 
-void SaveBindingToIniKB(ActionID id, int bind) {
+void SaveBindingToIniKB(ActionID id, bool isPrimary, int bind) {
   CIniReader inireader("");
-  inireader.WriteString("EventsKB", ActionIDStr[id], (char*)VKeyStrings[bind]);
+  inireader.WriteString(isPrimary ? "EventsKB_Primary" : "EventsKB_Secondary", ActionIDStr[id], (char*)VKeyStrings[bind]);
 }
 
 bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
   int      KBkey = KB_GetCurrentPressedKey();
   ActionID id    = FindPCRemapActionID(index);
   if (KBkey != -1) {
-    if (isPrimary) {
-      VKeyBindings[id] = KBkey;
-      SaveBindingToIniKB(id, KBkey);
-    }
+    if (isPrimary)
+      VKeyBindings_PRIMARY[id] = KBkey;
+    else
+      VKeyBindings_SECONDARY[id] = KBkey;
+    SaveBindingToIniKB(id, isPrimary, KBkey);
     return true;
   }
   return false;
@@ -718,21 +721,23 @@ bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
   WORD     buttons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
   ActionID id      = FindPCRemapActionID(index);
   if (act) {
-    if (isPrimary) {
-      XInputBindings[id] = act;
-      SaveBindingToIni(id, act);
-      if (bIsActionTextureBindable(id))  // kinda extreme but idc
-        SetBindingButtonTexture(id, XInputBindings[id]);
-    }
+    if (isPrimary)
+      XInputBindings_PRIMARY[id] = act;
+    else
+      XInputBindings_SECONDARY[id] = act;
+    SaveBindingToIni(id, isPrimary, act);
+    if (bIsActionTextureBindable(id))  // kinda extreme but idc
+      SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
   if (buttons) {
-    if (isPrimary) {
-      XInputBindings[id] = buttons;
-      SaveBindingToIni(id, buttons);
-      if (bIsActionTextureBindable(id)) SetBindingButtonTexture(id, XInputBindings[id]);
-    }
+    if (isPrimary)
+      XInputBindings_PRIMARY[id] = buttons;
+    else
+      XInputBindings_SECONDARY[id] = buttons;
+    SaveBindingToIni(id, isPrimary, buttons);
+    SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
@@ -808,45 +813,63 @@ class InputDevice {
       fDeviceScalar[i].fCurrentValue = &CurrValues[fDeviceIndex][i];
 
       // read the key bindings
-      VKeyBindings[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB", ActionIDStr[i], ""));
-      if (VKeyBindings[i] == 0) {
+      VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB_Primary", ActionIDStr[i], ""));
+      if (VKeyBindings_PRIMARY[i] == 0) {
         // try checking for single-char
         char lettercheck[32];
-        strcpy(lettercheck, inireader.ReadString("EventsKB", ActionIDStr[i], ""));
-        if (strlen(lettercheck) == 1) VKeyBindings[i] = toupper(lettercheck[0]);
+        strcpy(lettercheck, inireader.ReadString("EventsKB_Primary", ActionIDStr[i], ""));
+        if (strlen(lettercheck) == 1) VKeyBindings_PRIMARY[i] = toupper(lettercheck[0]);
       }
 
-      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", ActionIDStr[i], ""));
+      // read the key bindings [SECONDARY]
+      VKeyBindings_SECONDARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
+      if (VKeyBindings_SECONDARY[i] == 0) {
+        // try checking for single-char
+        char lettercheck[32];
+        strcpy(lettercheck, inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
+        if (strlen(lettercheck) == 1) VKeyBindings_SECONDARY[i] = toupper(lettercheck[0]);
+      }
+
+      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", ActionIDStr[i], ""));
       if (!inXInputConfigDef)
-        XInputBindings[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
+        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", ActionIDStr[i], ""));
       else
-        XInputBindings[i] = inXInputConfigDef;
+        XInputBindings_PRIMARY[i] = inXInputConfigDef;
 #ifndef NO_FENG
-      if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings[i]);
+      if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_PRIMARY[i]);
+#endif
+
+      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
+      if (!inXInputConfigDef)
+        XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
+      else
+        XInputBindings_SECONDARY[i] = inXInputConfigDef;
+#ifndef NO_FENG
+      if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_SECONDARY[i]);
 #endif
     }
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_UP_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Up = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
+      FE_Secondary_Up = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_UP_NAME, ""));
     else
       FE_Secondary_Up = inXInputConfigDef;
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_DOWN_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_DOWN_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Down = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_DOWN_NAME, ""));
+      FE_Secondary_Down = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_DOWN_NAME, ""));
     else
       FE_Secondary_Down = inXInputConfigDef;
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_LEFT_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_LEFT_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Left = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_LEFT_NAME, ""));
+      FE_Secondary_Left = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_LEFT_NAME, ""));
     else
       FE_Secondary_Left = inXInputConfigDef;
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_RIGHT_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_RIGHT_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Right = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_RIGHT_NAME, ""));
+      FE_Secondary_Right = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_RIGHT_NAME, ""));
     else
       FE_Secondary_Right = inXInputConfigDef;
   }
@@ -898,13 +921,17 @@ class InputDevice {
       if (bDoPolling) {
         float fresult = 0;
         rdi           = fDeviceIndex;
-        if (VKeyBindings[i]) {
-          if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
-            bCurrentVKeyState = VKeyStates[0][VKeyBindings[i]] >> 7;
-          else
-            bCurrentVKeyState = GetAsyncKeyState(VKeyBindings[i]) >> 15;
-        } else
+        if (VKeyBindings_PRIMARY[i] || VKeyBindings_SECONDARY[i]) {
+          if (KeyboardReadingMode == KB_READINGMODE_BUFFERED) {
+            bCurrentVKeyState = VKeyStates[0][VKeyBindings_PRIMARY[i]] >> 7;
+            if (!bCurrentVKeyState) bCurrentVKeyState = VKeyStates[0][VKeyBindings_SECONDARY[i]] >> 7;
+          } else {
+            bCurrentVKeyState = GetAsyncKeyState(VKeyBindings_PRIMARY[i]) >> 15;
+            if (!bCurrentVKeyState) bCurrentVKeyState = GetAsyncKeyState(VKeyBindings_SECONDARY[i]) >> 15;
+          }
+        } else {
           bCurrentVKeyState = false;
+        }
 
         if (bIsActionDebug((ActionID)i)) {
           rdi = 1;  // debug (camera) actions are always read from the second port, but the PC version omits it entirely so this is a workaround
@@ -913,12 +940,22 @@ class InputDevice {
         wButtons = g_Controllers[rdi].state.Gamepad.wButtons;
 
         if (bIsActionAnalog((ActionID)i)) {
-          if (bIsBindingAnalog(XInputBindings[i]))
-            fresult = GetAnalogStickValue(rdi, XInputBindings[i]);
-          else {
-            bCurrentXInputKeyState = wButtons & XInputBindings[i];
+          if (bIsBindingAnalog(XInputBindings_PRIMARY[i])) {
+            fresult = GetAnalogStickValue(rdi, XInputBindings_PRIMARY[i]);
+          } else {
+            bCurrentXInputKeyState = wButtons & XInputBindings_PRIMARY[i];
             // keyboard & digital buttons
             if (bCurrentXInputKeyState) fresult = 1.0f;
+          }
+
+          if (bIsBindingAnalog(XInputBindings_SECONDARY[i])) {
+            if (fresult == 0.0f) fresult = GetAnalogStickValue(rdi, XInputBindings_SECONDARY[i]);
+          } else {
+            if (!bCurrentXInputKeyState) {
+              bCurrentXInputKeyState = wButtons & XInputBindings_SECONDARY[i];
+              // keyboard & digital buttons
+              if (bCurrentXInputKeyState) fresult = 1.0f;
+            }
           }
 
           if (bCurrentVKeyState) fresult = 1.0f;
@@ -954,12 +991,14 @@ class InputDevice {
             bCurrentXInputKeyState2 = false;
           }
 
-          if (bIsBindingAnalog(XInputBindings[i]))  // digital directions with an axis
+          if (bIsBindingAnalog(XInputBindings_PRIMARY[i]) || bIsBindingAnalog(XInputBindings_SECONDARY[i]))  // digital directions with an axis
           {
-            bCurrentXInputKeyState = bGetAnalogDigitalActivationState(rdi, XInputBindings[i], i);
+            bCurrentXInputKeyState = bGetAnalogDigitalActivationState(rdi, XInputBindings_PRIMARY[i], i);
+            if (!bCurrentXInputKeyState) bCurrentXInputKeyState = bGetAnalogDigitalActivationState(rdi, XInputBindings_SECONDARY[i], i);
             if (bCurrentXInputKeyState || bCurrentXInputKeyState2) fresult = 1.0f;
           } else {
-            bCurrentXInputKeyState = wButtons & XInputBindings[i];
+            bCurrentXInputKeyState = wButtons & XInputBindings_PRIMARY[i];
+            if (!bCurrentXInputKeyState) bCurrentXInputKeyState = wButtons & XInputBindings_SECONDARY[i];
             // determine final digital status
             if (bCurrentXInputKeyState || bCurrentXInputKeyState2) fresult = 1.0f;
           }
@@ -1046,14 +1085,16 @@ bool __stdcall GetRemappingModeHook() {
 }
 
 void GetMappingStringHook(char* str, uint32_t type, uint32_t button_index, uint32_t isPrimary, uint32_t unk) {
-  if (type == 1 && isPrimary)  // TODO: add secondary remapping
+  if (type == 1)  // TODO: add secondary remapping
   {
-    strcpy(str, ControlsTextsPC[VKeyBindings[FindPCRemapActionID(button_index)]]);
+    strcpy(str,
+           ControlsTextsPC[isPrimary ? VKeyBindings_PRIMARY[FindPCRemapActionID(button_index)] : VKeyBindings_SECONDARY[FindPCRemapActionID(button_index)]]);
     return;
   }
 
-  if (type == 3 && isPrimary) {
-    strcpy(str, ConvertBitmaskToControlString(ControllerIconMode, XInputBindings[FindPCRemapActionID(button_index)]));
+  if (type == 3) {
+    strcpy(str, ConvertBitmaskToControlString(ControllerIconMode, isPrimary ? XInputBindings_PRIMARY[FindPCRemapActionID(button_index)]
+                                                                            : XInputBindings_SECONDARY[FindPCRemapActionID(button_index)]));
     return;
   }
 
@@ -1157,7 +1198,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
   *(int*)(thethis + 8) = 0;
 
   for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
-    if (VKeyBindings[i] != 0 || XInputBindings[i] != 0)  // is it mapped
+    if (VKeyBindings_PRIMARY[i] != 0 || VKeyBindings_SECONDARY[i] != 0 || XInputBindings_PRIMARY[i] != 0 || XInputBindings_SECONDARY[i] != 0)  // is it mapped
     {
       InputMapEntry map;
       if (device->fDeviceScalar[i].fType == kDigitalButton)
