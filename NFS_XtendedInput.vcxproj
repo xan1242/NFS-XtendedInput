@@ -860,40 +860,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Config-Carbon\NFS_XtendedInput.ini" />
-    <None Include="Config-MW\NFS_XtendedInput.ini" />
-    <None Include="Config-ProStreet\NFS_XtendedInput.ini" />
-    <None Include="Config-UC\NFS_XtendedInput.ini" />
-    <None Include="Config-World\NFS_XtendedInput.ini" />
-    <None Include="post-build\carbon.bat" />
-    <None Include="post-build\carbon_debug.bat" />
-    <None Include="post-build\carbon_debug_win7.bat" />
-    <None Include="post-build\carbon_win7.bat" />
-    <None Include="post-build\mw.bat" />
-    <None Include="post-build\mw_debug.bat" />
-    <None Include="post-build\mw_debug_win7.bat" />
-    <None Include="post-build\mw_win7.bat" />
-    <None Include="post-build\prostreet.bat" />
-    <None Include="post-build\prostreet_debug.bat" />
-    <None Include="post-build\prostreet_debug_win7.bat" />
-    <None Include="post-build\prostreet_win7.bat" />
-    <None Include="post-build\uc.bat" />
-    <None Include="post-build\uc_debug.bat" />
-    <None Include="post-build\uc_debug_win7.bat" />
-    <None Include="post-build\uc_win7.bat" />
-    <None Include="post-build\world.bat" />
-    <None Include="post-build\world_debug.bat" />
-    <None Include="post-build\world_debug_win7.bat" />
-    <None Include="post-build\world_win7.bat" />
     <None Include="README.md" />
-    <None Include="XtendedInputButtons\TpkIniGen.bat" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Config-Carbon\EventReference.txt" />
-    <Text Include="Config-MW\EventReference.txt" />
-    <Text Include="Config-ProStreet\EventReference.txt" />
-    <Text Include="Config-UC\EventReference.txt" />
-    <Text Include="Config-World\EventReference.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
