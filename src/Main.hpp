@@ -51,22 +51,12 @@
 #include "NFS_XtendedInput_XInputConfig.h"
 #include "NFS_XtendedInput_VKHash.h"
 
-#ifdef GAME_MW
-#include "NFSMW_XtendedInput.h"
-#endif
+#include "Definitions.h"
 #ifdef GAME_CARBON
-#include "NFSC_XtendedInput.h"
 float FEActivationFloat = 0.999999f;
 #endif
 #ifdef GAME_PROSTREET
-#include "NFSPS_XtendedInput.h"
 float FEActivationFloat = 0.999999f;
-#endif
-#ifdef GAME_UC
-#include "NFSUC_XtendedInput.h"
-#endif
-#ifdef GAME_WORLD
-#include "NFSW_XtendedInput.h"
 #endif
 
 #ifndef NO_FENG

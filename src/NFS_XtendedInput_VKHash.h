@@ -13,6 +13,7 @@
 
 #pragma once
 #include <windows.h>
+#include <WinUser.h>
 int bStringHash(char* a1);
 
 #define VK_LBUTTON_HASH							NFS_HASH("VK_LBUTTON")							

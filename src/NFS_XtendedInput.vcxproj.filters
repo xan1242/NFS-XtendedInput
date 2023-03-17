@@ -1,11 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="NFSC_XtendedInput.h" />
-    <ClInclude Include="NFSMW_XtendedInput.h" />
-    <ClInclude Include="NFSPS_XtendedInput.h" />
-    <ClInclude Include="NFSUC_XtendedInput.h" />
-    <ClInclude Include="NFSW_XtendedInput.h" />
     <ClInclude Include="NFS_XtendedInput.h" />
     <ClInclude Include="NFS_XtendedInputButtons.h" />
     <ClInclude Include="NFS_XtendedInput_VKHash.h" />
@@ -19,6 +14,7 @@
     <ClInclude Include="_vs\macros.h">
       <Filter>_vs</Filter>
     </ClInclude>
+    <ClInclude Include="Definitions.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="_vs">

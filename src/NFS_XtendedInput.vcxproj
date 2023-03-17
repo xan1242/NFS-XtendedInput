@@ -389,6 +389,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_MW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -396,7 +398,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\mw_debug.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/mw_debug.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MW-Win7|Win32'">
@@ -414,7 +416,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\mw_debug_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/mw_debug_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Carbon|Win32'">
@@ -424,6 +426,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_CARBON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -431,7 +435,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\carbon_debug.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/carbon_debug.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Carbon-Win7|Win32'">
@@ -449,7 +453,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\carbon_debug_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/carbon_debug_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-ProStreet|Win32'">
@@ -459,6 +463,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_PROSTREET;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -466,7 +472,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\prostreet_debug.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/prostreet_debug.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-ProStreet-Win7|Win32'">
@@ -484,7 +490,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\prostreet_debug_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/prostreet_debug_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-UC|Win32'">
@@ -494,6 +500,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_UC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -501,7 +509,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\uc_debug.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/uc_debug.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-UC-Win7|Win32'">
@@ -518,7 +526,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\uc_debug_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/uc_debug_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-World|Win32'">
@@ -528,6 +536,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_WORLD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -535,7 +545,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\world_debug.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/world_debug.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-World-Win7|Win32'">
@@ -552,7 +562,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\world_debug_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/world_debug_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MW|Win32'">
@@ -565,6 +575,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_MW;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -574,7 +586,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\mw.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/mw.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MW-Win7|Win32'">
@@ -597,7 +609,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\mw_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/mw_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Carbon|Win32'">
@@ -610,6 +622,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_CARBON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -619,7 +633,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\carbon.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/carbon.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Carbon-Win7|Win32'">
@@ -642,7 +656,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\carbon_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/carbon_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ProStreet|Win32'">
@@ -655,6 +669,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_PROSTREET;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -664,7 +680,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\prostreet.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/prostreet.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ProStreet-Win7|Win32'">
@@ -687,7 +703,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\prostreet_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/prostreet_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-UC|Win32'">
@@ -700,6 +716,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_UC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -709,7 +727,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\uc.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/uc.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-UC-Win7|Win32'">
@@ -731,7 +749,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\uc_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/uc_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-World|Win32'">
@@ -744,6 +762,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;GAME_WORLD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)inc;$(ProjectDir)_vs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -753,7 +773,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\world.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/world.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-World-Win7|Win32'">
@@ -775,16 +795,12 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@post-build\world_win7.bat</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/world_win7.bat"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Definitions.h" />
     <ClInclude Include="Main.hpp" />
-    <ClInclude Include="NFSC_XtendedInput.h" />
-    <ClInclude Include="NFSMW_XtendedInput.h" />
-    <ClInclude Include="NFSPS_XtendedInput.h" />
-    <ClInclude Include="NFSUC_XtendedInput.h" />
-    <ClInclude Include="NFSW_XtendedInput.h" />
     <ClInclude Include="NFS_XtendedInput.h" />
     <ClInclude Include="NFS_XtendedInputButtons.h" />
     <ClInclude Include="NFS_XtendedInput_VKHash.h" />

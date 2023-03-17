@@ -1,28 +1,28 @@
-@echo off
+
 :: Make sure PATH has the tools in it
-SET PATH=%PATH%;%~dp0..\XtendedInputButtons
+SET PATH=%PATH%;%~dp0../XtendedInputButtons
 :: Prepare directories
 echo Creating directories...
-IF EXIST "Release-ProStreet\Release-ProStreet-Pack" RMDIR /S /Q "Release-ProStreet\Release-ProStreet-Pack"
-MKDIR "Release-ProStreet\Release-ProStreet-Pack"
-MKDIR "Release-ProStreet\Release-ProStreet-Pack\GLOBAL"
-MKDIR "Release-ProStreet\Release-ProStreet-Pack\scripts"
+cd %~dp0../..
+IF EXIST ".Release Packages" RMDIR /S /Q ".Release Packages"
+MKDIR ".Release Packages\Release-ProStreet\GLOBAL"
+MKDIR ".Release Packages\Release-ProStreet\scripts"
 :: Summon the binary
 echo Copying the binary
-COPY /Y "Release-ProStreet\NFS_XtendedInput.asi" "Release-ProStreet\Release-ProStreet-Pack\scripts"
+COPY /Y "src\Release-ProStreet\NFS_XtendedInput.asi" ".Release Packages\Release-ProStreet\scripts"
 :: Generate the TPK ini
 echo Generating the TPK ini
-CALL "XtendedInputButtons\TpkIniGen.bat" "XtendedInputButtons" "XtendedInputButtons\8A69054A.ini"
+CALL "data\XtendedInputButtons\TpkIniGen.bat" "data\XtendedInputButtons" "data\XtendedInputButtons\8A69054A.ini"
 :: Build the TPK -- YOU NEED TO HAVE XNFSTPKTool in your PATH!!!
 echo Building TPK with XNFSTPKTool
-xnfstpktool -w "XtendedInputButtons\8A69054A.ini" "Release-ProStreet\Release-ProStreet-Pack\GLOBAL\XtendedInputButtons.tpk"
+xnfstpktool -w "data\XtendedInputButtons\8A69054A.ini" ".Release Packages\Release-ProStreet\GLOBAL\XtendedInputButtons.tpk"
 :: Summon text files
 echo Summoning text files
-COPY /Y "Config-ProStreet\NFS_XtendedInput.ini" "Release-ProStreet\Release-ProStreet-Pack\scripts"
-COPY /Y "Config-ProStreet\EventReference.txt" "Release-ProStreet\Release-ProStreet-Pack"
-COPY /Y "README.md" "Release-ProStreet\Release-ProStreet-Pack"
+COPY /Y "data\Config-ProStreet\NFS_XtendedInput.ini" ".Release Packages\Release-ProStreet\scripts"
+COPY /Y "data\Config-ProStreet\EventReference.txt" ".Release Packages\Release-ProStreet"
+COPY /Y "README.md" ".Release Packages\Release-ProStreet"
 :: Summon additional resources
 echo Summoning additional resources
-COPY /Y "Mouse Cursor\nfs_cursor.cur" "Release-ProStreet\Release-ProStreet-Pack\scripts"
+COPY /Y "data\Mouse Cursor\nfs_cursor.cur" ".Release Packages\Release-ProStreet\scripts"
 
 echo Post build done!

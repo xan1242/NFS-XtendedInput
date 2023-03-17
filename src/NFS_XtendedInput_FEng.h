@@ -15,15 +15,7 @@
 #include "NFS_XtendedInput.h"
 #include "NFS_XtendedInputButtons.h"
 
-#ifdef GAME_MW
-#include "NFSMW_XtendedInput.h"
-#endif
-#ifdef GAME_CARBON
-#include "NFSC_XtendedInput.h"
-#endif
-#ifdef GAME_PROSTREET
-#include "NFSPS_XtendedInput.h"
-#endif
+#include "Definitions.h"
 
 #include <windows.h>
 #include <timeapi.h>

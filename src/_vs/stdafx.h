@@ -23,7 +23,7 @@ MSVC_WARNINGS_OFF
 #define WIN32_LEAN_AND_MEAN
 #define _USE_MATH_DEFINES
 #include <WinSDKVer.h>
-#define _WIN32_WINNT 0x0601  // _WIN32_WINNT_WIN7
+#define _WIN32_WINNT 0x0A00  // _WIN32_WINNT_WINTHRESHOLD
 #include <SDKDDKVer.h>
 // Win32
 #include <Windows.h>
