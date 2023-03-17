@@ -1089,11 +1089,11 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
   unsigned int list_next    = 0;
   int          alloc_result = 0;
 
-  _asm mov thethis, ecx
+  _asm mov thethis, ecx;
 
-                        // use game's own memory management to avoid trouble
-                        *(void**)(thethis + 4) = (void*)FastMem_InitListAllocator();
-  list_current                                 = (unsigned int)*(void**)(thethis + 4);
+  // use game's own memory management to avoid trouble
+  *(void**)(thethis + 4) = (void*)FastMem_InitListAllocator();
+  list_current           = (unsigned int)*(void**)(thethis + 4);
 
   for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
     if (VKeyBindings[i] != 0 || XInputBindings[i] != 0)  // is it mapped
@@ -1149,10 +1149,10 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
   volatile unsigned int list_next = 0;
   volatile int alloc_result = 0;
 
-  _asm mov thethis, ecx
+  _asm mov thethis, ecx;
 
-                        // use game's own memory management to avoid trouble
-                        *(void**)(thethis) = (void*)thethis;
+  // use game's own memory management to avoid trouble
+  *(void**)(thethis) = (void*)thethis;
   *(void**)(thethis + 4) = (void*)thethis;
   *(int*)(thethis + 8) = 0;
 
@@ -1481,15 +1481,7 @@ int Init() {
   injector::MakeJMP(FEPHOTOMODE_HANDLESCREENTICK_HOOK_ADDR, FEPhotoModeStateManager_HandleScreenTick_Hook, true);
   injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLELTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleLTrigger_Hook, true);
   injector::WriteMemory<unsigned int>(FEPHOTOMODE_HANDLERTRIGGER_HOOK_ADDR, (unsigned int)&FEPhotoModeStateManager_HandleRTrigger_Hook, true);
-  injector::MakeCALL(0x007028AA, GetRemappingModeHook, true);
-  injector::MakeCALL(0x006FC03B, GoRemapButtonHook, true);
-  injector::MakeJMP(0x006A5940, GetNumExternalDevices, true);
-  injector::MakeCALL(0x005352FF, GetNumExternalDevicesZero, true);
-  injector::MakeCALL(0x005354FC, GetNumExternalDevicesZero, true);
-  injector::MakeCALL(0x00535596, GetNumExternalDevicesZero, true);
-  injector::MakeJMP(0x006A5950, GetXtendedInputDeviceName, true);
-  injector::MakeCALL(0x0070BCEC, GetMappingStringHook, true);
-  injector::MakeCALL(0x0070BD0A, GetMappingStringHook, true);
+
 #ifdef GAME_CARBON
   injector::MakeCALL(0x005C3916, FEPackage_FindObjectByHash_Show_Hook, true);
   injector::MakeCALL(0x005CDD6D, FEPackage_FindObjectByHash_Hide_Hook, true);
@@ -1522,6 +1514,16 @@ int Init() {
   injector::MakeCALL(0x007ECD78, FE_SetLanguageHash_Hook, true);
   injector::MakeCALL(0x007ECD59, FE_SetLanguageHash_Hook, true);
   injector::MakeCALL(0x007ECD0D, FE_SetLanguageHash_Hook, true);
+  // remapping
+  injector::MakeCALL(0x007028AA, GetRemappingModeHook, true);
+  injector::MakeCALL(0x006FC03B, GoRemapButtonHook, true);
+  injector::MakeJMP(0x006A5940, GetNumExternalDevices, true);
+  injector::MakeCALL(0x005352FF, GetNumExternalDevicesZero, true);
+  injector::MakeCALL(0x005354FC, GetNumExternalDevicesZero, true);
+  injector::MakeCALL(0x00535596, GetNumExternalDevicesZero, true);
+  injector::MakeJMP(0x006A5950, GetXtendedInputDeviceName, true);
+  injector::MakeCALL(0x0070BCEC, GetMappingStringHook, true);
+  injector::MakeCALL(0x0070BD0A, GetMappingStringHook, true);
 #endif
 
 #endif
