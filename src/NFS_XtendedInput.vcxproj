@@ -680,7 +680,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/prostreet.bat"</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/prostreet.bat" Release ProStreet</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ProStreet-Win7|Win32'">
