@@ -1,4 +1,6 @@
 @echo off
+:: Make sure PATH has the tools in it
+SET PATH=%PATH%;%~dp0..\XtendedInputButtons
 :: Prepare directories
 echo Creating directories...
 IF EXIST "Release-UC\Release-UC-Pack" RMDIR /S /Q "Release-UC\Release-UC-Pack"

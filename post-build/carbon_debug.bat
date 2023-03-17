@@ -1,4 +1,6 @@
 @echo off
+:: Make sure PATH has the tools in it
+SET PATH=%PATH%;%~dp0..\XtendedInputButtons
 :: Prepare directories
 echo Creating directories...
 IF EXIST "Debug-Carbon\Debug-Carbon-Pack" RMDIR /S /Q "Debug-Carbon\Debug-Carbon-Pack"

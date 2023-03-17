@@ -1,4 +1,6 @@
 @echo off
+:: Make sure PATH has the tools in it
+SET PATH=%PATH%;%~dp0..\XtendedInputButtons
 :: Prepare directories
 echo Creating directories...
 IF EXIST "Release-World-Win7\Release-World-Win7-Pack" RMDIR /S /Q "Release-World-Win7\Release-World-Win7-Pack"
