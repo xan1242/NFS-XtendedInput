@@ -7,7 +7,6 @@ SET GameName=%2
 echo Creating directories...
 cd %~dp0../..
 IF EXIST ".Release Packages\%BuildType%-%GameName%-Win7" RMDIR /S /Q ".Release Packages\%BuildType%-%GameName%-Win7"
-MKDIR ".Release Packages\%BuildType%-%GameName%-Win7\GLOBAL"
 MKDIR ".Release Packages\%BuildType%-%GameName%-Win7\scripts"
 :: Summon the binary
 echo Copying the binary
