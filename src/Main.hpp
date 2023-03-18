@@ -136,6 +136,11 @@ int   MouseLook_YSpeed     = 0;
 float MouseLookSensitivity = 1.0f;
 
 bool bEnteredWorldMapOnce = false;
+#ifdef GAME_PROSTREET
+bool     g_bRemapClear           = false;
+uint32_t g_bRemapClear_IsPrimary = std::numeric_limits<std::uint32_t>::max();
+uint32_t g_iRemapClear_BtnIndex  = std::numeric_limits<std::uint32_t>::max();
+#endif
 
 enum DeviceScalarType {
   kJoyAxis       = 0,
@@ -703,7 +708,7 @@ void SaveBindingToIniKB(ActionID id, bool isPrimary, int bind) {
 }
 
 bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
-  int      KBkey = KB_GetCurrentPressedKey();
+  int      KBkey = g_bRemapClear ? 0 : KB_GetCurrentPressedKey();
   ActionID id    = FindPCRemapActionID(index);
   if (KBkey != -1) {
     if (isPrimary)
@@ -717,9 +722,19 @@ bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
 }
 
 bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
-  uint16_t act     = GetAnalogActivity();
-  WORD     buttons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
   ActionID id      = FindPCRemapActionID(index);
+  if (g_bRemapClear) {
+    if (isPrimary)
+      XInputBindings_PRIMARY[id] = 0;
+    else
+      XInputBindings_SECONDARY[id] = 0;
+    SaveBindingToIni(id, isPrimary, 0);
+    if (bIsActionTextureBindable(id))  // kinda extreme but idc
+      SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
+    return true;
+  }
+
+  uint16_t act = GetAnalogActivity();
   if (act) {
     if (isPrimary)
       XInputBindings_PRIMARY[id] = act;
@@ -731,6 +746,7 @@ bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
     return true;
   }
 
+  WORD buttons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
   if (buttons) {
     if (isPrimary)
       XInputBindings_PRIMARY[id] = buttons;
@@ -896,11 +912,21 @@ class InputDevice {
 #ifdef GAME_PROSTREET
     if (bRemappingMode) {
       if (RemapType == 1) {
-        if (HandleKeyboardRemap(RemapIndex, RemapIsPrimary)) bRemappingMode = false;
+        if (HandleKeyboardRemap(RemapIndex, RemapIsPrimary)) {
+          g_bRemapClear           = false;
+          g_bRemapClear_IsPrimary = std::numeric_limits<std::uint32_t>::max();
+          g_iRemapClear_BtnIndex  = std::numeric_limits<std::uint32_t>::max();
+          bRemappingMode          = false;
+        }
       }
 
       if (RemapType == 3) {
-        if (HandleGamepadRemap(RemapIndex, RemapIsPrimary, fDeviceIndex)) bRemappingMode = false;
+        if (HandleGamepadRemap(RemapIndex, RemapIsPrimary, fDeviceIndex)) {
+          g_bRemapClear           = false;
+          g_bRemapClear_IsPrimary = std::numeric_limits<std::uint32_t>::max();
+          g_iRemapClear_BtnIndex  = std::numeric_limits<std::uint32_t>::max();
+          bRemappingMode          = false;
+        }
       }
     }
 #endif
@@ -1077,6 +1103,15 @@ void __stdcall GoRemapButtonHook(uint32_t type, uint32_t button_index, uint32_t 
   return that->GoRemapButton(type, button_index, isPrimary, unk);
 }
 
+void __stdcall GoClearButtonHook(uint32_t type, uint32_t button_index, uint32_t isPrimary, uint32_t unk) {
+  InputDevice* that;
+  _asm mov     that, ecx;
+  g_bRemapClear           = true;
+  g_bRemapClear_IsPrimary = isPrimary;
+  g_iRemapClear_BtnIndex  = button_index;
+  return that->GoRemapButton(type, button_index, isPrimary, unk);
+}
+
 bool __stdcall GetRemappingModeHook() {
   InputDevice* that;
   _asm mov     that, ecx;
@@ -1085,8 +1120,11 @@ bool __stdcall GetRemappingModeHook() {
 }
 
 void GetMappingStringHook(char* str, uint32_t type, uint32_t button_index, uint32_t isPrimary, uint32_t unk) {
-  if (type == 1)  // TODO: add secondary remapping
-  {
+  if (g_bRemapClear && button_index == g_iRemapClear_BtnIndex && isPrimary == g_bRemapClear_IsPrimary) {
+    strcpy(str, "---");
+    return;
+  }
+  if (type == 1) {
     strcpy(str,
            ControlsTextsPC[isPrimary ? VKeyBindings_PRIMARY[FindPCRemapActionID(button_index)] : VKeyBindings_SECONDARY[FindPCRemapActionID(button_index)]]);
     return;
@@ -1558,6 +1596,7 @@ int Init() {
   // remapping
   injector::MakeCALL(0x007028AA, GetRemappingModeHook, true);
   injector::MakeCALL(0x006FC03B, GoRemapButtonHook, true);
+  injector::MakeCALL(0x6FC0E9, GoClearButtonHook, true);
   injector::MakeJMP(0x006A5940, GetNumExternalDevices, true);
   injector::MakeCALL(0x005352FF, GetNumExternalDevicesZero, true);
   injector::MakeCALL(0x005354FC, GetNumExternalDevicesZero, true);
