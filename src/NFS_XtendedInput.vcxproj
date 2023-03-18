@@ -398,7 +398,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Debug MW</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-MW.bat" Debug MW</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-MW-Win7|Win32'">
@@ -416,7 +416,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Debug MW</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-MW-Win7.bat" Debug MW</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Carbon|Win32'">
@@ -586,7 +586,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Release MW</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-MW.bat" Release MW</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MW-Win7|Win32'">
@@ -609,7 +609,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Release MW</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-MW-Win7.bat" Release MW</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Carbon|Win32'">
