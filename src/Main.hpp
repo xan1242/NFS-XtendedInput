@@ -860,9 +860,9 @@ class InputDevice {
         XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
       else
         XInputBindings_SECONDARY[i] = inXInputConfigDef;
-#ifndef NO_FENG
-      if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_SECONDARY[i]);
-#endif
+// #ifndef NO_FENG
+//       if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_SECONDARY[i]);
+// #endif
     }
 
     inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_UP_NAME, ""));
