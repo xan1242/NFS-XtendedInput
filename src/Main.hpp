@@ -1176,7 +1176,7 @@ void* __stdcall InputMapping_Constructor(InputDevice* device, void* AttribCollec
   list_current           = (unsigned int)*(void**)(thethis + 4);
 
   for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
-    if (VKeyBindings[i] != 0 || XInputBindings[i] != 0)  // is it mapped
+    if (VKeyBindings_PRIMARY[i] != 0 || VKeyBindings_SECONDARY[i] != 0 || XInputBindings_PRIMARY[i] != 0 || XInputBindings_SECONDARY[i] != 0)  // is it mapped
     {
       InputMapEntry map;
       if (device->fDeviceScalar[i].fType == kDigitalButton)
