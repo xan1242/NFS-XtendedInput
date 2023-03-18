@@ -66,15 +66,21 @@ float FEActivationFloat = 0.999999f;
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers
 
-WORD INPUT_DEADZONE_LS = (0.24f * FLOAT(0x7FFF));  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but can be altered if needed.
-WORD INPUT_DEADZONE_RS = (0.24f * FLOAT(0x7FFF));  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but can be altered if needed.
-WORD INPUT_DEADZONE_LS_P2 = (0.24f * FLOAT(0x7FFF));  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but can be altered if
-                                                      // needed.
-WORD INPUT_DEADZONE_RS_P2 = (0.24f * FLOAT(0x7FFF));  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but can be altered if
-                                                      // needed.
-WORD SHIFT_ANALOG_THRESHOLD       = (0.75f * FLOAT(0x7FFF));  // 75% for shifting
-WORD FEUPDOWN_ANALOG_THRESHOLD    = (0.50f * FLOAT(0x7FFF));  // 50% for analog sticks digital activation
-WORD TRIGGER_ACTIVATION_THRESHOLD = (0.12f * FLOAT(0xFF));    // 12% for analog triggers digital activation
+SHORT INPUT_DEADZONE_LS = (0.24f * std::numeric_limits<SHORT>::max());  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but can
+                                                                        // be
+                                                                        // altered if needed.
+SHORT INPUT_DEADZONE_RS = (0.24f * std::numeric_limits<SHORT>::max());  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but can
+                                                                        // be
+                                                                        // altered if needed.
+SHORT INPUT_DEADZONE_LS_P2 = (0.24f * std::numeric_limits<SHORT>::max());  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but
+                                                                           // can
+                                                                           // be altered if needed.
+SHORT INPUT_DEADZONE_RS_P2 = (0.24f * std::numeric_limits<SHORT>::max());  // Default to 24% of the +/- 32767 range.   This is a reasonable default value but
+                                                                           // can
+                                                                           // be altered if needed.
+SHORT SHIFT_ANALOG_THRESHOLD       = (0.75f * std::numeric_limits<SHORT>::max());  // 75% for shifting
+SHORT FEUPDOWN_ANALOG_THRESHOLD    = (0.50f * std::numeric_limits<SHORT>::max());  // 50% for analog sticks digital activation
+SHORT TRIGGER_ACTIVATION_THRESHOLD = (0.12f * std::numeric_limits<SHORT>::max());  // 12% for analog triggers digital activation
 
 // for triggering the over-zelaous inputs once in a tick...
 WORD bQuitButtonOldState = 0;
@@ -209,21 +215,15 @@ HRESULT UpdateControllerState() {
     g_Controllers[0].bConnected = true;
 
     // Zero value if thumbsticks are within the dead zone
-    if ((g_Controllers[0].state.Gamepad.sThumbLX < INPUT_DEADZONE_LS && g_Controllers[0].state.Gamepad.sThumbLX > -INPUT_DEADZONE_LS) &&
-        (g_Controllers[0].state.Gamepad.sThumbLY < INPUT_DEADZONE_LS && g_Controllers[0].state.Gamepad.sThumbLY > -INPUT_DEADZONE_LS)) {
-      g_Controllers[0].state.Gamepad.sThumbLX = 0;
-      g_Controllers[0].state.Gamepad.sThumbLY = 0;
-    }
+    auto& state = g_Controllers[0].state;
+    if (std::abs(state.Gamepad.sThumbLX) < INPUT_DEADZONE_LS) state.Gamepad.sThumbLX = 0;
+    if (std::abs(state.Gamepad.sThumbLY) < INPUT_DEADZONE_LS) state.Gamepad.sThumbLY = 0;
+    if (std::abs(state.Gamepad.sThumbRX) < INPUT_DEADZONE_RS) state.Gamepad.sThumbRX = 0;
+    if (std::abs(state.Gamepad.sThumbRY) < INPUT_DEADZONE_RS) state.Gamepad.sThumbRY = 0;
 
-    if ((g_Controllers[0].state.Gamepad.sThumbRX < INPUT_DEADZONE_RS && g_Controllers[0].state.Gamepad.sThumbRX > -INPUT_DEADZONE_RS) &&
-        (g_Controllers[0].state.Gamepad.sThumbRY < INPUT_DEADZONE_RS && g_Controllers[0].state.Gamepad.sThumbRY > -INPUT_DEADZONE_RS)) {
-      g_Controllers[0].state.Gamepad.sThumbRX = 0;
-      g_Controllers[0].state.Gamepad.sThumbRY = 0;
-    }
 #ifndef NO_FENG
-    if ((g_Controllers[0].state.Gamepad.wButtons || g_Controllers[0].state.Gamepad.sThumbLX || g_Controllers[0].state.Gamepad.sThumbLY ||
-         g_Controllers[0].state.Gamepad.sThumbRX || g_Controllers[0].state.Gamepad.sThumbRY || g_Controllers[0].state.Gamepad.bRightTrigger ||
-         g_Controllers[0].state.Gamepad.bLeftTrigger) &&
+    if ((state.Gamepad.wButtons || state.Gamepad.sThumbLX || state.Gamepad.sThumbLY || state.Gamepad.sThumbRX || state.Gamepad.sThumbRY ||
+         state.Gamepad.bRightTrigger || state.Gamepad.bLeftTrigger) &&
         bUseDynamicFEngSwitching) {
       LastControlledDevice = LASTCONTROLLED_CONTROLLER;
     }
@@ -239,17 +239,11 @@ HRESULT UpdateControllerState() {
     g_Controllers[1].bConnected = true;
 
     // Zero value if thumbsticks are within the dead zone
-    if ((g_Controllers[1].state.Gamepad.sThumbLX < INPUT_DEADZONE_LS_P2 && g_Controllers[1].state.Gamepad.sThumbLX > -INPUT_DEADZONE_LS_P2) &&
-        (g_Controllers[1].state.Gamepad.sThumbLY < INPUT_DEADZONE_LS_P2 && g_Controllers[1].state.Gamepad.sThumbLY > -INPUT_DEADZONE_LS_P2)) {
-      g_Controllers[1].state.Gamepad.sThumbLX = 0;
-      g_Controllers[1].state.Gamepad.sThumbLY = 0;
-    }
-
-    if ((g_Controllers[1].state.Gamepad.sThumbRX < INPUT_DEADZONE_RS_P2 && g_Controllers[1].state.Gamepad.sThumbRX > -INPUT_DEADZONE_RS_P2) &&
-        (g_Controllers[1].state.Gamepad.sThumbRY < INPUT_DEADZONE_RS_P2 && g_Controllers[1].state.Gamepad.sThumbRY > -INPUT_DEADZONE_RS_P2)) {
-      g_Controllers[1].state.Gamepad.sThumbRX = 0;
-      g_Controllers[1].state.Gamepad.sThumbRY = 0;
-    }
+    auto& state = g_Controllers[1].state;
+    if (std::abs(state.Gamepad.sThumbLX) < INPUT_DEADZONE_LS) state.Gamepad.sThumbLX = 0;
+    if (std::abs(state.Gamepad.sThumbLY) < INPUT_DEADZONE_LS) state.Gamepad.sThumbLY = 0;
+    if (std::abs(state.Gamepad.sThumbRX) < INPUT_DEADZONE_RS) state.Gamepad.sThumbRX = 0;
+    if (std::abs(state.Gamepad.sThumbRY) < INPUT_DEADZONE_RS) state.Gamepad.sThumbRY = 0;
   } else {
     g_Controllers[1].bConnected = false;
   }
@@ -722,7 +716,7 @@ bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
 }
 
 bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
-  ActionID id      = FindPCRemapActionID(index);
+  ActionID id = FindPCRemapActionID(index);
   if (g_bRemapClear) {
     if (isPrimary)
       XInputBindings_PRIMARY[id] = 0;
@@ -860,9 +854,9 @@ class InputDevice {
         XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
       else
         XInputBindings_SECONDARY[i] = inXInputConfigDef;
-// #ifndef NO_FENG
-//       if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_SECONDARY[i]);
-// #endif
+      // #ifndef NO_FENG
+      //       if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_SECONDARY[i]);
+      // #endif
     }
 
     inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_UP_NAME, ""));
@@ -1425,13 +1419,18 @@ void InitConfig() {
   bMouseLook           = inireader.ReadInteger("Input", "MouseLook", 1) != 0;
   MouseLookSensitivity = inireader.ReadFloat("Input", "MouseLookSensitivity", 1.0f);
 #endif
-  INPUT_DEADZONE_LS            = (inireader.ReadFloat("Input", "DeadzonePercentLS", 0.24f) * FLOAT(0x7FFF));
-  INPUT_DEADZONE_RS            = (inireader.ReadFloat("Input", "DeadzonePercentRS", 0.24f) * FLOAT(0x7FFF));
-  INPUT_DEADZONE_LS_P2         = (inireader.ReadFloat("Input", "DeadzonePercentLS_P2", 0.24f) * FLOAT(0x7FFF));
-  INPUT_DEADZONE_RS_P2         = (inireader.ReadFloat("Input", "DeadzonePercentRS_P2", 0.24f) * FLOAT(0x7FFF));
-  SHIFT_ANALOG_THRESHOLD       = (inireader.ReadFloat("Input", "DeadzonePercent_Shifting", 0.75f) * FLOAT(0x7FFF));
-  FEUPDOWN_ANALOG_THRESHOLD    = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogStickDigital", 0.50f) * FLOAT(0x7FFF));
-  TRIGGER_ACTIVATION_THRESHOLD = (inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f) * FLOAT(0xFF));
+  INPUT_DEADZONE_LS = static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercentLS", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  INPUT_DEADZONE_RS = static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercentRS", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  INPUT_DEADZONE_LS_P2 =
+      static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercentLS_P2", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  INPUT_DEADZONE_RS_P2 =
+      static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercentRS_P2", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  SHIFT_ANALOG_THRESHOLD =
+      static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercent_Shifting", 0.75f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  FEUPDOWN_ANALOG_THRESHOLD =
+      static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercent_AnalogStickDigital", 0.50f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  TRIGGER_ACTIVATION_THRESHOLD =
+      static_cast<SHORT>(clampf(inireader.ReadFloat("Input", "DeadzonePercent_AnalogTriggerDigital", 0.12f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
 #ifndef NO_FENG
   ControllerIconMode       = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
   LastControlledDevice     = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
