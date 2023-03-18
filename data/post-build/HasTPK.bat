@@ -6,7 +6,7 @@ SET GameName=%2
 :: Prepare directories
 echo Creating directories...
 cd %~dp0../..
-IF EXIST ".Release Packages" RMDIR /S /Q ".Release Packages"
+IF EXIST ".Release Packages\%BuildType%-%GameName%" RMDIR /S /Q ".Release Packages\%BuildType%-%GameName%"
 MKDIR ".Release Packages\%BuildType%-%GameName%\GLOBAL"
 MKDIR ".Release Packages\%BuildType%-%GameName%\scripts"
 :: Summon the binary
