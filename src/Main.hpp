@@ -893,6 +893,7 @@ class InputDevice {
     bool bCurrentXInputKeyState  = false;
     bool bCurrentXInputKeyState2 = false;
     bool bCurrentVKeyState       = false;
+    bool bCurrentVKeyState_SECONDARY = false;
     bool bDoPolling              = true;
 
     // printf("FEngPkg: %s\n", cFEng_FindPackageWithControl_Name());
@@ -941,17 +942,23 @@ class InputDevice {
       if (bDoPolling) {
         float fresult = 0;
         rdi           = fDeviceIndex;
-        if (VKeyBindings_PRIMARY[i] || VKeyBindings_SECONDARY[i]) {
-          if (KeyboardReadingMode == KB_READINGMODE_BUFFERED) {
+        if (VKeyBindings_PRIMARY[i]) {
+          if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
             bCurrentVKeyState = VKeyStates[0][VKeyBindings_PRIMARY[i]] >> 7;
-            if (!bCurrentVKeyState) bCurrentVKeyState = VKeyStates[0][VKeyBindings_SECONDARY[i]] >> 7;
-          } else {
+          else
             bCurrentVKeyState = GetAsyncKeyState(VKeyBindings_PRIMARY[i]) >> 15;
-            if (!bCurrentVKeyState) bCurrentVKeyState = GetAsyncKeyState(VKeyBindings_SECONDARY[i]) >> 15;
-          }
-        } else {
+        } else
           bCurrentVKeyState = false;
-        }
+
+        if (VKeyBindings_SECONDARY[i]) {
+          if (KeyboardReadingMode == KB_READINGMODE_BUFFERED)
+            bCurrentVKeyState_SECONDARY = VKeyStates[0][VKeyBindings_SECONDARY[i]] >> 7;
+          else
+            bCurrentVKeyState_SECONDARY = GetAsyncKeyState(VKeyBindings_SECONDARY[i]) >> 15;
+        } else
+          bCurrentVKeyState_SECONDARY = false;
+
+        bCurrentVKeyState |= bCurrentVKeyState_SECONDARY;
 
         if (bIsActionDebug((ActionID)i)) {
           rdi = 1;  // debug (camera) actions are always read from the second port, but the PC version omits it entirely so this is a workaround
