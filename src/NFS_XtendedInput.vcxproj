@@ -416,7 +416,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Debug MW-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Debug MW</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Carbon|Win32'">
@@ -453,7 +453,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Debug Carbon-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Debug Carbon</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-ProStreet|Win32'">
@@ -490,7 +490,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Debug ProStreet-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Debug ProStreet</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-UC|Win32'">
@@ -526,7 +526,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/NoTPK.bat" Debug UC-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/NoTPK-Win7.bat" Debug UC</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-World|Win32'">
@@ -562,7 +562,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/NoTPK.bat" Debug World-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/NoTPK-Win7.bat" Debug World</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-MW|Win32'">
@@ -609,7 +609,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Release MW-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Release MW</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Carbon|Win32'">
@@ -656,7 +656,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Release Carbon-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Release Carbon</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-ProStreet|Win32'">
@@ -703,7 +703,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/HasTPK.bat" Release ProStreet-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/HasTPK-Win7.bat" Release ProStreet</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-UC|Win32'">
@@ -749,7 +749,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/NoTPK.bat" Release UC-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/NoTPK-Win7.bat" Release UC</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-World|Win32'">
@@ -795,7 +795,7 @@
     </Link>
     <PostBuildEvent>
       <Message>Making final build package...</Message>
-      <Command>@call "$(SolutionDir)../data/post-build/NoTPK.bat" Release World-Win7</Command>
+      <Command>@call "$(SolutionDir)../data/post-build/NoTPK-Win7.bat" Release World</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-
+@echo off
 :: Make sure PATH has the tools in it
 SET PATH=%PATH%;%~dp0../XtendedInputButtons
 SET BuildType=%1
