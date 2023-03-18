@@ -693,12 +693,12 @@ int KB_GetCurrentPressedKey() {
 
 void SaveBindingToIni(ActionID id, bool isPrimary, uint16_t bind) {
   CIniReader inireader("");
-  inireader.WriteString(isPrimary ? "Events_Primary" : "Events_Secondary", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
+  inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
 }
 
 void SaveBindingToIniKB(ActionID id, bool isPrimary, int bind) {
   CIniReader inireader("");
-  inireader.WriteString(isPrimary ? "EventsKB_Primary" : "EventsKB_Secondary", ActionIDStr[id], (char*)VKeyStrings[bind]);
+  inireader.WriteString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], (char*)VKeyStrings[bind]);
 }
 
 bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
@@ -823,11 +823,11 @@ class InputDevice {
       fDeviceScalar[i].fCurrentValue = &CurrValues[fDeviceIndex][i];
 
       // read the key bindings
-      VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB_Primary", ActionIDStr[i], ""));
+      VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB", ActionIDStr[i], ""));
       if (VKeyBindings_PRIMARY[i] == 0) {
         // try checking for single-char
         char lettercheck[32];
-        strcpy(lettercheck, inireader.ReadString("EventsKB_Primary", ActionIDStr[i], ""));
+        strcpy(lettercheck, inireader.ReadString("EventsKB", ActionIDStr[i], ""));
         if (strlen(lettercheck) == 1) VKeyBindings_PRIMARY[i] = toupper(lettercheck[0]);
       }
 
@@ -840,9 +840,9 @@ class InputDevice {
         if (strlen(lettercheck) == 1) VKeyBindings_SECONDARY[i] = toupper(lettercheck[0]);
       }
 
-      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", ActionIDStr[i], ""));
+      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", ActionIDStr[i], ""));
       if (!inXInputConfigDef)
-        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", ActionIDStr[i], ""));
+        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
       else
         XInputBindings_PRIMARY[i] = inXInputConfigDef;
 #ifndef NO_FENG
@@ -859,27 +859,27 @@ class InputDevice {
       // #endif
     }
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_UP_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Up = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_UP_NAME, ""));
+      FE_Secondary_Up = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
     else
       FE_Secondary_Up = inXInputConfigDef;
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_DOWN_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_DOWN_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Down = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_DOWN_NAME, ""));
+      FE_Secondary_Down = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_DOWN_NAME, ""));
     else
       FE_Secondary_Down = inXInputConfigDef;
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_LEFT_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_LEFT_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Left = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_LEFT_NAME, ""));
+      FE_Secondary_Left = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_LEFT_NAME, ""));
     else
       FE_Secondary_Left = inXInputConfigDef;
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Primary", FE_SECONDARY_RIGHT_NAME, ""));
+    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_RIGHT_NAME, ""));
     if (!inXInputConfigDef)
-      FE_Secondary_Right = ConvertXInputNameToBitmask(inireader.ReadString("Events_Primary", FE_SECONDARY_RIGHT_NAME, ""));
+      FE_Secondary_Right = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_RIGHT_NAME, ""));
     else
       FE_Secondary_Right = inXInputConfigDef;
   }
