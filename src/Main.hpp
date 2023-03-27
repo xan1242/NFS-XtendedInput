@@ -693,11 +693,25 @@ int KB_GetCurrentPressedKey() {
 
 void SaveBindingToIni(ActionID id, bool isPrimary, uint16_t bind) {
   CIniReader inireader("");
+
+  if (bind == 0) {
+    if (inireader.ReadString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], nullptr))
+      inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], "");
+    return;
+  }
+
   inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
 }
 
 void SaveBindingToIniKB(ActionID id, bool isPrimary, int bind) {
   CIniReader inireader("");
+
+  if (bind == 0) {
+    if (inireader.ReadString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], nullptr))
+      inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], "");
+    return;
+  }
+
   inireader.WriteString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], (char*)VKeyStrings[bind]);
 }
 
@@ -752,6 +766,60 @@ bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
   }
 
   return false;
+}
+
+void __stdcall ResetMappingsToDefault() {
+
+    void* that;
+    _asm mov that, ecx
+
+    CIniReader   inireader("NFS_XtendedInput.default.ini");
+    unsigned int inXInputConfigDef = 0;
+
+    for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
+      // read the key bindings
+      VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB", ActionIDStr[i], ""));
+      if (VKeyBindings_PRIMARY[i] == 0) {
+        // try checking for single-char
+        char lettercheck[32];
+        strcpy(lettercheck, inireader.ReadString("EventsKB", ActionIDStr[i], ""));
+        if (strlen(lettercheck) == 1) VKeyBindings_PRIMARY[i] = toupper(lettercheck[0]);
+      }
+
+      // read the key bindings [SECONDARY]
+      VKeyBindings_SECONDARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
+      if (VKeyBindings_SECONDARY[i] == 0) {
+        // try checking for single-char
+        char lettercheck[32];
+        strcpy(lettercheck, inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
+        if (strlen(lettercheck) == 1) VKeyBindings_SECONDARY[i] = toupper(lettercheck[0]);
+      }
+
+      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", ActionIDStr[i], ""));
+      if (!inXInputConfigDef)
+        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
+      else
+        XInputBindings_PRIMARY[i] = inXInputConfigDef;
+#ifndef NO_FENG
+      if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_PRIMARY[i]);
+#endif
+
+      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
+      if (!inXInputConfigDef)
+        XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
+      else
+        XInputBindings_SECONDARY[i] = inXInputConfigDef;
+    }
+
+    for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
+      SaveBindingToIni((ActionID)i, true, XInputBindings_PRIMARY[i]);
+      SaveBindingToIni((ActionID)i, false, XInputBindings_SECONDARY[i]);
+      SaveBindingToIniKB((ActionID)i, true, VKeyBindings_PRIMARY[i]);
+      SaveBindingToIniKB((ActionID)i, false, VKeyBindings_SECONDARY[i]);
+    }
+
+
+    reinterpret_cast<void(__thiscall*)(void*)>(0x0070BDE0)(that);
 }
 
 #endif
@@ -1610,6 +1678,7 @@ int Init() {
   injector::MakeJMP(0x006A5950, GetXtendedInputDeviceName, true);
   injector::MakeCALL(0x0070BCEC, GetMappingStringHook, true);
   injector::MakeCALL(0x0070BD0A, GetMappingStringHook, true);
+  injector::WriteMemory<uintptr_t>(0x00991AFC, (uintptr_t)&ResetMappingsToDefault, true);
 #endif
 
 #endif

@@ -264,7 +264,7 @@ const char* ConvertXInputBitmaskToName(uint16_t in) {
     case XINPUT_GAMEPAD_RS_RIGHT_CONFIGDEF:
       return "XINPUT_GAMEPAD_RS_RIGHT";
     default:
-      return "0";
+      return "-1";
   }
 }
 
