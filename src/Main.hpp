@@ -867,8 +867,8 @@ class InputDevice {
     delete (this);
     return this;
   }
-  virtual bool IsConnected() {
-    if (fDeviceIndex) return g_Controllers[fDeviceIndex].bConnected;
+  virtual bool IsConnected() { 
+    if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) return g_Controllers[fDeviceIndex].bConnected;
     return true;
   }
   virtual bool IsWheel() { return false; }

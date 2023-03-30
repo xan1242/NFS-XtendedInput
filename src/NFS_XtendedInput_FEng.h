@@ -620,6 +620,12 @@ void SetBindingButtonTexture(ActionID id, WORD buttonmask) {
   }
 }
 
+void SetControllerUnplugText() {
+  if (cFEng_IsPackageInControl_Fast(NFS_HASH("ControllerUnplugged.fng"))) {
+    FE_String_Printf(FEngFindObject("ControllerUnplugged.fng", 0x3CF6E6CA), "The controller has been removed.\nPlease re-insert a controller to controller port 1,\nand press the START button or SPACE on keyboard to continue.");
+  }
+}
+
 void SetControllerFEng(FEObject* inobj) {
   int HideFlags = FE_CONTROL_FLAG_CONSOLE;
   int ShowFlags = FE_CONTROL_FLAG_PC;
@@ -652,6 +658,7 @@ void SetControllerFEng(FEObject* inobj) {
     }
   }
   if (bEnableSplashTakeover) SetTitleScreenText();
+  SetControllerUnplugText();
 }
 
 #pragma runtime_checks("", off)
