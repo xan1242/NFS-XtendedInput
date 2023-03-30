@@ -622,7 +622,13 @@ void SetBindingButtonTexture(ActionID id, WORD buttonmask) {
 
 void SetControllerUnplugText() {
   if (cFEng_IsPackageInControl_Fast(NFS_HASH("ControllerUnplugged.fng"))) {
+#ifdef GAME_MW
+    FEPrintf(
+        "ControllerUnplugged.fng", FEngFindObject("ControllerUnplugged.fng", 0x3CF6E6CA),
+        "The controller has been removed.\nPlease re-insert a controller to controller port 1,\nand press the START button or SPACE on keyboard to continue.");
+#else
     FE_String_Printf(FEngFindObject("ControllerUnplugged.fng", 0x3CF6E6CA), "The controller has been removed.\nPlease re-insert a controller to controller port 1,\nand press the START button or SPACE on keyboard to continue.");
+#endif
   }
 }
 
