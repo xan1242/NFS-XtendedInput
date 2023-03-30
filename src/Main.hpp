@@ -1679,6 +1679,15 @@ int Init() {
   injector::MakeCALL(0x0070BCEC, GetMappingStringHook, true);
   injector::MakeCALL(0x0070BD0A, GetMappingStringHook, true);
   injector::WriteMemory<uintptr_t>(0x00991AFC, (uintptr_t)&ResetMappingsToDefault, true);
+  // sell car string
+  injector::WriteMemory<uint32_t>(0x005C6216, 0x6DBAAF8C, true);
+  injector::WriteMemory<uint32_t>(0x005D8723, 0x6DBAAF8C, true);
+  injector::WriteMemory<uint32_t>(0x005DDAF1, 0x6DBAAF8C, true);
+  injector::WriteMemory<uint32_t>(0x005E2B3C, 0x6DBAAF8C, true);
+  injector::WriteMemory<uint32_t>(0x005EB296, 0x6DBAAF8C, true);
+  injector::WriteMemory<uint32_t>(0x007EACC0, 0x6DBAAF8C, true);
+  injector::WriteMemory<uint32_t>(0x007EAD0B, 0x6DBAAF8C, true);
+
 #endif
 
 #endif

@@ -629,6 +629,10 @@ void SetControllerFEng(FEObject* inobj) {
     ShowFlags = FE_CONTROL_FLAG_CONSOLE;
   }
 
+  #if defined(GAME_PROSTREET) || defined(GAME_CARBON)
+  if (inobj->NameHash == 0x8F095FD5) return;
+  #endif
+
   if (inobj->Flags & HideFlags) {
     if (inobj->Flags & ~1) {
       inobj->UserParam |= CFE_FLAG_WAS_VISIBLE_ORIGINALLY;
