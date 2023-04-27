@@ -221,13 +221,13 @@ HRESULT UpdateControllerState() {
     if (std::abs(state.Gamepad.sThumbRX) < INPUT_DEADZONE_RS) state.Gamepad.sThumbRX = 0;
     if (std::abs(state.Gamepad.sThumbRY) < INPUT_DEADZONE_RS) state.Gamepad.sThumbRY = 0;
 
-#ifndef NO_FENG
     if ((state.Gamepad.wButtons || state.Gamepad.sThumbLX || state.Gamepad.sThumbLY || state.Gamepad.sThumbRX || state.Gamepad.sThumbRY ||
-         state.Gamepad.bRightTrigger || state.Gamepad.bLeftTrigger) &&
-        bUseDynamicFEngSwitching) {
+         state.Gamepad.bRightTrigger || state.Gamepad.bLeftTrigger)) {
       LastControlledDevice = LASTCONTROLLED_CONTROLLER;
-    }
+#ifndef NO_FENG
+      if (bUseDynamicFEngSwitching) bConsoleFEng = true;
 #endif
+    }
 
   } else {
     g_Controllers[0].bConnected = false;
@@ -1429,29 +1429,41 @@ LRESULT(WINAPI* GameWndProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   switch (msg) {
     case WM_LBUTTONDOWN:
-      if (bUseDynamicFEngSwitching) LastControlledDevice = LASTCONTROLLED_KB;
+      LastControlledDevice = LASTCONTROLLED_KB;
       bMousePressedDown = true;
+#ifndef NO_FENG
+      if (bUseDynamicFEngSwitching) bConsoleFEng = false;
+#endif
       return 0;
     case WM_LBUTTONUP:
       bMousePressedDown = false;
       return 0;
     case WM_RBUTTONDOWN:
-      if (bUseDynamicFEngSwitching) LastControlledDevice = LASTCONTROLLED_KB;
+      LastControlledDevice = LASTCONTROLLED_KB;
       bMouse3PressedDown = true;
+#ifndef NO_FENG
+      if (bUseDynamicFEngSwitching) bConsoleFEng = false;
+#endif
       return 0;
     case WM_RBUTTONUP:
       bMouse3PressedDown = false;
       return 0;
     case WM_MBUTTONDOWN:
-      if (bUseDynamicFEngSwitching) LastControlledDevice = LASTCONTROLLED_KB;
+      LastControlledDevice = LASTCONTROLLED_KB;
       bMouse2PressedDown = true;
+#ifndef NO_FENG
+      if (bUseDynamicFEngSwitching) bConsoleFEng = false;
+#endif
       return 0;
     case WM_MBUTTONUP:
       bMouse2PressedDown = false;
       return 0;
     case WM_MOUSEWHEEL:
-      if (bUseDynamicFEngSwitching) LastControlledDevice = LASTCONTROLLED_KB;
+      LastControlledDevice = LASTCONTROLLED_KB;
       MouseWheelValue = (GET_WHEEL_DELTA_WPARAM(wParam));
+#ifndef NO_FENG
+      if (bUseDynamicFEngSwitching) bConsoleFEng = false;
+#endif
       return 0;
     case WM_SETFOCUS:
       // confine mouse within the game window
@@ -1461,7 +1473,10 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
       }
       break;
     case WM_KEYDOWN:
-      if (bUseDynamicFEngSwitching) LastControlledDevice = LASTCONTROLLED_KB;
+      LastControlledDevice = LASTCONTROLLED_KB;
+#ifndef NO_FENG
+      if (bUseDynamicFEngSwitching) bConsoleFEng = false;
+#endif
       break;
     case WM_MOUSEMOVE:
       if (!bUseWin32Cursor) bLastUsedVirtualMouse = false;
@@ -1555,6 +1570,9 @@ int Init() {
     injector::MakeNOP(SHOWCURSOR_HOOK_ADDR2, 6, true);
     injector::MakeCALL(SHOWCURSOR_HOOK_ADDR2, DummyFuncStd, true);
 #endif
+
+    if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) bConsoleFEng = true;
+
   } else
     SetCursor(NULL);
 

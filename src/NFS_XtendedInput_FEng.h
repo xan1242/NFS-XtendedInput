@@ -164,16 +164,6 @@ int __declspec(naked) cFEng_FindPackageWithControl() {
 #ifdef GAME_MW
 unsigned int MouseStateArrayOffsetUpdater_Address                            = 0;
 bool(__thiscall* MouseStateArrayOffsetUpdater)(void* CB_Obj, void* FEObject) = (bool(__thiscall*)(void*, void*))FE_MOUSEUPDATER_CALLBACK_ADDR;
-
-void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash) {
-  if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) {
-    if (ControllerIconMode == CONTROLLERICON_PS4)
-      FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
-    else
-      FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_XBOX);
-  } else
-    FEPrintf(pkg_name, FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PC);
-}
 // void(*FEngSetVisible)(void* FEObject) = (void(*)(void*))FENG_SETVISIBLE_ADDR;
 void (*FEngSetInvisible)(void* FEObject) = (void (*)(void*))FENG_SETINVISIBLE_ADDR;
 
@@ -232,7 +222,7 @@ void __declspec(naked) FEngSetVisible(FEObject* obj) {
 }
 #else
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash) {
-  if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) {
+  if (bConsoleFEng) {
     if (ControllerIconMode == CONTROLLERICON_PS4)
       FE_String_Printf(FEngFindObject(pkg_name, obj_hash), FE_SPLASH_TEXT_PS4);
     else
@@ -643,7 +633,7 @@ void SetControllerFEng(FEObject* inobj) {
   int HideFlags = FE_CONTROL_FLAG_CONSOLE;
   int ShowFlags = FE_CONTROL_FLAG_PC;
 
-  if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) {
+  if (bConsoleFEng) {
     HideFlags = FE_CONTROL_FLAG_PC;
     ShowFlags = FE_CONTROL_FLAG_CONSOLE;
   }
@@ -795,9 +785,10 @@ void __stdcall FEWorldMapStateManager_HandleScreenTick_Hook() {
       FEngSetInvisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_CONSOLE));
       FEngSetInvisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
     } else if (*(int*)WORLDMAP_INSTANCE_ADDR) {
-      if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+      if (bConsoleFEng)
         FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_CONSOLE));
-      if (LastControlledDevice == LASTCONTROLLED_KB) FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
+      else
+        FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
     }
   }
 
@@ -819,9 +810,10 @@ void __stdcall WorldMap_UnfocusQuickList_Hook() {
 
                         bQuickListFocused = false;
 
-  if (LastControlledDevice == LASTCONTROLLED_CONTROLLER)
+  if (bConsoleFEng)
     FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_CONSOLE));
-  if (LastControlledDevice == LASTCONTROLLED_KB) FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
+  else
+    FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_PC));
 
   return WorldMap_UnfocusQuickList((void*)thethis);
 }

@@ -300,7 +300,7 @@ void SetTitleScreenText() {
       pkg_name = WSSplashPkgName;
     }
 
-    if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) {
+    if (bConsoleFEng) {
       switch (ControllerIconMode) {
         case CONTROLLERICON_PS3:
           splash_txt = FE_SPLASH_TEXT_PS3;
@@ -626,7 +626,7 @@ void SetTitleScreenText() {
   char* pkg_name   = SplashPkgName;
   char* splash_txt = FE_SPLASH_TEXT_PC;
 
-  if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) {
+  if (bConsoleFEng) {
     switch (ControllerIconMode) {
       case CONTROLLERICON_PS3:
         splash_txt = FE_SPLASH_TEXT_PS3;
@@ -942,7 +942,7 @@ void SetTitleScreenText() {
   char* pkg_name   = SplashPkgName;
   char* splash_txt = FE_SPLASH_TEXT_PC;
 
-  if (LastControlledDevice == LASTCONTROLLED_CONTROLLER) {
+  if (bConsoleFEng) {
     switch (ControllerIconMode) {
       case CONTROLLERICON_PS3:
         splash_txt = FE_SPLASH_TEXT_PS3;
