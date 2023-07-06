@@ -815,7 +815,8 @@ bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
     else
       XInputBindings_SECONDARY[id] = buttons;
     SaveBindingToIni(id, isPrimary, buttons);
-    SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
+    if (bIsActionTextureBindable(id))
+        SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
