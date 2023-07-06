@@ -732,18 +732,45 @@ void SaveBindingToIniKB(ActionID id, bool isPrimary, int bind) {
   CIniReader inireader("");
 
   if (bind == 0) {
-    if (inireader.ReadString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], nullptr))
-      inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], "");
+    if (inireader.ReadString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], nullptr))
+      inireader.WriteString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], "");
     return;
   }
 
   inireader.WriteString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], (char*)VKeyStrings[bind]);
 }
 
+void ClearExistingMapKB(ActionID id, int bind) {
+  for (int i = 0; i < MAX_ACTIONID; i++) {
+    if (VKeyBindings_PRIMARY[i] == bind) {
+      VKeyBindings_PRIMARY[i] = 0;
+      SaveBindingToIniKB((ActionID)i, true, 0);
+    }
+    if (VKeyBindings_SECONDARY[i] == bind) {
+      VKeyBindings_SECONDARY[i] = 0;
+      SaveBindingToIniKB((ActionID)i, false, 0);
+    }
+  }
+}
+
+void ClearExistingMap(ActionID id, uint16_t bind) {
+  for (int i = 0; i < MAX_ACTIONID; i++) {
+    if (XInputBindings_PRIMARY[i] == bind) {
+      XInputBindings_PRIMARY[i] = 0;
+      SaveBindingToIni((ActionID)i, true, 0);
+    }
+    if (XInputBindings_SECONDARY[i] == bind) {
+      XInputBindings_SECONDARY[i] = 0;
+      SaveBindingToIni((ActionID)i, false, 0);
+    }
+  }
+}
+
 bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
   int      KBkey = g_bRemapClear ? 0 : KB_GetCurrentPressedKey();
   ActionID id    = FindPCRemapActionID(index);
   if (KBkey != -1) {
+    ClearExistingMapKB(id, KBkey);
     if (isPrimary)
       VKeyBindings_PRIMARY[id] = KBkey;
     else
@@ -762,25 +789,27 @@ bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
     else
       XInputBindings_SECONDARY[id] = 0;
     SaveBindingToIni(id, isPrimary, 0);
-    if (bIsActionTextureBindable(id))  // kinda extreme but idc
+    if (bIsActionTextureBindable(id))
       SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
   uint16_t act = GetAnalogActivity();
   if (act) {
+    ClearExistingMap(id, act);
     if (isPrimary)
       XInputBindings_PRIMARY[id] = act;
     else
       XInputBindings_SECONDARY[id] = act;
     SaveBindingToIni(id, isPrimary, act);
-    if (bIsActionTextureBindable(id))  // kinda extreme but idc
+    if (bIsActionTextureBindable(id))
       SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
   WORD buttons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
   if (buttons) {
+    ClearExistingMap(id, buttons);
     if (isPrimary)
       XInputBindings_PRIMARY[id] = buttons;
     else
