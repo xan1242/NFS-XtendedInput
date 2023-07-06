@@ -73,6 +73,36 @@
     <None Include="..\data\Config-ProStreet\NFS_XtendedInput.default.ini">
       <Filter>data\Config-ProStreet</Filter>
     </None>
+    <None Include="..\data\Config-Carbon\NFS_XtendedInput.default.ini">
+      <Filter>data\Config-Carbon</Filter>
+    </None>
+    <None Include="..\data\Config-MW\NFS_XtendedInput.default.ini">
+      <Filter>data\Config-MW</Filter>
+    </None>
+    <None Include="..\data\Config-UC\NFS_XtendedInput.default.ini">
+      <Filter>data\Config-UC</Filter>
+    </None>
+    <None Include="..\data\Config-World\NFS_XtendedInput.default.ini">
+      <Filter>data\Config-World</Filter>
+    </None>
+    <None Include="..\data\post-build\HasTPK.bat">
+      <Filter>data\post-build</Filter>
+    </None>
+    <None Include="..\data\post-build\HasTPK-MW.bat">
+      <Filter>data\post-build</Filter>
+    </None>
+    <None Include="..\data\post-build\HasTPK-MW-Win7.bat">
+      <Filter>data\post-build</Filter>
+    </None>
+    <None Include="..\data\post-build\HasTPK-Win7.bat">
+      <Filter>data\post-build</Filter>
+    </None>
+    <None Include="..\data\post-build\NoTPK.bat">
+      <Filter>data\post-build</Filter>
+    </None>
+    <None Include="..\data\post-build\NoTPK-Win7.bat">
+      <Filter>data\post-build</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\data\Config-Carbon\EventReference.txt">

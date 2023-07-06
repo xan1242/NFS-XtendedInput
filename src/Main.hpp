@@ -121,24 +121,41 @@ void FixWorkingDirectory() {
 
 void        LoadMapping(std::string userProfileName);
 std::string gProfileName;
+uintptr_t   GetProfileNameAddr = 0x0059E020;
 const char* GetNFSProfileName() { 
-#ifdef GAME_PROSTREET
-    return reinterpret_cast<const char* (*)()>(0x0059E020)();
+#ifdef GAME_MW
+  return gProfileName.c_str();
 #else
-    return "UserProfile"; 
+  return reinterpret_cast<const char* (*)()>(GetProfileNameAddr)();
 #endif
 }
 #pragma runtime_checks("", off)
+#ifdef GAME_MW
+std::string oldProfileName;
+uintptr_t   MemCardLoadAddr = 0x005189F0;
+void __stdcall MemoryCard_Load_Hook(const char* profileName) {
+  uintptr_t that;
+  _asm mov  that, ecx;
+  reinterpret_cast<void(__thiscall*)(uintptr_t, const char*)>(MemCardLoadAddr)(that, profileName);
+
+  gProfileName = profileName;
+  if (gProfileName.compare(oldProfileName) || oldProfileName.empty()) {
+    oldProfileName = gProfileName;
+    LoadMapping(gProfileName);
+  }
+}
+#else
 uintptr_t OnLoadDoneFunc = 0x00543CC0;
 void __stdcall OnLoadDoneHook() {
   uintptr_t that;
-  _asm mov  that, ecx;
+  _asm mov that, ecx;
   reinterpret_cast<void(__thiscall*)(uintptr_t)>(OnLoadDoneFunc)(that);
   if (gProfileName.compare(GetNFSProfileName()) || gProfileName.empty()) {
     gProfileName = GetNFSProfileName();
     LoadMapping(gProfileName);
   }
 }
+#endif
 #pragma runtime_checks("", restore)
 
 // global var for the action ID values
@@ -1912,9 +1929,13 @@ int Init() {
   }
 
   // per-user profile configs
+#ifdef GAME_MW
+  MemCardLoadAddr = reinterpret_cast<uintptr_t>(injector::MakeCALL(0x00563F33, MemoryCard_Load_Hook).get_raw<void>());
+  injector::MakeCALL(0x00563CF7, MemoryCard_Load_Hook);
+#else
   OnLoadDoneFunc = *(uintptr_t*)ONLOADDONE_FUNC_VTABLE_ADDR;
   injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR, (uintptr_t)&OnLoadDoneHook, true);
-
+#endif
   // Init state
   ZeroMemory(g_Controllers, sizeof(CONTROLLER_STATE) * MAX_CONTROLLERS);
 
