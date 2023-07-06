@@ -57,4 +57,10 @@ bool bGlobalDoPolling      = true;
 bool bEnableSplashTakeover = true;
 #ifndef NO_FENG
 bool bConsoleFEng          = false;
+
+constexpr const char* cfgIniName  = "scripts\\NFS_XtendedInput.ini";
+constexpr const char* defMappingName = "scripts\\NFS_XtendedInput.default.ini";
+constexpr const char* userMappingName = "NFS_XtendedInput.map.ini";
+constexpr const char* userMappingDir = "scripts\\XtendedInputMaps";
+
 #endif

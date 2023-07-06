@@ -14,7 +14,9 @@
 #pragma once
 #ifdef GAME_PROSTREET
 #include <vector>
-using namespace std;
+//using namespace std;
+#include <string>
+#include <algorithm>
 #endif
 
 int bStringHash(char* a1);
@@ -93,10 +95,10 @@ int bStringHash(char* a1);
 #define XINPUT_GAMEPAD_RS_LEFT_HASH        NFS_HASH("XINPUT_GAMEPAD_RS_LEFT")
 #define XINPUT_GAMEPAD_RS_RIGHT_HASH       NFS_HASH("XINPUT_GAMEPAD_RS_RIGHT")
 
-WORD ConvertXInputNameToBitmask(char* InName) {
-  for (int i = 0; i < strlen(InName); ++i) InName[i] = toupper(InName[i]);
+WORD ConvertXInputNameToBitmask(std::string name) {
+  std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
-  switch (bStringHash(InName)) {
+  switch (bStringHash((char*)name.c_str())) {
     case XINPUT_GAMEPAD_DPAD_UP_HASH:
       return XINPUT_GAMEPAD_DPAD_UP;
     case XINPUT_GAMEPAD_DPAD_DOWN_HASH:
@@ -134,10 +136,10 @@ WORD ConvertXInputNameToBitmask(char* InName) {
   return 0;
 }
 
-int ConvertXInputOtherConfigDef(char* InName) {
-  for (int i = 0; i < strlen(InName); ++i) InName[i] = toupper(InName[i]);
+int ConvertXInputOtherConfigDef(std::string name) {
+  std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
-  switch (bStringHash(InName)) {
+  switch (bStringHash((char*)name.c_str())) {
     case XINPUT_GAMEPAD_LT_HASH:
       return XINPUT_GAMEPAD_LT_CONFIGDEF;
     case XINPUT_GAMEPAD_RT_HASH:
@@ -1108,7 +1110,7 @@ const char* __stdcall ConvertBitmaskToControlString(int mode, uint16_t in) {
   }
 }
 
-vector<ActionID> PCRemapActionList = {GAMEACTION_GAS,
+std::vector<ActionID> PCRemapActionList = {GAMEACTION_GAS,
                                       GAMEACTION_BRAKE,
                                       GAMEACTION_STEERLEFT,
                                       GAMEACTION_STEERRIGHT,
@@ -1139,5 +1141,7 @@ ActionID FindPCRemapActionID(uint32_t idx) {
   if (idx > PCRemapActionList.size()) return NULL_ACTION;
   return PCRemapActionList.at(idx);
 }
+
+bool bActionUserRemappable(ActionID id) { return std::find(PCRemapActionList.cbegin(), PCRemapActionList.cend(), id) != PCRemapActionList.cend(); }
 
 #endif

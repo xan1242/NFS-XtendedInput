@@ -14,6 +14,10 @@
 #pragma once
 #include <windows.h>
 #include <WinUser.h>
+#include <iostream>
+#include <algorithm>
+#include <string>
+
 int bStringHash(char* a1);
 
 #define VK_LBUTTON_HASH                         NFS_HASH("VK_LBUTTON")
@@ -211,10 +215,11 @@ int bStringHash(char* a1);
 #define VK_PA1_HASH                             NFS_HASH("VK_PA1")
 #define VK_OEM_CLEAR_HASH                       NFS_HASH("VK_OEM_CLEAR")
 
-unsigned char ConvertVKNameToValue(char* name) {
-  for (int i = 0; i < strlen(name); ++i) name[i] = toupper(name[i]);
+unsigned char ConvertVKNameToValue(std::string name) {
+  //for (int i = 0; i < strlen(name); ++i) name[i] = toupper(name[i]);
+  std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
-  switch (bStringHash(name)) {
+  switch (bStringHash((char*)name.c_str())) {
     case VK_LBUTTON_HASH:
       return VK_LBUTTON;
     case VK_RBUTTON_HASH:

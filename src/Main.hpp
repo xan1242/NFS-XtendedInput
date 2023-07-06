@@ -33,9 +33,13 @@
 #include "stdio.h"
 #include <windows.h>
 #include <injector\injector.hpp>
-#include <IniReader.h>
+#define MINI_CASE_SENSITIVE
+#include <mINI\src\mini\ini.h>
 #include "NFS_XtendedInput.h"
 #include "NFS_XtentedInput_ActionID.h"
+
+#include "Shlwapi.h"
+#pragma comment(lib, "Shlwapi.lib")
 
 #ifdef XINPUT_OLD
 #include <XInput.h>
@@ -62,10 +66,10 @@ float FEActivationFloat = 0.999999f;
 
 #define MAX_CONTROLLERS 4  // XInput handles up to 4 controllers
 
-SHORT INPUT_DEADZONE_LS = (0.24f * std::numeric_limits<SHORT>::max());  
-SHORT INPUT_DEADZONE_RS = (0.24f * std::numeric_limits<SHORT>::max());
-SHORT INPUT_DEADZONE_LS_P2 = (0.24f * std::numeric_limits<SHORT>::max());
-SHORT INPUT_DEADZONE_RS_P2 = (0.24f * std::numeric_limits<SHORT>::max());
+SHORT INPUT_DEADZONE_LS            = (0.24f * std::numeric_limits<SHORT>::max());
+SHORT INPUT_DEADZONE_RS            = (0.24f * std::numeric_limits<SHORT>::max());
+SHORT INPUT_DEADZONE_LS_P2         = (0.24f * std::numeric_limits<SHORT>::max());
+SHORT INPUT_DEADZONE_RS_P2         = (0.24f * std::numeric_limits<SHORT>::max());
 SHORT SHIFT_ANALOG_THRESHOLD       = (0.75f * std::numeric_limits<SHORT>::max());  // 75% for shifting
 SHORT FEUPDOWN_ANALOG_THRESHOLD    = (0.50f * std::numeric_limits<SHORT>::max());  // 50% for analog sticks digital activation
 SHORT TRIGGER_ACTIVATION_THRESHOLD = (0.12f * std::numeric_limits<SHORT>::max());  // 12% for analog triggers digital activation
@@ -106,6 +110,36 @@ int bStringHash(char* str) {
 
   return result;
 }
+
+void FixWorkingDirectory() {
+  char ExecutablePath[_MAX_PATH];
+
+  GetModuleFileName(GetModuleHandle(""), ExecutablePath, _MAX_PATH);
+  ExecutablePath[strrchr(ExecutablePath, '\\') - ExecutablePath] = 0;
+  SetCurrentDirectory(ExecutablePath);
+}
+
+void        LoadMapping(std::string userProfileName);
+std::string gProfileName;
+const char* GetNFSProfileName() { 
+#ifdef GAME_PROSTREET
+    return reinterpret_cast<const char* (*)()>(0x0059E020)();
+#else
+    return "UserProfile"; 
+#endif
+}
+#pragma runtime_checks("", off)
+uintptr_t OnLoadDoneFunc = 0x00543CC0;
+void __stdcall OnLoadDoneHook() {
+  uintptr_t that;
+  _asm mov  that, ecx;
+  reinterpret_cast<void(__thiscall*)(uintptr_t)>(OnLoadDoneFunc)(that);
+  if (gProfileName.compare(GetNFSProfileName()) || gProfileName.empty()) {
+    gProfileName = GetNFSProfileName();
+    LoadMapping(gProfileName);
+  }
+}
+#pragma runtime_checks("", restore)
 
 // global var for the action ID values
 float PrevValues[2][MAX_ACTIONID];
@@ -196,13 +230,13 @@ HRESULT UpdateControllerState() {
   DWORD dwResult;
 
   if (bXInputOmniMode) {
-    XINPUT_STATE omni_state = {0};
+    XINPUT_STATE omni_state  = {0};
     bool         bConnStatus = false;
 
     for (int i = 0; i < MAX_CONTROLLERS; i++) {
       dwResult = XInputGetState(i, &g_Controllers[i].state);
       if (dwResult == ERROR_SUCCESS) {
-        g_Controllers[0].bConnected = true; // not a bug
+        g_Controllers[0].bConnected = true;  // not a bug
         g_Controllers[1].bConnected = true;
 
         // Zero value if thumbsticks are within the dead zone
@@ -385,14 +419,14 @@ unsigned int loc_75E363 = 0x75E363 + MainBase;
 void __declspec(naked) UnscrewWorldDeviceScalars() {
   _asm
   {
-		mov ecx, [ebx+0x18]
-		shl esi, 4
-		add esi, ecx
-		test esi, esi
-		jnz unscrew_jnz
-		jmp loc_75E363
-		unscrew_jnz:
-		jmp loc_75E375
+        mov ecx, [ebx+0x18]
+        shl esi, 4
+        add esi, ecx
+        test esi, esi
+        jnz unscrew_jnz
+        jmp loc_75E363
+        unscrew_jnz:
+        jmp loc_75E375
   }
 }
 
@@ -401,15 +435,15 @@ unsigned int loc_75E225 = 0x75E225 + MainBase;
 void __declspec(naked) UnscrewWorldDeviceScalars2() {
   _asm
   {
-		mov ecx, [ebx + 0x18]
-		shl edi, 4
-		add edi, ecx
-		mov [ebp-8], edi
-		test edi, edi
-		jnz unscrew2_jnz
-		jmp loc_75E225
-		unscrew2_jnz :
-		jmp loc_75E237
+        mov ecx, [ebx + 0x18]
+        shl edi, 4
+        add edi, ecx
+        mov [ebp-8], edi
+        test edi, edi
+        jnz unscrew2_jnz
+        jmp loc_75E225
+        unscrew2_jnz :
+        jmp loc_75E237
   }
 }
 
@@ -417,10 +451,10 @@ unsigned int loc_75E25F = 0x75E25F + MainBase;
 void __declspec(naked) UnscrewWorldDeviceScalars3() {
   _asm
   {
-		mov edx, [ebx + 0x18]
-		shl edi, 4
-		add edi, edx
-		jmp loc_75E25F
+        mov edx, [ebx + 0x18]
+        shl edi, 4
+        add edi, edx
+        jmp loc_75E25F
   }
 }
 
@@ -595,18 +629,18 @@ void __declspec(naked) DebugWorldCameraMover_Cave2() {
   // clang-format off
   _asm
   {
-		mov eax, MouseLook_YSpeed
-		mov	[esp+DEBUGWORLDCAMERAMOVER_STACK_OFFSET2], eax
-		jmp DebugWorldCameraMover_Cave2_Exit
+        mov eax, MouseLook_YSpeed
+        mov	[esp+DEBUGWORLDCAMERAMOVER_STACK_OFFSET2], eax
+        jmp DebugWorldCameraMover_Cave2_Exit
   }
 #else  // NFS Undercover and World use the MMX registers and SSE2 instructions extensively
 #ifdef GAME_UC
   _asm
   {
-		mov edx, MouseLook_YSpeed
-		movzx ecx, ax
-		cvtsi2ss xmm0, edx
-		jmp DebugWorldCameraMover_Cave2_Exit
+        mov edx, MouseLook_YSpeed
+        movzx ecx, ax
+        cvtsi2ss xmm0, edx
+        jmp DebugWorldCameraMover_Cave2_Exit
   }
 #endif
 #ifdef GAME_WORLD
@@ -717,51 +751,93 @@ int KB_GetCurrentPressedKey() {
 }
 
 void SaveBindingToIni(ActionID id, bool isPrimary, uint16_t bind) {
-  CIniReader inireader("");
+  std::string mapFile = userMappingDir;
+  mapFile += '\\';
+  mapFile += gProfileName;
+  mapFile += '\\';
+  mapFile += userMappingName;
+  if (!PathFileExists(mapFile.c_str())) {
+    if (!PathFileExists(userMappingDir)) CreateDirectory(userMappingDir, NULL);
+    std::string dirName = userMappingDir;
+    dirName += '\\';
+    dirName += gProfileName;
+    if (!PathFileExists(dirName.c_str())) CreateDirectory(dirName.c_str(), NULL);
+    if (CopyFile(defMappingName, mapFile.c_str(), TRUE) == FALSE) mapFile = defMappingName;
+  }
+
+  mINI::INIFile      inifile(mapFile);
+  mINI::INIStructure ini;
+  inifile.read(ini);
 
   if (bind == 0) {
-    if (inireader.ReadString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], nullptr))
-      inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], "");
+    if (ini.has(isPrimary ? "Events" : "Events_Secondary")) {
+      ini[isPrimary ? "Events" : "Events_Secondary"][ActionIDStr[id]] = "";
+      inifile.write(ini, true);
+    }
     return;
   }
 
-  inireader.WriteString(isPrimary ? "Events" : "Events_Secondary", ActionIDStr[id], (char*)ConvertXInputBitmaskToName(bind));
+  ini[isPrimary ? "Events" : "Events_Secondary"][ActionIDStr[id]] = ConvertXInputBitmaskToName(bind);
+  inifile.write(ini, true);
 }
 
 void SaveBindingToIniKB(ActionID id, bool isPrimary, int bind) {
-  CIniReader inireader("");
+  std::string mapFile = userMappingDir;
+  mapFile += '\\';
+  mapFile += gProfileName;
+  mapFile += '\\';
+  mapFile += userMappingName;
+  if (!PathFileExists(mapFile.c_str())) {
+    if (!PathFileExists(userMappingDir)) CreateDirectory(userMappingDir, NULL);
+    std::string dirName = userMappingDir;
+    dirName += '\\';
+    dirName += gProfileName;
+    if (!PathFileExists(dirName.c_str())) CreateDirectory(dirName.c_str(), NULL);
+    if (CopyFile(defMappingName, mapFile.c_str(), TRUE) == FALSE) mapFile = defMappingName;
+  }
+
+  mINI::INIFile      inifile(mapFile);
+  mINI::INIStructure ini;
+  inifile.read(ini);
 
   if (bind == 0) {
-    if (inireader.ReadString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], nullptr))
-      inireader.WriteString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], "");
+    if (ini.has(isPrimary ? "EventsKB" : "EventsKB_Secondary")) {
+      ini[isPrimary ? "EventsKB" : "EventsKB_Secondary"][ActionIDStr[id]] = "";
+      inifile.write(ini, true);
+    }
     return;
   }
 
-  inireader.WriteString(isPrimary ? "EventsKB" : "EventsKB_Secondary", ActionIDStr[id], (char*)VKeyStrings[bind]);
+  ini[isPrimary ? "EventsKB" : "EventsKB_Secondary"][ActionIDStr[id]] = VKeyStrings[bind];
+  inifile.write(ini, true);
 }
 
-void ClearExistingMapKB(ActionID id, int bind) {
+void ClearExistingMapKB(int bind) {
   for (int i = 0; i < MAX_ACTIONID; i++) {
-    if (VKeyBindings_PRIMARY[i] == bind) {
-      VKeyBindings_PRIMARY[i] = 0;
-      SaveBindingToIniKB((ActionID)i, true, 0);
-    }
-    if (VKeyBindings_SECONDARY[i] == bind) {
-      VKeyBindings_SECONDARY[i] = 0;
-      SaveBindingToIniKB((ActionID)i, false, 0);
+    if (bActionUserRemappable((ActionID)i)) {
+      if (VKeyBindings_PRIMARY[i] == bind) {
+        VKeyBindings_PRIMARY[i] = 0;
+        SaveBindingToIniKB((ActionID)i, true, 0);
+      }
+      if (VKeyBindings_SECONDARY[i] == bind) {
+        VKeyBindings_SECONDARY[i] = 0;
+        SaveBindingToIniKB((ActionID)i, false, 0);
+      }
     }
   }
 }
 
-void ClearExistingMap(ActionID id, uint16_t bind) {
+void ClearExistingMap(uint16_t bind) {
   for (int i = 0; i < MAX_ACTIONID; i++) {
-    if (XInputBindings_PRIMARY[i] == bind) {
-      XInputBindings_PRIMARY[i] = 0;
-      SaveBindingToIni((ActionID)i, true, 0);
-    }
-    if (XInputBindings_SECONDARY[i] == bind) {
-      XInputBindings_SECONDARY[i] = 0;
-      SaveBindingToIni((ActionID)i, false, 0);
+    if (bActionUserRemappable((ActionID)i)) {
+      if (XInputBindings_PRIMARY[i] == bind) {
+        XInputBindings_PRIMARY[i] = 0;
+        SaveBindingToIni((ActionID)i, true, 0);
+      }
+      if (XInputBindings_SECONDARY[i] == bind) {
+        XInputBindings_SECONDARY[i] = 0;
+        SaveBindingToIni((ActionID)i, false, 0);
+      }
     }
   }
 }
@@ -770,7 +846,7 @@ bool HandleKeyboardRemap(uint32_t index, uint32_t isPrimary) {
   int      KBkey = g_bRemapClear ? 0 : KB_GetCurrentPressedKey();
   ActionID id    = FindPCRemapActionID(index);
   if (KBkey != -1) {
-    ClearExistingMapKB(id, KBkey);
+    ClearExistingMapKB(KBkey);
     if (isPrimary)
       VKeyBindings_PRIMARY[id] = KBkey;
     else
@@ -789,95 +865,165 @@ bool HandleGamepadRemap(uint32_t index, uint32_t isPrimary, int fDeviceIndex) {
     else
       XInputBindings_SECONDARY[id] = 0;
     SaveBindingToIni(id, isPrimary, 0);
-    if (bIsActionTextureBindable(id))
-      SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
+    if (bIsActionTextureBindable(id)) SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
   uint16_t act = GetAnalogActivity();
   if (act) {
-    ClearExistingMap(id, act);
+    ClearExistingMap(act);
     if (isPrimary)
       XInputBindings_PRIMARY[id] = act;
     else
       XInputBindings_SECONDARY[id] = act;
     SaveBindingToIni(id, isPrimary, act);
-    if (bIsActionTextureBindable(id))
-      SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
+    if (bIsActionTextureBindable(id)) SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
   WORD buttons = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
   if (buttons) {
-    ClearExistingMap(id, buttons);
+    ClearExistingMap(buttons);
     if (isPrimary)
       XInputBindings_PRIMARY[id] = buttons;
     else
       XInputBindings_SECONDARY[id] = buttons;
     SaveBindingToIni(id, isPrimary, buttons);
-    if (bIsActionTextureBindable(id))
-        SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
+    if (bIsActionTextureBindable(id)) SetBindingButtonTexture(id, isPrimary ? XInputBindings_PRIMARY[id] : XInputBindings_SECONDARY[id]);
     return true;
   }
 
   return false;
 }
-
+#pragma runtime_checks("", off)
 void __stdcall ResetMappingsToDefault() {
+  void*    that;
+  _asm mov that, ecx
 
-    void* that;
-    _asm mov that, ecx
+  std::string mapFile = userMappingDir;
+  mapFile += '\\';
+  mapFile += gProfileName;
+  mapFile += '\\';
+  mapFile += userMappingName;
+  if (!PathFileExists(mapFile.c_str())) {
+    if (!PathFileExists(userMappingDir)) CreateDirectory(userMappingDir, NULL);
+    std::string dirName = userMappingDir;
+    dirName += '\\';
+    dirName += gProfileName;
+    if (!PathFileExists(dirName.c_str())) CreateDirectory(dirName.c_str(), NULL);
+    if (CopyFile(defMappingName, mapFile.c_str(), TRUE) == FALSE) mapFile = defMappingName;
+  } else {
+    if (CopyFile(defMappingName, mapFile.c_str(), FALSE) == FALSE) mapFile = defMappingName;
+  }
 
-    CIniReader   inireader("NFS_XtendedInput.default.ini");
-    unsigned int inXInputConfigDef = 0;
+  LoadMapping(gProfileName);
 
-    for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
-      // read the key bindings
-      VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB", ActionIDStr[i], ""));
-      if (VKeyBindings_PRIMARY[i] == 0) {
-        // try checking for single-char
-        char lettercheck[32];
-        strcpy(lettercheck, inireader.ReadString("EventsKB", ActionIDStr[i], ""));
-        if (strlen(lettercheck) == 1) VKeyBindings_PRIMARY[i] = toupper(lettercheck[0]);
+
+  //for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
+  //  SaveBindingToIni((ActionID)i, true, XInputBindings_PRIMARY[i]);
+  //  SaveBindingToIni((ActionID)i, false, XInputBindings_SECONDARY[i]);
+  //  SaveBindingToIniKB((ActionID)i, true, VKeyBindings_PRIMARY[i]);
+  //  SaveBindingToIniKB((ActionID)i, false, VKeyBindings_SECONDARY[i]);
+  //}
+
+  reinterpret_cast<void(__thiscall*)(void*)>(0x0070BDE0)(that);
+}
+#pragma runtime_checks("", restore)
+#endif
+
+void LoadMapping(std::string userProfileName) {
+  std::string mapFile = userMappingDir;
+
+  if (userProfileName.empty()) {
+    mapFile = defMappingName;
+  } else {
+    mapFile += '\\';
+    mapFile += userProfileName;
+    mapFile += '\\';
+    mapFile += userMappingName;
+    if (!PathFileExists(mapFile.c_str())) {
+      if (!PathFileExists(userMappingDir)) CreateDirectory(userMappingDir, NULL);
+      std::string dirName = userMappingDir;
+      dirName += '\\';
+      dirName += userProfileName;
+      if (!PathFileExists(dirName.c_str())) CreateDirectory(dirName.c_str(), NULL);
+      if (CopyFile(defMappingName, mapFile.c_str(), TRUE) == FALSE) mapFile = defMappingName;
+    }
+  }
+
+  mINI::INIFile      inifile(mapFile);
+  mINI::INIStructure ini;
+  inifile.read(ini);
+  unsigned int inXInputConfigDef = 0;
+
+  for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
+    // read the key bindings
+    if (ini.has("EventsKB")) {
+      if (ini["EventsKB"].has(ActionIDStr[i])) {
+        VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(ini["EventsKB"][ActionIDStr[i]].c_str());
+        if (VKeyBindings_PRIMARY[i] == 0) {
+          // try checking for single-char
+          if (ini["EventsKB"][ActionIDStr[i]].size() == 1) VKeyBindings_PRIMARY[i] = ::toupper(ini["EventsKB"][ActionIDStr[i]].at(0));
+        }
       }
+    }
 
-      // read the key bindings [SECONDARY]
-      VKeyBindings_SECONDARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
-      if (VKeyBindings_SECONDARY[i] == 0) {
-        // try checking for single-char
-        char lettercheck[32];
-        strcpy(lettercheck, inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
-        if (strlen(lettercheck) == 1) VKeyBindings_SECONDARY[i] = toupper(lettercheck[0]);
+    // read the key bindings [SECONDARY]
+    if (ini.has("EventsKB_Secondary")) {
+      if (ini["EventsKB_Secondary"].has(ActionIDStr[i])) {
+        VKeyBindings_SECONDARY[i] = ConvertVKNameToValue(ini["EventsKB_Secondary"][ActionIDStr[i]].c_str());
+        if (VKeyBindings_SECONDARY[i] == 0) {
+          // try checking for single-char
+          if (ini["EventsKB_Secondary"][ActionIDStr[i]].size() == 1) VKeyBindings_SECONDARY[i] = ::toupper(ini["EventsKB_Secondary"][ActionIDStr[i]].at(0));
+        }
       }
+    }
 
-      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", ActionIDStr[i], ""));
+    if (ini.has("Events")) {
+      inXInputConfigDef = ConvertXInputOtherConfigDef(ini["Events"][ActionIDStr[i]]);
       if (!inXInputConfigDef)
-        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
+        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(ini["Events"][ActionIDStr[i]]);
       else
         XInputBindings_PRIMARY[i] = inXInputConfigDef;
 #ifndef NO_FENG
       if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_PRIMARY[i]);
 #endif
-
-      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
+    }
+    if (ini.has("Events_Secondary")) {
+      inXInputConfigDef = ConvertXInputOtherConfigDef(ini["Events_Secondary"][ActionIDStr[i]]);
       if (!inXInputConfigDef)
-        XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
+        XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(ini["Events_Secondary"][ActionIDStr[i]]);
       else
         XInputBindings_SECONDARY[i] = inXInputConfigDef;
     }
+  }
 
-    for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
-      SaveBindingToIni((ActionID)i, true, XInputBindings_PRIMARY[i]);
-      SaveBindingToIni((ActionID)i, false, XInputBindings_SECONDARY[i]);
-      SaveBindingToIniKB((ActionID)i, true, VKeyBindings_PRIMARY[i]);
-      SaveBindingToIniKB((ActionID)i, false, VKeyBindings_SECONDARY[i]);
-    }
+  if (ini.has("Events")) {
+    inXInputConfigDef = ConvertXInputOtherConfigDef(ini["Events"][FE_SECONDARY_UP_NAME]);
+    if (!inXInputConfigDef)
+      FE_Secondary_Up = ConvertXInputNameToBitmask(ini["Events"][FE_SECONDARY_UP_NAME]);
+    else
+      FE_Secondary_Up = inXInputConfigDef;
 
+    inXInputConfigDef = ConvertXInputOtherConfigDef(ini["Events"][FE_SECONDARY_DOWN_NAME]);
+    if (!inXInputConfigDef)
+      FE_Secondary_Down = ConvertXInputNameToBitmask(ini["Events"][FE_SECONDARY_DOWN_NAME]);
+    else
+      FE_Secondary_Down = inXInputConfigDef;
 
-    reinterpret_cast<void(__thiscall*)(void*)>(0x0070BDE0)(that);
+    inXInputConfigDef = ConvertXInputOtherConfigDef(ini["Events"][FE_SECONDARY_LEFT_NAME]);
+    if (!inXInputConfigDef)
+      FE_Secondary_Left = ConvertXInputNameToBitmask(ini["Events"][FE_SECONDARY_LEFT_NAME]);
+    else
+      FE_Secondary_Left = inXInputConfigDef;
+
+    inXInputConfigDef = ConvertXInputOtherConfigDef(ini["Events"][FE_SECONDARY_RIGHT_NAME]);
+    if (!inXInputConfigDef)
+      FE_Secondary_Right = ConvertXInputNameToBitmask(ini["Events"][FE_SECONDARY_RIGHT_NAME]);
+    else
+      FE_Secondary_Right = inXInputConfigDef;
+  }
 }
-
-#endif
 
 // based on MW -- may change across games
 class InputDevice {
@@ -907,7 +1053,7 @@ class InputDevice {
     fControllerCurve = 1.0f;
     fPrevValues      = PrevValues[DeviceIndex];
     fCurrentValues   = CurrValues[DeviceIndex];
-    fDeviceScalar    = new (nothrow) DeviceScalar[MAX_ACTIONID];
+    fDeviceScalar    = new (std::nothrow) DeviceScalar[MAX_ACTIONID];
 #ifdef GAME_PROSTREET
     bRemappingMode = false;
     RemapType      = 0;
@@ -922,7 +1068,7 @@ class InputDevice {
     delete (this);
     return this;
   }
-  virtual bool IsConnected() { 
+  virtual bool IsConnected() {
     if ((LastControlledDevice == LASTCONTROLLED_CONTROLLER) && bPassConnStatus) return g_Controllers[fDeviceIndex].bConnected;
     return true;
   }
@@ -931,10 +1077,6 @@ class InputDevice {
     // printf("Called InputDevice::Initialize\n");
     //*(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
 
-    CIniReader   inireader("");
-    unsigned int inXInputConfigDef = 0;
-
-    // for each action ID generate an appropriate config
     for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
       if (bIsActionDigitalButton((ActionID)i))
         fDeviceScalar[i].fType = kDigitalButton;
@@ -944,80 +1086,22 @@ class InputDevice {
       fDeviceScalar[i].fName_CRC32   = stringhash32(ActionIDStr[i]);
       fDeviceScalar[i].fPrevValue    = &PrevValues[fDeviceIndex][i];
       fDeviceScalar[i].fCurrentValue = &CurrValues[fDeviceIndex][i];
-
-      // read the key bindings
-      VKeyBindings_PRIMARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB", ActionIDStr[i], ""));
-      if (VKeyBindings_PRIMARY[i] == 0) {
-        // try checking for single-char
-        char lettercheck[32];
-        strcpy(lettercheck, inireader.ReadString("EventsKB", ActionIDStr[i], ""));
-        if (strlen(lettercheck) == 1) VKeyBindings_PRIMARY[i] = toupper(lettercheck[0]);
-      }
-
-      // read the key bindings [SECONDARY]
-      VKeyBindings_SECONDARY[i] = ConvertVKNameToValue(inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
-      if (VKeyBindings_SECONDARY[i] == 0) {
-        // try checking for single-char
-        char lettercheck[32];
-        strcpy(lettercheck, inireader.ReadString("EventsKB_Secondary", ActionIDStr[i], ""));
-        if (strlen(lettercheck) == 1) VKeyBindings_SECONDARY[i] = toupper(lettercheck[0]);
-      }
-
-      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", ActionIDStr[i], ""));
-      if (!inXInputConfigDef)
-        XInputBindings_PRIMARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events", ActionIDStr[i], ""));
-      else
-        XInputBindings_PRIMARY[i] = inXInputConfigDef;
-#ifndef NO_FENG
-      if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_PRIMARY[i]);
-#endif
-
-      inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
-      if (!inXInputConfigDef)
-        XInputBindings_SECONDARY[i] = ConvertXInputNameToBitmask(inireader.ReadString("Events_Secondary", ActionIDStr[i], ""));
-      else
-        XInputBindings_SECONDARY[i] = inXInputConfigDef;
-      // #ifndef NO_FENG
-      //       if (bIsActionTextureBindable((ActionID)i)) SetBindingButtonTexture((ActionID)i, XInputBindings_SECONDARY[i]);
-      // #endif
     }
 
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
-    if (!inXInputConfigDef)
-      FE_Secondary_Up = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_UP_NAME, ""));
-    else
-      FE_Secondary_Up = inXInputConfigDef;
-
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_DOWN_NAME, ""));
-    if (!inXInputConfigDef)
-      FE_Secondary_Down = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_DOWN_NAME, ""));
-    else
-      FE_Secondary_Down = inXInputConfigDef;
-
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_LEFT_NAME, ""));
-    if (!inXInputConfigDef)
-      FE_Secondary_Left = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_LEFT_NAME, ""));
-    else
-      FE_Secondary_Left = inXInputConfigDef;
-
-    inXInputConfigDef = ConvertXInputOtherConfigDef(inireader.ReadString("Events", FE_SECONDARY_RIGHT_NAME, ""));
-    if (!inXInputConfigDef)
-      FE_Secondary_Right = ConvertXInputNameToBitmask(inireader.ReadString("Events", FE_SECONDARY_RIGHT_NAME, ""));
-    else
-      FE_Secondary_Right = inXInputConfigDef;
+    LoadMapping("");
   }
   virtual void PollDevice() {
     if (!bGlobalDoPolling) return;
 
     ReadControllerData();
-    WORD wButtons                = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
-    WORD SecondBind              = 0;
-    int  rdi                     = fDeviceIndex;
-    bool bCurrentXInputKeyState  = false;
-    bool bCurrentXInputKeyState2 = false;
-    bool bCurrentVKeyState       = false;
+    WORD wButtons                    = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
+    WORD SecondBind                  = 0;
+    int  rdi                         = fDeviceIndex;
+    bool bCurrentXInputKeyState      = false;
+    bool bCurrentXInputKeyState2     = false;
+    bool bCurrentVKeyState           = false;
     bool bCurrentVKeyState_SECONDARY = false;
-    bool bDoPolling              = true;
+    bool bDoPolling                  = true;
 
     // printf("FEngPkg: %s\n", cFEng_FindPackageWithControl_Name());
 
@@ -1485,7 +1569,7 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
   switch (msg) {
     case WM_LBUTTONDOWN:
       LastControlledDevice = LASTCONTROLLED_KB;
-      bMousePressedDown = true;
+      bMousePressedDown    = true;
 #ifndef NO_FENG
       if (bUseDynamicFEngSwitching) bConsoleFEng = false;
 #endif
@@ -1495,7 +1579,7 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
       return 0;
     case WM_RBUTTONDOWN:
       LastControlledDevice = LASTCONTROLLED_KB;
-      bMouse3PressedDown = true;
+      bMouse3PressedDown   = true;
 #ifndef NO_FENG
       if (bUseDynamicFEngSwitching) bConsoleFEng = false;
 #endif
@@ -1505,7 +1589,7 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
       return 0;
     case WM_MBUTTONDOWN:
       LastControlledDevice = LASTCONTROLLED_KB;
-      bMouse2PressedDown = true;
+      bMouse2PressedDown   = true;
 #ifndef NO_FENG
       if (bUseDynamicFEngSwitching) bConsoleFEng = false;
 #endif
@@ -1515,7 +1599,7 @@ LRESULT WINAPI CustomWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
       return 0;
     case WM_MOUSEWHEEL:
       LastControlledDevice = LASTCONTROLLED_KB;
-      MouseWheelValue = (GET_WHEEL_DELTA_WPARAM(wParam));
+      MouseWheelValue      = (GET_WHEEL_DELTA_WPARAM(wParam));
 #ifndef NO_FENG
       if (bUseDynamicFEngSwitching) bConsoleFEng = false;
 #endif
@@ -1554,41 +1638,59 @@ void __stdcall DummyFuncStd(BOOL dummy) { return; }
 #endif  // GAME_UC
 
 void InitConfig() {
-  CIniReader inireader("");
+  //CIniReader inireader("");
+  mINI::INIFile      inifile(cfgIniName);
+  mINI::INIStructure ini;
+  inifile.read(ini);
 
-  KeyboardReadingMode = inireader.ReadInteger("Input", "KeyboardReadingMode", 0);
-  bXInputOmniMode     = inireader.ReadInteger("Input", "XInputOmniMode", 0) != 0;
-  bPassConnStatus     = inireader.ReadInteger("Input", "PassConnStatus", 1) != 0;
+  constexpr const char* inputSection = "Input";
+  if (ini.has(inputSection)) {
+    if (ini[inputSection].has("KeyboardReadingMode")) KeyboardReadingMode = std::stol(ini[inputSection]["KeyboardReadingMode"]);
+    if (ini[inputSection].has("XInputOmniMode")) bXInputOmniMode = std::stol(ini[inputSection]["XInputOmniMode"]) != 0;
+    if (ini[inputSection].has("PassConnStatus")) bPassConnStatus = std::stol(ini[inputSection]["PassConnStatus"]) != 0;
 #ifndef NO_FENG
-  bConfineMouse        = inireader.ReadInteger("Input", "ConfineMouse", 0) != 0;
-  bUseWin32Cursor      = inireader.ReadInteger("Input", "UseWin32Cursor", 1) != 0;
-  bUseCustomCursor     = inireader.ReadInteger("Input", "UseCustomCursor", 1) != 0;
-  bEnableMouseHiding   = inireader.ReadInteger("Input", "EnableMouseHiding", 1) != 0;
-  bMouseLook           = inireader.ReadInteger("Input", "MouseLook", 1) != 0;
-  MouseLookSensitivity = inireader.ReadFloat("Input", "MouseLookSensitivity", 1.0f);
+    if (ini[inputSection].has("ConfineMouse")) bConfineMouse = std::stol(ini[inputSection]["ConfineMouse"]) != 0;
+    if (ini[inputSection].has("UseWin32Cursor")) bUseWin32Cursor = std::stol(ini[inputSection]["UseWin32Cursor"]) != 0;
+    if (ini[inputSection].has("UseCustomCursor")) bUseCustomCursor = std::stol(ini[inputSection]["UseCustomCursor"]) != 0;
+    if (ini[inputSection].has("EnableMouseHiding")) bEnableMouseHiding = std::stol(ini[inputSection]["EnableMouseHiding"]) != 0;
+    if (ini[inputSection].has("MouseLook")) bMouseLook = std::stol(ini[inputSection]["MouseLook"]) != 0;
+    if (ini[inputSection].has("MouseLookSensitivity")) MouseLookSensitivity = std::stof(ini[inputSection]["MouseLookSensitivity"]);
 #endif
-  INPUT_DEADZONE_LS = static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "PercentLS", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
-  INPUT_DEADZONE_RS = static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "PercentRS", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
-  INPUT_DEADZONE_LS_P2 =
-      static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "PercentLS_P2", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
-  INPUT_DEADZONE_RS_P2 =
-      static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "PercentRS_P2", 0.24f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
-  SHIFT_ANALOG_THRESHOLD =
-      static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "Percent_Shifting", 0.75f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
-  FEUPDOWN_ANALOG_THRESHOLD =
-      static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "Percent_AnalogStickDigital", 0.50f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
-  TRIGGER_ACTIVATION_THRESHOLD =
-      static_cast<SHORT>(clampf(inireader.ReadFloat("Deadzone", "Percent_AnalogTriggerDigital", 0.12f), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  }
+
+  constexpr const char* dzSection = "Deadzone";
+  if (ini.has(dzSection)) {
+    if (ini[dzSection].has("PercentLS"))
+      INPUT_DEADZONE_LS = static_cast<SHORT>(clampf(std::stof(ini[dzSection]["PercentLS"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+    if (ini[dzSection].has("PercentRS"))
+      INPUT_DEADZONE_RS = static_cast<SHORT>(clampf(std::stof(ini[dzSection]["PercentRS"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+    if (ini[dzSection].has("PercentLS_P2"))
+      INPUT_DEADZONE_LS_P2 = static_cast<SHORT>(clampf(std::stof(ini[dzSection]["PercentLS_P2"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+    if (ini[dzSection].has("PercentRS_P2"))
+      INPUT_DEADZONE_RS_P2 = static_cast<SHORT>(clampf(std::stof(ini[dzSection]["PercentRS_P2"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+    if (ini[dzSection].has("Percent_Shifting"))
+      SHIFT_ANALOG_THRESHOLD = static_cast<SHORT>(clampf(std::stof(ini[dzSection]["Percent_Shifting"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+    if (ini[dzSection].has("Percent_AnalogStickDigital"))
+      FEUPDOWN_ANALOG_THRESHOLD = static_cast<SHORT>(clampf(std::stof(ini[dzSection]["Percent_AnalogStickDigital"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+    if (ini[dzSection].has("Percent_AnalogTriggerDigital"))
+      TRIGGER_ACTIVATION_THRESHOLD =
+          static_cast<SHORT>(clampf(std::stof(ini[dzSection]["Percent_AnalogTriggerDigital"]), 0.0f, 1.0f) * std::numeric_limits<SHORT>::max());
+  }
+
 #ifndef NO_FENG
-  ControllerIconMode       = inireader.ReadInteger("Icons", "ControllerIconMode", 0);
-  LastControlledDevice     = inireader.ReadInteger("Icons", "FirstControlDevice", 0);
-  bUseDynamicFEngSwitching = inireader.ReadInteger("Icons", "UseDynamicFEngSwitching", 1) != 0;
-  bEnableSplashTakeover    = inireader.ReadInteger("Icons", "EnableSplashTakeover", 1) != 0;
-  strcpy(ButtonTexFilename, inireader.ReadString("Icons", "ButtonTexFilename", "GLOBAL\\XtendedInputButtons.tpk"));
+  constexpr const char* icoSection = "Icons";
+  if (ini.has(icoSection)) {
+    if (ini[icoSection].has("ControllerIconMode")) ControllerIconMode = std::stol(ini[icoSection]["ControllerIconMode"]);
+    if (ini[icoSection].has("FirstControlDevice")) LastControlledDevice = std::stol(ini[icoSection]["FirstControlDevice"]);
+    if (ini[icoSection].has("UseDynamicFEngSwitching")) bUseDynamicFEngSwitching = std::stol(ini[icoSection]["UseDynamicFEngSwitching"]) != 0;
+    if (ini[icoSection].has("EnableSplashTakeover")) bEnableSplashTakeover = std::stol(ini[icoSection]["EnableSplashTakeover"]) != 0;
+    if (ini[icoSection].has("ButtonTexFilename")) strcpy(ButtonTexFilename, ini[icoSection]["ButtonTexFilename"].c_str());
+  }
 #endif
 }
 
 int Init() {
+  FixWorkingDirectory();
   InitConfig();
 
   injector::WriteMemory<unsigned int>(INPUTDEVICE_FACTORY_INITIALIZER_ADDR, (unsigned int)&InputDeviceFactory, true);
@@ -1808,13 +1910,18 @@ int Init() {
     injector::MakeCALL(DEBUGWORLDCAMERAMOVER_CONSTRUCTOR_HOOK_ADDR, DebugWorldCameraMover_Constructor_Hook, true);
     injector::MakeCALL(DEBUGWORLDCAMERAMOVER_DESTRUCTOR_HOOK_ADDR, DebugWorldCameraMover_Destructor_Hook, true);
   }
+
+  // per-user profile configs
+  OnLoadDoneFunc = *(uintptr_t*)ONLOADDONE_FUNC_VTABLE_ADDR;
+  injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR, (uintptr_t)&OnLoadDoneHook, true);
+
   // Init state
   ZeroMemory(g_Controllers, sizeof(CONTROLLER_STATE) * MAX_CONTROLLERS);
 
   // AttachConsole(ATTACH_PARENT_PROCESS);
   // AllocConsole();
-  // freopen("CON", "w", stdout);
-  // freopen("CON", "w", stderr);
+  //freopen("CON", "w", stdout);
+  //freopen("CON", "w", stderr);
 
   return 0;
 }
