@@ -836,7 +836,20 @@
     <ClCompile Include="_win32\dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\data\Config-Carbon\NFS_XtendedInput.ini" />
+    <None Include="..\data\Config-MW\NFS_XtendedInput.ini" />
+    <None Include="..\data\Config-ProStreet\NFS_XtendedInput.default.ini" />
+    <None Include="..\data\Config-ProStreet\NFS_XtendedInput.ini" />
+    <None Include="..\data\Config-UC\NFS_XtendedInput.ini" />
+    <None Include="..\data\Config-World\NFS_XtendedInput.ini" />
     <None Include="NFS_XtendedInput.licenseheader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\data\Config-Carbon\EventReference.txt" />
+    <Text Include="..\data\Config-MW\EventReference.txt" />
+    <Text Include="..\data\Config-ProStreet\EventReference.txt" />
+    <Text Include="..\data\Config-UC\EventReference.txt" />
+    <Text Include="..\data\Config-World\EventReference.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

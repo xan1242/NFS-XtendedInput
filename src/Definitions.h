@@ -17,6 +17,11 @@
 
 #include "NFS_XtendedInput.h"
 
+// unbuffered -- calls GetAsyncKeyState during scanning process itself -- probably more taxing, but very good input latency (default)
+#define KB_READINGMODE_UNBUFFERED_ASYNC 0
+// buffered -- calls GetKeyboardState right after reading joypads, updates VKeyStates
+#define KB_READINGMODE_BUFFERED 1
+
 #ifdef GAME_MW
 #define NO_PROFILE_SETTINGS
 

@@ -23,6 +23,27 @@
     <Filter Include="_win32">
       <UniqueIdentifier>{36d66f65-b0eb-4a48-bd79-b371b7124b7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{b7b13810-75ae-43d9-8b0c-ef547e1c561a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\post-build">
+      <UniqueIdentifier>{fb9cbec8-cf80-4425-beef-7676ae59c530}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\Config-Carbon">
+      <UniqueIdentifier>{c803cfa7-804a-4d9d-b2a7-164f0980b0b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\Config-MW">
+      <UniqueIdentifier>{3246420b-3e82-478d-8a41-a53045f1271b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\Config-ProStreet">
+      <UniqueIdentifier>{62fc524d-476b-46f4-83e2-93091004fdf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\Config-UC">
+      <UniqueIdentifier>{bceb301d-aecb-4271-bfdd-49949c05b865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="data\Config-World">
+      <UniqueIdentifier>{24dc8eca-b7f7-4a30-b903-8ae12c4dd437}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="_vs\stdafx.cpp">
@@ -34,5 +55,40 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="NFS_XtendedInput.licenseheader" />
+    <None Include="..\data\Config-Carbon\NFS_XtendedInput.ini">
+      <Filter>data\Config-Carbon</Filter>
+    </None>
+    <None Include="..\data\Config-MW\NFS_XtendedInput.ini">
+      <Filter>data\Config-MW</Filter>
+    </None>
+    <None Include="..\data\Config-ProStreet\NFS_XtendedInput.ini">
+      <Filter>data\Config-ProStreet</Filter>
+    </None>
+    <None Include="..\data\Config-UC\NFS_XtendedInput.ini">
+      <Filter>data\Config-UC</Filter>
+    </None>
+    <None Include="..\data\Config-World\NFS_XtendedInput.ini">
+      <Filter>data\Config-World</Filter>
+    </None>
+    <None Include="..\data\Config-ProStreet\NFS_XtendedInput.default.ini">
+      <Filter>data\Config-ProStreet</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\data\Config-Carbon\EventReference.txt">
+      <Filter>data\Config-Carbon</Filter>
+    </Text>
+    <Text Include="..\data\Config-MW\EventReference.txt">
+      <Filter>data\Config-MW</Filter>
+    </Text>
+    <Text Include="..\data\Config-ProStreet\EventReference.txt">
+      <Filter>data\Config-ProStreet</Filter>
+    </Text>
+    <Text Include="..\data\Config-UC\EventReference.txt">
+      <Filter>data\Config-UC</Filter>
+    </Text>
+    <Text Include="..\data\Config-World\EventReference.txt">
+      <Filter>data\Config-World</Filter>
+    </Text>
   </ItemGroup>
 </Project>

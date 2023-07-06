@@ -40,6 +40,7 @@ bool    bUseWin32Cursor            = true;
 bool    bUseCustomCursor           = true;
 bool    bLastUsedVirtualMouse      = false;
 bool    bUseDynamicFEngSwitching   = true;
+bool    bEnableMouseHiding         = true;
 HCURSOR NFSCursor;
 #define MOUSEHIDE_TIME 5000
 
@@ -405,20 +406,24 @@ void UpdateFECursorPos() {
 #endif  // GAME_MW
 
     if (bInDebugWorldCamera) bShowMouse = false;
-
-    if (bUseWin32Cursor) {
-      if (bShowMouse)
-        SetCursor(NFSCursor);
-      else
-        SetCursor(NULL);
+    if (bEnableMouseHiding) {
+        if (bUseWin32Cursor) {
+          if (bShowMouse)
+            SetCursor(NFSCursor);
+          else
+            SetCursor(NULL);
+        } else {
+          SetCursor(NULL);
+          if (bShowMouse)
+            *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
+          else
+            *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = true;
+        }
     } else {
-      SetCursor(NULL);
-      if (bShowMouse)
-        *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
-      else
-        *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = true;
+        if (bUseWin32Cursor) SetCursor(NFSCursor);
+        else
+          *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
     }
-
     if (!bLastUsedVirtualMouse || bUseWin32Cursor) {
       *(int*)FEMOUSECURSOR_X_ADDR = MousePos.x;
       *(int*)FEMOUSECURSOR_Y_ADDR = MousePos.y;
