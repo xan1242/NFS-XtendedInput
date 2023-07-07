@@ -122,19 +122,6 @@ void FixWorkingDirectory() {
 void        LoadMapping(std::string userProfileName);
 std::string gProfileName;
 
-#pragma runtime_checks("", off)
-#ifndef GAME_MW
-char        NFSProfileName[128];
-uintptr_t DALManager_GetString_Addr = DALMANAGER_GETSTRING_ADDR;
-uintptr_t   gDALManager_Addr          = DALMANAGER_ADDR;
-bool GetNFSProfileName() {
-    // get it via DALManager
-  return reinterpret_cast<bool(__thiscall*)(uintptr_t DALManager, const int valueType, char* getVal, const int getLen, const int arg1, const int arg2,
-                                     const int arg3)>(DALManager_GetString_Addr)(gDALManager_Addr, DALMANAGER_PROFILENAME_TYPEVAL, NFSProfileName, 128, -1, -1, -1);
-}
-#endif
-
-
 #ifdef GAME_MW
 std::string oldProfileName;
 uintptr_t   MemCardLoadAddr = 0x005189F0;
@@ -149,6 +136,22 @@ void __stdcall MemoryCard_Load_Hook(const char* profileName) {
     LoadMapping(gProfileName);
   }
 }
+#endif
+
+#pragma runtime_checks("", off)
+#if defined(GAME_CARBON) || defined(GAME_PROSTREET)
+char        NFSProfileName[128];
+uintptr_t DALManager_GetString_Addr = DALMANAGER_GETSTRING_ADDR;
+uintptr_t   gDALManager_Addr          = DALMANAGER_ADDR;
+bool GetNFSProfileName() {
+    // get it via DALManager
+  return reinterpret_cast<bool(__thiscall*)(uintptr_t DALManager, const int valueType, char* getVal, const int getLen, const int arg1, const int arg2,
+                                     const int arg3)>(DALManager_GetString_Addr)(gDALManager_Addr, DALMANAGER_PROFILENAME_TYPEVAL, NFSProfileName, 128, -1, -1, -1);
+}
+#endif
+
+#if defined(GAME_UC) || defined(GAME_WORLD)
+constexpr const char* NFSProfileName = "UserProfile";
 #endif
 
 #ifdef GAME_CARBON
@@ -1127,8 +1130,11 @@ class InputDevice {
       fDeviceScalar[i].fPrevValue    = &PrevValues[fDeviceIndex][i];
       fDeviceScalar[i].fCurrentValue = &CurrValues[fDeviceIndex][i];
     }
-
+#if defined(GAME_UC) || defined(GAME_WORLD)
+    LoadMapping(NFSProfileName);
+#else
     LoadMapping("");
+#endif
   }
   virtual void PollDevice() {
     if (!bGlobalDoPolling) return;
@@ -1952,12 +1958,13 @@ int Init() {
   }
 
   // per-user profile configs
-//#ifdef GAME_PROSTREET
+#if defined(GAME_CARBON) || defined(GAME_PROSTREET)
   OnLoadDoneFunc = *(uintptr_t*)ONLOADDONE_FUNC_VTABLE_ADDR;
   injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR, (uintptr_t)&OnLoadDoneHook, true);
 
 #ifdef GAME_CARBON
   injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR2, (uintptr_t)&OnLoadDoneHook, true);
+#endif
 #endif
 
 //#endif
