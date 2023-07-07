@@ -26,11 +26,27 @@ Currently a work in progress, but fully usable and playable!
 
 - All game actions are now rebindable
 
-## Button mappings
+## Button mappings & configuration
 
-You can only remap the buttons in the configuration file (NFS_XtendedInput.ini), however as of now there is 1 limitation: you may only assign 1 button to an event. Refer to the EventReference.txt file to see what's available.
+You may remap the buttons in the `NFS_XtendedInput.usermap.ini` file found inside the `scripts\XtendedInputMaps\<your save name>` folder.
 
-You cannot enter the "Controls" settings menu as it currently crashes the game, therefore it has been disabled. If you need to access it, disable this plugin.
+For secondary maps, use the sections `[Events_Secondary]` for gamepads and `[EventsKB_Secondary]` for keyboards.
+
+Refer to the EventReference.txt file to see what's available.
+
+(PROSTREET ONLY) You may also freely remap inside the game's settings menu. This feature will become available in other games soon.
+
+
+
+You can configure other settings (such as deadzones, omni mode, etc.) in the `NFS_XtendedInput.ini` file found inside the `scripts` folder.
+
+
+
+`NFS_XtendedInput.default.ini` contains default mappings for when a new profile is created or settings reset to default in the remap menu.
+
+
+
+(MW ONLY) You cannot enter the "Controls" settings menu as it currently crashes the game, therefore it has been disabled. If you need to access it, disable this plugin.
 
 The button remaps will change the textures as well according to what you set it to (only for gamepads).
 
