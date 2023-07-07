@@ -21,6 +21,7 @@ xnfstpktool -w2 "data\XtendedInputButtons\8A69054A.ini" ".Release Packages\%Buil
 :: Summon text files
 echo Summoning text files
 COPY /Y "data\Config-%GameName%\NFS_XtendedInput.ini" ".Release Packages\%BuildType%-%GameName%\scripts"
+COPY /Y "data\Config-%GameName%\NFS_XtendedInput.default.ini" ".Release Packages\%BuildType%-%GameName%\scripts"
 COPY /Y "data\Config-%GameName%\EventReference.txt" ".Release Packages\%BuildType%-%GameName%"
 COPY /Y "README.md" ".Release Packages\%BuildType%-%GameName%"
 :: Summon additional resources
