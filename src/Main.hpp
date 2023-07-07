@@ -120,6 +120,7 @@ void FixWorkingDirectory() {
 }
 
 void        LoadMapping(std::string userProfileName);
+void        ClearAllMappings();
 std::string gProfileName;
 
 #ifdef GAME_MW
@@ -956,9 +957,9 @@ void __stdcall ResetMappingsToDefault() {
     if (!PathFileExists(dirName.c_str())) CreateDirectory(dirName.c_str(), NULL);
     if (CopyFile(defMappingName, mapFile.c_str(), TRUE) == FALSE) mapFile = defMappingName;
   } else {
-    if (CopyFile(defMappingName, mapFile.c_str(), FALSE) == FALSE) mapFile = defMappingName;
+    DeleteFile(mapFile.c_str());
   }
-
+  ClearAllMappings();
   LoadMapping(gProfileName);
 
 
@@ -973,6 +974,15 @@ void __stdcall ResetMappingsToDefault() {
 }
 #pragma runtime_checks("", restore)
 #endif
+
+void ClearAllMappings() {
+  for (unsigned int i = 0; i < MAX_ACTIONID; i++) {
+    VKeyBindings_PRIMARY[i] = 0;
+    VKeyBindings_SECONDARY[i] = 0;
+    XInputBindings_PRIMARY[i] = 0;
+    XInputBindings_SECONDARY[i] = 0;
+  }
+}
 
 void LoadMapping(std::string userProfileName) {
   std::string mapFile = userMappingDir;
