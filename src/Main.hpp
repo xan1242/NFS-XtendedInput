@@ -1967,7 +1967,6 @@ int Init() {
 #endif
 #endif
 
-//#endif
 #ifdef GAME_MW
   MemCardLoadAddr = reinterpret_cast<uintptr_t>(injector::MakeCALL(0x00563F33, MemoryCard_Load_Hook).get_raw<void>());
   injector::MakeCALL(0x00563CF7, MemoryCard_Load_Hook);
