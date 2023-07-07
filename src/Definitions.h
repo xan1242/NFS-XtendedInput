@@ -657,6 +657,14 @@ void SetTitleScreenText() {
 }
 
 void (*InitProfileSettings)() = (void (*)())0x00679BF0;
+
+#define DALMANAGER_PROFILENAME_TYPEVAL 6044
+#define DALMANAGER_ADDR                0x00A8AD30
+#define DALMANAGER_GETSTRING_ADDR      0x004A05D0
+
+#define ONLOADDONE_FUNC_VTABLE_ADDR  0x009E8CC4
+#define ONLOADDONE_FUNC_VTABLE_ADDR2 0x009D4314
+
 #endif
 
 #ifdef GAME_PROSTREET
@@ -695,8 +703,6 @@ void (*InitProfileSettings)() = (void (*)())0x00679BF0;
 
 #define SHOWCURSOR_HOOK_ADDR1 0x007012B5
 #define SHOWCURSOR_HOOK_ADDR2 0x007012C7
-
-#define ONLOADDONE_FUNC_VTABLE_ADDR 0x00974444
 
 #define GLOBAL_FASTMEM_ADDR  0x00ABB060
 #define FASTMEM_ALLOC_ADDR   0x00463E90
@@ -973,6 +979,13 @@ void SetTitleScreenText() {
 }
 
 void (*InitProfileSettings)() = (void (*)())0x006A56C0;
+
+#define DALMANAGER_PROFILENAME_TYPEVAL 6050
+#define DALMANAGER_ADDR                0x00A50AD0
+#define DALMANAGER_GETSTRING_ADDR      0x00536170
+
+#define ONLOADDONE_FUNC_VTABLE_ADDR 0x00974444
+
 #endif
 
 #ifdef GAME_UC

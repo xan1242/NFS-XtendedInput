@@ -121,15 +121,20 @@ void FixWorkingDirectory() {
 
 void        LoadMapping(std::string userProfileName);
 std::string gProfileName;
-uintptr_t   GetProfileNameAddr = 0x0059E020;
-const char* GetNFSProfileName() { 
-#ifdef GAME_MW
-  return gProfileName.c_str();
-#else
-  return reinterpret_cast<const char* (*)()>(GetProfileNameAddr)();
-#endif
-}
+
 #pragma runtime_checks("", off)
+#ifndef GAME_MW
+char        NFSProfileName[128];
+uintptr_t DALManager_GetString_Addr = DALMANAGER_GETSTRING_ADDR;
+uintptr_t   gDALManager_Addr          = DALMANAGER_ADDR;
+bool GetNFSProfileName() {
+    // get it via DALManager
+  return reinterpret_cast<bool(__thiscall*)(uintptr_t DALManager, const int valueType, char* getVal, const int getLen, const int arg1, const int arg2,
+                                     const int arg3)>(DALManager_GetString_Addr)(gDALManager_Addr, DALMANAGER_PROFILENAME_TYPEVAL, NFSProfileName, 128, -1, -1, -1);
+}
+#endif
+
+
 #ifdef GAME_MW
 std::string oldProfileName;
 uintptr_t   MemCardLoadAddr = 0x005189F0;
@@ -144,18 +149,36 @@ void __stdcall MemoryCard_Load_Hook(const char* profileName) {
     LoadMapping(gProfileName);
   }
 }
-#else
+#endif
+
+#ifdef GAME_CARBON
+uintptr_t OnLoadDoneFunc = 0x0058E250;
+void __stdcall OnLoadDoneHook(const char* str) {
+  uintptr_t that;
+  _asm mov  that, ecx;
+  reinterpret_cast<void(__thiscall*)(uintptr_t, const char*)>(OnLoadDoneFunc)(that, str);
+  GetNFSProfileName();
+  if (gProfileName.compare(NFSProfileName) || gProfileName.empty()) {
+    gProfileName = NFSProfileName;
+    LoadMapping(gProfileName);
+  }
+}
+#endif
+
+#ifdef GAME_PROSTREET
 uintptr_t OnLoadDoneFunc = 0x00543CC0;
 void __stdcall OnLoadDoneHook() {
   uintptr_t that;
   _asm mov that, ecx;
   reinterpret_cast<void(__thiscall*)(uintptr_t)>(OnLoadDoneFunc)(that);
-  if (gProfileName.compare(GetNFSProfileName()) || gProfileName.empty()) {
-    gProfileName = GetNFSProfileName();
+  GetNFSProfileName();
+  if (gProfileName.compare(NFSProfileName) || gProfileName.empty()) {
+    gProfileName = NFSProfileName;
     LoadMapping(gProfileName);
   }
 }
 #endif
+
 #pragma runtime_checks("", restore)
 
 // global var for the action ID values
@@ -1929,12 +1952,18 @@ int Init() {
   }
 
   // per-user profile configs
+//#ifdef GAME_PROSTREET
+  OnLoadDoneFunc = *(uintptr_t*)ONLOADDONE_FUNC_VTABLE_ADDR;
+  injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR, (uintptr_t)&OnLoadDoneHook, true);
+
+#ifdef GAME_CARBON
+  injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR2, (uintptr_t)&OnLoadDoneHook, true);
+#endif
+
+//#endif
 #ifdef GAME_MW
   MemCardLoadAddr = reinterpret_cast<uintptr_t>(injector::MakeCALL(0x00563F33, MemoryCard_Load_Hook).get_raw<void>());
   injector::MakeCALL(0x00563CF7, MemoryCard_Load_Hook);
-#else
-  OnLoadDoneFunc = *(uintptr_t*)ONLOADDONE_FUNC_VTABLE_ADDR;
-  injector::WriteMemory<uintptr_t>(ONLOADDONE_FUNC_VTABLE_ADDR, (uintptr_t)&OnLoadDoneHook, true);
 #endif
   // Init state
   ZeroMemory(g_Controllers, sizeof(CONTROLLER_STATE) * MAX_CONTROLLERS);
