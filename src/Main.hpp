@@ -1191,7 +1191,7 @@ class InputDevice {
     for (unsigned int j = 0; j < MAX_ACTIONID; j++) {
       ActionID i = (ActionID)j;
 
-      if (bIsActionFrontEnd((ActionID)i) && bIsHudVisible()) bDoPolling = false;
+      if (bIsActionFrontEnd((ActionID)i) && bIsHudVisible() && (i != FRONTENDACTION_START)) bDoPolling = false;
 
 #ifdef GAME_WORLD
       // I *truly* do not understand this game. So, the inputs will only start working if a button was pressed BEFORE entering the game.
