@@ -62,5 +62,6 @@ constexpr const char* cfgIniName  = "scripts\\NFS_XtendedInput.ini";
 constexpr const char* defMappingName = "scripts\\NFS_XtendedInput.default.ini";
 constexpr const char* userMappingName = "NFS_XtendedInput.usermap.ini";
 constexpr const char* userMappingDir = "scripts\\XtendedInputMaps";
+constexpr const char* cursorSkinPath      = "scripts\\nfs_cursor.cur";
 
 #endif

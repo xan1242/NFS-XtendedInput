@@ -1793,7 +1793,7 @@ int Init() {
   // custom Win32 mouse cursor
   if (bUseWin32Cursor) {
     if (bUseCustomCursor)
-      NFSCursor = LoadCursorFromFile("nfs_cursor.cur");
+      NFSCursor = LoadCursorFromFile(cursorSkinPath);
     else
       NFSCursor = LoadCursor(NULL, IDC_ARROW);
   }
