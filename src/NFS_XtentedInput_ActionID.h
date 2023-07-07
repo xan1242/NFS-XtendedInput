@@ -253,7 +253,7 @@ enum ActionID {
   MAX_ACTIONID                  = 138,
 };
 
-char ActionIDStr[139][32] = {"NULL_ACTION",
+char* ActionIDStr[139] = {"NULL_ACTION",
                              "GAMEACTION_STEERLEFT",
                              "GAMEACTION_STEERRIGHT",
                              "GAMEACTION_TURNLEFT",
@@ -503,7 +503,7 @@ enum ActionID {
   MAX_ACTIONID
 };
 
-char ActionIDStr[MAX_ACTIONID][32] = {"NULL_ACTION",
+char* ActionIDStr[MAX_ACTIONID] = {"NULL_ACTION",
                                       "GAMEACTION_STEERLEFT",
                                       "GAMEACTION_STEERRIGHT",
                                       "GAMEACTION_OVERSTEER",
@@ -763,7 +763,7 @@ enum ActionID {
   MAX_ACTIONID                  = 150,
 };
 
-char ActionIDStr[MAX_ACTIONID][32] = {"NULL_ACTION",
+char* ActionIDStr[MAX_ACTIONID] = {"NULL_ACTION",
                                       "GAMEACTION_STEERLEFT",
                                       "GAMEACTION_STEERRIGHT",
                                       "GAMEACTION_OVERSTEER",
@@ -1078,7 +1078,7 @@ enum ActionID {
   MAX_ACTIONID
 };
 
-char ActionIDStr[MAX_ACTIONID][32] = {"NULL_ACTION",
+char* ActionIDStr[MAX_ACTIONID] = {"NULL_ACTION",
                                       "GAMEACTION_STEERLEFT",
                                       "GAMEACTION_STEERRIGHT",
                                       "GAMEACTION_OVERSTEER",
@@ -1373,7 +1373,7 @@ enum ActionID {
   MAX_ACTIONID
 };
 
-char ActionIDStr[MAX_ACTIONID][41] = {"NULL_ACTION",
+char* ActionIDStr[MAX_ACTIONID] = {"NULL_ACTION",
                                       "GAMEACTION_STEERLEFT",
                                       "GAMEACTION_STEERRIGHT",
                                       "GAMEACTION_TURNLEFT",
