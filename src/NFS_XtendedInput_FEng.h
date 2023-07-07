@@ -128,6 +128,7 @@ void __stdcall LoadResourceFile(char* filename, int ResType, int unk1, void* unk
 }
 
 int __declspec(naked) cFEng_FindPackageWithControl() {
+    // clang-format off
   _asm
   {
 		mov ecx, ds: [CFENG_INSTANCE_ADDR]
@@ -153,6 +154,7 @@ int __declspec(naked) cFEng_FindPackageWithControl() {
 	loc_516BB3 :
 		ret
   }
+  // clang-format on
 }
 
 #ifdef GAME_MW
@@ -166,6 +168,7 @@ void(__thiscall* CustomTuningScreen_NotificationMessage)(void* thethis, unsigned
 
 // custom FEngSetVisible - necessary to stop elements from appearing we don't want dynamically (flickering buttons)
 void __declspec(naked) FEngSetVisible(FEObject* obj) {
+  // clang-format off
   _asm
   {
 		mov     eax, [esp+4]
@@ -213,6 +216,7 @@ void __declspec(naked) FEngSetVisible(FEObject* obj) {
 	locret_514D01 :
 		retn
   }
+  // clang-format on
 }
 #else
 void FEngSetLanguageHash_Hook(char* pkg_name, int obj_hash, int lang_hash) {
@@ -466,7 +470,7 @@ bool bIsHudVisible();
 #pragma runtime_checks("", off)
 void __stdcall CustomTuningScreen_NotificationMessage_Hook(unsigned int unk1, void* FEObject, unsigned int unk2, unsigned int unk3) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         // force visibility of the following:
                         // 0x05CDDED4 -- SETTING NAME GROUP
@@ -697,9 +701,9 @@ bool __stdcall FEObjectCallback_Function(FEObject* inobj) {
 #ifdef GAME_MW
 bool __stdcall MouseStateArrayOffsetUpdater_Callback_Hook(FEObject* inobj) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
-                        UpdateControllerFEng(inobj);
+  UpdateControllerFEng(inobj);
 
   return MouseStateArrayOffsetUpdater((void*)thethis, inobj);
 }
@@ -713,7 +717,7 @@ struct FEObjectCallbackStruct {
 
 void __stdcall cFEng_Service_Hook(int unk1, int unk2) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
   void*                                        cbpointer = &callback;
@@ -736,7 +740,7 @@ void __stdcall cFEng_Service_Hook(int unk1, int unk2) {
 // world map fixes for Carbon
 void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
       if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) ||
           cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH)) {
@@ -750,7 +754,7 @@ void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage) {
 
 void* __stdcall FEPackage_FindObjectByHash_Hide_Hook(unsigned int namehash) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         FEngSetInvisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
 
@@ -759,7 +763,7 @@ void* __stdcall FEPackage_FindObjectByHash_Hide_Hook(unsigned int namehash) {
 
 void* __stdcall FEPackage_FindObjectByHash_Show_Hook(unsigned int namehash) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         FEngSetVisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
 
@@ -770,7 +774,7 @@ bool bQuickListFocused = false;
 
 void __stdcall FEWorldMapStateManager_HandleScreenTick_Hook() {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
       if ((*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 3) && *(int*)WORLDMAP_INSTANCE_ADDR) {
     // change text from "Free Roam" to "Back" during FE for the console UI element
@@ -795,7 +799,7 @@ void __stdcall FEWorldMapStateManager_HandleScreenTick_Hook() {
 
 void __stdcall WorldMap_SetQuickListInFocus_Hook() {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         bQuickListFocused = true;
 
@@ -804,7 +808,7 @@ void __stdcall WorldMap_SetQuickListInFocus_Hook() {
 
 void __stdcall WorldMap_UnfocusQuickList_Hook() {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         bQuickListFocused = false;
 
@@ -826,7 +830,7 @@ void FEPrintf_Hook_WorldMap(char* pkg_name, unsigned int object_hash, char* fmt,
 #ifdef GAME_PROSTREET
 void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage) {
   unsigned int thethis = 0;
-  _asm mov     thethis, ecx
+  _asm mov     thethis, ecx;
 
                         FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
   void*                                        cbpointer = &callback;
