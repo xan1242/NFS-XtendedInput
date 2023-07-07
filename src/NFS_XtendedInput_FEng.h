@@ -127,12 +127,12 @@ void __stdcall LoadResourceFile(char* filename, int ResType, int unk1, void* unk
   ResourceFile_BeginLoading(CreateResourceFile(filename, ResType, unk1, unk4, unk5), unk2, unk3);
 }
 
-bool bFileExists(const char* fname) {
-  FILE* f = fopen(fname, "r");
-  if (!f) return false;
-  fclose(f);
-  return true;
-}
+//bool bFileExists(const char* fname) {
+//  FILE* f = fopen(fname, "r");
+//  if (!f) return false;
+//  fclose(f);
+//  return true;
+//}
 
 int __declspec(naked) cFEng_FindPackageWithControl() {
   _asm
@@ -680,7 +680,7 @@ bool bInPCControllerConfig() {
 
 void UpdateControllerFEng(FEObject* inobj) {
   if (!bLoadedConsoleButtonTex) {
-    if (bFileExists(ButtonTexFilename)) {
+    if (PathFileExists(ButtonTexFilename)) {
       LoadResourceFile(ButtonTexFilename, 0, 0, NULL, 0, 0, 0);
       ServiceResourceLoading();
     }
