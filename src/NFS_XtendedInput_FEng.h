@@ -1,10 +1,10 @@
 /*
 // clang-format off
-// 
+//
 //    MIT License
 //    Need for Speed (Black Box, MW & newer) - Xtended Input plugin
 //    Bringing native XInput to NFS
-//    
+//
 //    Copyright (c) 2022–2023 Lovro Plese (Xan/Tenjoin)
 //    Copyright (c) 2023 Berkay Yigit <mail@berkay.link>
 //
@@ -128,7 +128,7 @@ void __stdcall LoadResourceFile(char* filename, int ResType, int unk1, void* unk
 }
 
 int __declspec(naked) cFEng_FindPackageWithControl() {
-    // clang-format off
+  // clang-format off
   _asm
   {
 		mov ecx, ds: [CFENG_INSTANCE_ADDR]
@@ -404,22 +404,23 @@ void UpdateFECursorPos() {
 
     if (bInDebugWorldCamera) bShowMouse = false;
     if (bEnableMouseHiding) {
-        if (bUseWin32Cursor) {
-          if (bShowMouse)
-            SetCursor(NFSCursor);
-          else
-            SetCursor(NULL);
-        } else {
-          SetCursor(NULL);
-          if (bShowMouse)
-            *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
-          else
-            *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = true;
-        }
-    } else {
-        if (bUseWin32Cursor) SetCursor(NFSCursor);
+      if (bUseWin32Cursor) {
+        if (bShowMouse)
+          SetCursor(NFSCursor);
         else
+          SetCursor(NULL);
+      } else {
+        SetCursor(NULL);
+        if (bShowMouse)
           *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
+        else
+          *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = true;
+      }
+    } else {
+      if (bUseWin32Cursor)
+        SetCursor(NFSCursor);
+      else
+        *(bool*)FEMOUSECURSOR_ISHIDDEN_ADDR = false;
     }
     if (!bLastUsedVirtualMouse || bUseWin32Cursor) {
       *(int*)FEMOUSECURSOR_X_ADDR = MousePos.x;
@@ -472,12 +473,12 @@ void __stdcall CustomTuningScreen_NotificationMessage_Hook(unsigned int unk1, vo
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        // force visibility of the following:
-                        // 0x05CDDED4 -- SETTING NAME GROUP
-                        // 0x79354351 -- R1 ARROW
-                        // 0x6B364F8B -- L1 ARROW
+  // force visibility of the following:
+  // 0x05CDDED4 -- SETTING NAME GROUP
+  // 0x79354351 -- R1 ARROW
+  // 0x6B364F8B -- L1 ARROW
 
-                        FEngSetVisible_Name(*(char**)(thethis + 0x10), 0x05CDDED4);
+  FEngSetVisible_Name(*(char**)(thethis + 0x10), 0x05CDDED4);
   FEngSetVisible_Name(*(char**)(thethis + 0x10), 0x79354351);
   FEngSetVisible_Name(*(char**)(thethis + 0x10), 0x6B364F8B);
 
@@ -626,7 +627,9 @@ void SetControllerUnplugText() {
         "ControllerUnplugged.fng", FEngFindObject("ControllerUnplugged.fng", 0x3CF6E6CA),
         "The controller has been removed.\nPlease re-insert a controller to controller port 1,\nand press the START button or SPACE on keyboard to continue.");
 #else
-    FE_String_Printf(FEngFindObject("ControllerUnplugged.fng", 0x3CF6E6CA), "The controller has been removed.\nPlease re-insert a controller to controller port 1,\nand press the START button or SPACE on keyboard to continue.");
+    FE_String_Printf(
+        FEngFindObject("ControllerUnplugged.fng", 0x3CF6E6CA),
+        "The controller has been removed.\nPlease re-insert a controller to controller port 1,\nand press the START button or SPACE on keyboard to continue.");
 #endif
   }
 }
@@ -640,9 +643,9 @@ void SetControllerFEng(FEObject* inobj) {
     ShowFlags = FE_CONTROL_FLAG_CONSOLE;
   }
 
-  #if defined(GAME_PROSTREET) || defined(GAME_CARBON)
+#if defined(GAME_PROSTREET) || defined(GAME_CARBON)
   if (inobj->NameHash == 0x8F095FD5) return;
-  #endif
+#endif
 
   if (inobj->Flags & HideFlags) {
     if (inobj->Flags & ~1) {
@@ -719,8 +722,8 @@ void __stdcall cFEng_Service_Hook(int unk1, int unk2) {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
-  void*                                        cbpointer = &callback;
+  FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
+  void*                  cbpointer = &callback;
 
   int FEPackage     = *(int*)(thethis + 0xE0);
   int NextFEPackage = 0;
@@ -742,8 +745,8 @@ void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage) {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-      if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) ||
-          cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH)) {
+  if (cFEng_IsPackageInControl_Fast(WORLDMAPMAIN_FNG_NAMEHASH) || cFEng_IsPackageInControl_Fast(WORLDMAPQUICKLIST_FNG_NAMEHASH) ||
+      cFEng_IsPackageInControl_Fast(WORLDMAPWORLDVIEW_FNG_NAMEHASH)) {
     FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
     void*                  cbpointer = &callback;
 
@@ -756,7 +759,7 @@ void* __stdcall FEPackage_FindObjectByHash_Hide_Hook(unsigned int namehash) {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        FEngSetInvisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
+  FEngSetInvisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
 
   return FEPackage_FindObjectByHash((void*)thethis, namehash);
 }
@@ -765,7 +768,7 @@ void* __stdcall FEPackage_FindObjectByHash_Show_Hook(unsigned int namehash) {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        FEngSetVisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
+  FEngSetVisible(FEPackage_FindObjectByHash((void*)thethis, WORLDMAP_BUTTONGROUP_CONSOLE));
 
   return FEPackage_FindObjectByHash((void*)thethis, namehash);
 }
@@ -776,7 +779,7 @@ void __stdcall FEWorldMapStateManager_HandleScreenTick_Hook() {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-      if ((*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 3) && *(int*)WORLDMAP_INSTANCE_ADDR) {
+  if ((*(int*)GAMEFLOWMANAGER_STATUS_ADDR == 3) && *(int*)WORLDMAP_INSTANCE_ADDR) {
     // change text from "Free Roam" to "Back" during FE for the console UI element
     FE_String_Printf(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), 0x0EF36117), GetLocalizedString(0x8CD567B8));
     FE_String_Printf(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), 0xE2DACDBC), GetLocalizedString(0x8CD567B8));
@@ -801,7 +804,7 @@ void __stdcall WorldMap_SetQuickListInFocus_Hook() {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        bQuickListFocused = true;
+  bQuickListFocused = true;
 
   return WorldMap_SetQuickListInFocus((void*)thethis);
 }
@@ -810,7 +813,7 @@ void __stdcall WorldMap_UnfocusQuickList_Hook() {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        bQuickListFocused = false;
+  bQuickListFocused = false;
 
   if (bConsoleFEng)
     FEngSetVisible(FEngFindObject(*(char**)(*(int*)WORLDMAP_INSTANCE_ADDR + 0xC), WORLDMAP_BUTTONGROUP_CONSOLE));
@@ -832,8 +835,8 @@ void __stdcall FEngine_ProcessPadsForPackage_Hook(void* FEPackage) {
   unsigned int thethis = 0;
   _asm mov     thethis, ecx;
 
-                        FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
-  void*                                        cbpointer = &callback;
+  FEObjectCallbackStruct callback  = {NULL, &FEObjectCallback_Function};
+  void*                  cbpointer = &callback;
 
   FEPackage_ForAllObjects(FEPackage, &cbpointer);
 
