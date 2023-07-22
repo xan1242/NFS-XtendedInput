@@ -34,6 +34,8 @@ bool bMouse3PressedDownOldState = false;
 
 int MouseWheelValue = 0;
 
+float fFEScale = 1.0f;
+
 bool    bConfineMouse              = false;
 int     TimeSinceLastMouseMovement = 0;
 bool    bUseWin32Cursor            = true;
@@ -364,6 +366,20 @@ void UpdateFECursorPos() {
     POINT MousePos;
     GetCursorPos(&MousePos);
     GetWindowRect(*(HWND*)GAME_HWND_ADDR, &windowRect);
+
+    // correct the window size to compensate for the change in FE scale
+    if ((*(uint32_t*)&fFEScale) != 0x3F800000) {
+      float SizeX = windowRect.right - windowRect.left;
+      float SizeY = windowRect.bottom - windowRect.top;
+
+      float scSizeX = SizeX * fFEScale;
+      float scSizeY = SizeY * fFEScale;
+
+      windowRect.right -= (LONG)((SizeX - scSizeX) / 2.0f);
+      windowRect.left += (LONG)((SizeX - scSizeX) / 2.0f);
+      windowRect.bottom -= (LONG)((SizeY - scSizeY) / 2.0f);
+      windowRect.top += (LONG)((SizeY - scSizeY) / 2.0f);
+    }
 
     float ratio = 480.0 / (windowRect.bottom - windowRect.top);  // scaling it to 480 height since that's what FE wants
 

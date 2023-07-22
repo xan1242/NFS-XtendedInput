@@ -122,7 +122,7 @@ void FixWorkingDirectory() {
 void        LoadMapping(std::string userProfileName);
 void        ClearAllMappings();
 std::string gProfileName;
-
+#pragma runtime_checks("", off)
 #ifdef GAME_MW
 std::string oldProfileName;
 uintptr_t   MemCardLoadAddr = 0x005189F0;
@@ -139,7 +139,7 @@ void __stdcall MemoryCard_Load_Hook(const char* profileName) {
 }
 #endif
 
-#pragma runtime_checks("", off)
+
 #if defined(GAME_CARBON) || defined(GAME_PROSTREET)
 char        NFSProfileName[128];
 uintptr_t DALManager_GetString_Addr = DALMANAGER_GETSTRING_ADDR;
@@ -1998,3 +1998,14 @@ extern "C" __declspec(dllexport) bool SetPollingState(bool state) {
   bGlobalDoPolling = state;
   return state;
 }
+
+#ifndef NO_FENG
+extern "C" __declspec(dllexport) float GetFEScale() { return fFEScale; }
+
+extern "C" __declspec(dllexport) float SetFEScale(float val) {
+  fFEScale = val;
+  return fFEScale;
+}
+
+extern "C" __declspec(dllexport) bool GetUseWin32Cursor() { return bUseWin32Cursor; }
+#endif
