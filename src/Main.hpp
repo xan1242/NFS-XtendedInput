@@ -1149,6 +1149,11 @@ class InputDevice {
   virtual void PollDevice() {
     if (!bGlobalDoPolling) return;
 
+    if (bBlockThisPoll) {
+      bBlockThisPoll = false;
+      return;
+    }
+
     ReadControllerData();
     WORD wButtons                    = g_Controllers[fDeviceIndex].state.Gamepad.wButtons;
     WORD SecondBind                  = 0;
@@ -1992,12 +1997,23 @@ int Init() {
   return 0;
 }
 
+//
+// Interface functions -- for use with other plugins and/or mods.
+//
+
 extern "C" __declspec(dllexport) bool GetPollingState() { return bGlobalDoPolling; }
 
 extern "C" __declspec(dllexport) bool SetPollingState(bool state) {
   bGlobalDoPolling = state;
   return state;
 }
+
+// Blocks a poll for exactly 1 poll cycle -- useful for frame-accurate blocks
+extern "C" __declspec(dllexport) void BlockNextPoll() {
+  bBlockThisPoll = true;
+}
+
+extern "C" __declspec(dllexport) bool GetBlockNextPoll() { return bBlockThisPoll; }
 
 #ifndef NO_FENG
 extern "C" __declspec(dllexport) float GetFEScale() { return fFEScale; }
