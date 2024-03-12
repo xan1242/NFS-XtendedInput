@@ -1196,7 +1196,11 @@ class InputDevice {
     for (unsigned int j = 0; j < MAX_ACTIONID; j++) {
       ActionID i = (ActionID)j;
 
+#ifdef GAME_UC
+      if (bIsActionFrontEnd((ActionID)i) && bIsHudVisible()) bDoPolling = false;
+#else
       if (bIsActionFrontEnd((ActionID)i) && bIsHudVisible() && (i != FRONTENDACTION_START)) bDoPolling = false;
+#endif
 
 #ifdef GAME_WORLD
       // I *truly* do not understand this game. So, the inputs will only start working if a button was pressed BEFORE entering the game.
@@ -1709,13 +1713,14 @@ void InitConfig() {
     if (ini[inputSection].has("KeyboardReadingMode")) KeyboardReadingMode = std::stol(ini[inputSection]["KeyboardReadingMode"]);
     if (ini[inputSection].has("XInputOmniMode")) bXInputOmniMode = std::stol(ini[inputSection]["XInputOmniMode"]) != 0;
     if (ini[inputSection].has("PassConnStatus")) bPassConnStatus = std::stol(ini[inputSection]["PassConnStatus"]) != 0;
+    if (ini[inputSection].has("MouseLook")) bMouseLook = std::stol(ini[inputSection]["MouseLook"]) != 0;
+    if (ini[inputSection].has("MouseLookSensitivity")) MouseLookSensitivity = std::stof(ini[inputSection]["MouseLookSensitivity"]);
+
 #ifndef NO_FENG
     if (ini[inputSection].has("ConfineMouse")) bConfineMouse = std::stol(ini[inputSection]["ConfineMouse"]) != 0;
     if (ini[inputSection].has("UseWin32Cursor")) bUseWin32Cursor = std::stol(ini[inputSection]["UseWin32Cursor"]) != 0;
     if (ini[inputSection].has("UseCustomCursor")) bUseCustomCursor = std::stol(ini[inputSection]["UseCustomCursor"]) != 0;
     if (ini[inputSection].has("EnableMouseHiding")) bEnableMouseHiding = std::stol(ini[inputSection]["EnableMouseHiding"]) != 0;
-    if (ini[inputSection].has("MouseLook")) bMouseLook = std::stol(ini[inputSection]["MouseLook"]) != 0;
-    if (ini[inputSection].has("MouseLookSensitivity")) MouseLookSensitivity = std::stof(ini[inputSection]["MouseLookSensitivity"]);
 #endif
   }
 
