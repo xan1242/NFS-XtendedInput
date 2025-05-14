@@ -1,3 +1,12 @@
+# PROJECT UPDATE
+
+This project is currently undergoing a major rewrite. Any and all issues that curently exist **will not be addressed**.
+
+It will take a while before it gets published, so please be patient.
+
+
+# ORIGINAL README
+
 # Need for Speed (MW & newer) - Xtended Input
 
 This is a plugin for NFS games by Black Box (MW and newer only) which brings XInput support to the games!
