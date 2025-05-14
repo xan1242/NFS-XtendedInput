@@ -1,6 +1,6 @@
 # PROJECT UPDATE
 
-This project is currently undergoing a major rewrite. Any and all issues that curently exist **will not be addressed**.
+This project is currently undergoing a major rewrite. Any and all issues that curently exist **will not be addressed** (they will be addressed in the new project instead).
 
 It will take a while before it gets published, so please be patient.
 
